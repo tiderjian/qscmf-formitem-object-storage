@@ -1,0 +1,34 @@
+{
+  "name": "quansitech/qscmf-formitem-object-storage",
+  "description": "qscmf formbuilder item cos oss tos oss",
+  "type": "library",
+  "keywords": ["thinkphp", "admin", "component", "formbuilder", "qscmf", "aliyun", "oss","volcengine","tencentcloud"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "xhiny",
+      "email": "axhiny@163.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.2.0",
+    "tiderjian/think-core":  "*@dev",
+    "aliyuncs/oss-sdk-php": "^2.0",
+    "volcengine/volc-sdk-php": "^1.0",
+    "volcengine/ve-tos-php-sdk": "^2.0",
+    "qcloud/cos-sdk-v5": ">=2.0",
+    "alibabacloud/sts-20150401": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "FormItem\\ObjectStorage\\": "src/"
+    }
+  },
+  "extra": {
+    "qscmf": {
+      "providers": [
+        "FormItem\\ObjectStorage\\ObjectStorageProvider"
+      ]
+    }
+  }
+}
