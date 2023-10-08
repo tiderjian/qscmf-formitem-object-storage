@@ -17,10 +17,40 @@ class AliyunOss implements IVendor {
 
     public $vendor_type = Context::VENDOR_ALIYUN_OSS;
 
+    // oss上传地址和展示地址有可能分开
+    private $_host_key = 'oss_host';
+    private $_upload_host_key = 'upload_oss_host';
+
+    public function getShowHostKey():string{
+        return $this->_host_key;
+    }
+
+    public function getUploadHostKey():string{
+        return $this->_upload_host_key;
+    }
+
+    public function getUploadHost(array $config):string{
+        return $config[$this->getUploadHostKey()] ?? $config[$this->getShowHostKey()];
+    }
+
     public function genClient(string $type)
     {
         return $this->getOssClient($type);
     }
+
+//    public function checkConfig(string $type, string $vendor_type, ?array $config = []){
+//        if(!$config){
+//            E('缺少此类型的上传配置');
+//        }
+//
+//        if(!$config[$this->getShowHostKey()]){
+//            E($type.' 这不是'.$vendor_type.'上传配置类型!');
+//        }
+//
+//        if(!preg_match('/https*:\/\/([\w\-_]+?)\.[\w\-_.]+/', $config[$this->getShowHostKey()], $match)){
+//            E($type . '类型上传配置项中匹配不到bucket项');
+//        }
+//    }
 
     public function getOssClient($type){
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
@@ -29,16 +59,16 @@ class AliyunOss implements IVendor {
         }
         $this->_config = $config;
         
-        if(!$config['oss_host']){
+        if(!$config[$this->getShowHostKey()]){
             E($type . '这不是oss上传配置类型!');
         }
         
-        if(!preg_match('/https*:\/\/([\w\-_]+?)\.[\w\-_.]+/', $config['oss_host'], $match)){
+        if(!preg_match('/https*:\/\/([\w\-_]+?)\.[\w\-_.]+/', $config[$this->getShowHostKey()], $match)){
             E($type . '类型上传配置项中匹配不到bucket项');
         }
         
         $this->_bucket = $match[1];
-        $this->_end_point = str_replace($this->_bucket . '.', '', $config['oss_host']);
+        $this->_end_point = str_replace($this->_bucket . '.', '', $config[$this->getShowHostKey()]);
         $this->_oss_client = new \OSS\OssClient(C('ALIOSS_ACCESS_KEY_ID'), C('ALIOSS_ACCESS_KEY_SECRET'), $this->_end_point);
         return $this;
     }
@@ -115,7 +145,7 @@ class AliyunOss implements IVendor {
 
         $response = array();
         $response['accessid'] = C('ALIOSS_ACCESS_KEY_ID');
-        $response['host'] = $config['upload_oss_host'] ?? $config['oss_host'];
+        $response['host'] = $this->getUploadHost($config);
         $response['policy'] = $base64_policy;
         $response['signature'] = $signature;
         $response['expire'] = $end;
@@ -243,7 +273,7 @@ class AliyunOss implements IVendor {
             $name_arr = explode('/', $body_arr['filename']);
             $file_data['title'] = end($name_arr);
         }
-        $file_data['url'] = $config['oss_host'] . '/' . $body_arr['filename'] . ($config['oss_style'] ? $config['oss_style'] : '');
+        $file_data['url'] = $config[$this->getShowHostKey()] . '/' . $body_arr['filename'] . ($config['oss_style'] ? $config['oss_style'] : '');
         $file_data['size'] = $body_arr['size'];
         $file_data['cate'] = $body_arr['upload_type'];
         $file_data['security'] = $config['security'] ? 1 : 0;

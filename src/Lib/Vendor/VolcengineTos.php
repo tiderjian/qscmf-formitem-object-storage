@@ -19,6 +19,21 @@ class VolcengineTos implements IVendor
     private $_config;
     private $_tos_client;
 
+    private $_host_key = 'tos_host';
+    private $_upload_host_key = 'tos_host';
+
+    public function getShowHostKey():string{
+        return $this->_host_key;
+    }
+
+    public function getUploadHostKey():string{
+        return $this->_upload_host_key;
+    }
+
+    public function getUploadHost(array $config):string{
+        return $config[$this->getUploadHostKey()] ?? $config[$this->getShowHostKey()];
+    }
+
     public function genClient(string $type){
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
         if(!$config){
@@ -26,11 +41,11 @@ class VolcengineTos implements IVendor
         }
         $this->_config = $config;
 
-        if(!$config['tos_host']){
+        if(!$config[$this->getShowHostKey()]){
             E($type . '这不是tos上传配置类型!');
         }
 
-        $handle = $this->_handleTosUrl($config['tos_host']);
+        $handle = $this->_handleTosUrl($config[$this->getShowHostKey()]);
         $this->_bucket = $handle['bucket'];
         $this->_region = $handle['region'];
         $this->_end_point = $handle['endpoint'];
@@ -46,7 +61,8 @@ class VolcengineTos implements IVendor
     }
 
     public function genSignedUrl(array $param){
-        return $this->signUrl(env('VOLC_BUCKET'), $param['object'], $param['timeout']);
+        $obj = $this->signUrl(env('VOLC_BUCKET'), $param['object'], $param['timeout']);
+        return $obj->getSignedUrl();
     }
 
     public function signUrl(string $bucket, string $key, $timeout = 60, $method = 'GET', $query = ''):PreSignedURLOutput{
@@ -118,7 +134,7 @@ class VolcengineTos implements IVendor
 //            echo $ex->getMessage() . PHP_EOL;
 //        }
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
-        $host = $config['tos_host']; //"";
+        $host = $this->getUploadHost($config);
 
         $ext='';
         if (I('get.title') && strpos(I('get.title'),'.')!==false){
@@ -143,7 +159,7 @@ class VolcengineTos implements IVendor
     }
 
     public function extraObject(?array $params = []){
-        $body_obj = $this->headObj($params['tos_host'],$params['cb_key']);
+        $body_obj = $this->headObj($params[$this->getShowHostKey()],$params['cb_key']);
         $body_arr = [
             'key' => $params['cb_key'],
             'contentType' => $body_obj[0]->getContentType(),
@@ -184,7 +200,7 @@ class VolcengineTos implements IVendor
             $name_arr = explode('/', $body_arr['key']);
             $file_data['title'] = end($name_arr);
         }
-        $file_data['url'] = $config['tos_host'] . '/' . $body_arr['key'];
+        $file_data['url'] = $config[$this->getShowHostKey()] . '/' . $body_arr['key'];
         $file_data['size'] = $body_arr['contentLength'];
         $file_data['security'] = $config['security'] ? 1 : 0;
         $file_data['file'] = '';

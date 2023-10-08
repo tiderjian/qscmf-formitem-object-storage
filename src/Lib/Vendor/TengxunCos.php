@@ -14,6 +14,21 @@ class TengxunCos implements IVendor
     private $_config;
     private $_cos_client;
 
+    private $_host_key = 'cos_host';
+    private $_upload_host_key = 'cos_host';
+
+    public function getShowHostKey():string{
+        return $this->_host_key;
+    }
+
+    public function getUploadHostKey():string{
+        return $this->_upload_host_key;
+    }
+
+    public function getUploadHost(array $config):string{
+        return $config[$this->getUploadHostKey()] ?? $config[$this->getShowHostKey()];
+    }
+
     public function getCosClient($type){
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
         if(!$config){
@@ -21,11 +36,11 @@ class TengxunCos implements IVendor
         }
         $this->_config = $config;
 
-        if(!$config['cos_host']){
+        if(!$config[$this->getShowHostKey()]){
             E($type . '这不是cos上传配置类型!');
         }
 
-        $handle = $this->_handleCosUrl($config['cos_host']);
+        $handle = $this->_handleCosUrl($config[$this->getShowHostKey()]);
         $this->_bucket = $handle['bucket'];
         $this->_region = $handle['region'];
 
@@ -180,7 +195,7 @@ class TengxunCos implements IVendor
         $body = file_get_contents('php://input');
         parse_str($body, $body_arr);
 
-        $body_arr = $this->headObj($params['cos_host'],$params['cb_key']);
+        $body_arr = $this->headObj($params[$this->getShowHostKey()],$params['cb_key']);
         $body_arr['filename'] = $params['cb_key'];
         $body_arr['mimeType'] = $this->_extraObjectMimeType($body_arr);
 
@@ -189,7 +204,7 @@ class TengxunCos implements IVendor
 
     public function policyGet($type){
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
-        $host = $config['cos_host']; //"";
+        $host = $this->getUploadHost($config);
 
         $ext='';
         if (I('get.title') && strpos(I('get.title'),'.')!==false){
@@ -229,7 +244,7 @@ class TengxunCos implements IVendor
             $file_data['title'] = end($array);
         }
 
-        $file_data['url'] = $config['cos_host'] . '/' . $body_arr['Key'];
+        $file_data['url'] = $config[$this->getShowHostKey()] . '/' . $body_arr['Key'];
         $file_data['size'] = $body_arr['ContentLength'];
         $file_data['security'] = $config['security'] ? 1 : 0;
         $file_data['file'] = '';

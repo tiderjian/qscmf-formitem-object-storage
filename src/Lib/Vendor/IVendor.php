@@ -5,6 +5,14 @@ namespace FormItem\ObjectStorage\Lib\Vendor;;
 interface IVendor
 {
 
+//    public function checkConfig(?array $config = []);
+
+    public function getUploadHostKey():string;
+
+    public function getUploadHost(array $config):string;
+
+    public function getShowHostKey():string;
+
     public function genClient(string $type);
 
     public function genSignedUrl(array $param);
