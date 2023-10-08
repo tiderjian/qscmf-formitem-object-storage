@@ -3,18 +3,17 @@ const vendorType = {
     combinePolicyGetUrl:function f(policyGetUrl, filename, hashId){
         return policyGetUrl+'?title='+encodeURIComponent(filename)+'&hash_id='+hashId
     },
-    combineUploadParam:function f(res,file,filename){
-        return {params:res.params, url:res.url}
+    combineUploadParam:function f(up,res,file,filename){
+        return {
+            'url': res.url,
+            'multipart_params': res.params,
+        }
     }
 }
 
 const aliyunOssVendorType = {
     type:'aliyun_oss',
-    combineUploadParam:function f(res,file, filename){
-        let newRes = {};
-
-        newRes.url = res['host'];
-
+    combineUploadParam:function f(up,res,file, filename){
         let new_multipart_params = {
             'key' : this.calculate_object_name(filename, res['dir']),
             'policy': res['policy'],
@@ -35,9 +34,10 @@ const aliyunOssVendorType = {
             }
         }
 
-        newRes.params = new_multipart_params;
-
-        return newRes;
+        return {
+            'url': res['host'],
+            'multipart_params': new_multipart_params,
+        };
     },
     calculate_object_name:function f(filename, key){
         let suffix = this.get_suffix(filename);
@@ -52,22 +52,47 @@ const aliyunOssVendorType = {
         return suffix;
     }
 }
+
 const volcengineTosVendorType = {
     type:'volcengine_tos',
-    combineUploadParam:function f(res,file, filename){
+    combineUploadParam:function f(up,res,file, filename){
+        // return this.handlePutParamDemo(up,res,file, filename);
+
         res.params = res.params || {};
         res.params['Content-Type']=file.type;
 
-        return res;
+        return {
+            'url': res.url,
+            'multipart_params': res.params,
+        };
     },
+    handlePutParamDemo:function f(up,res,file, filename){
+
+        const headers = Object.assign(up.setOption('headers') || {}, res.headers);
+        headers['Content-Type']=file.type;
+
+        return {
+            'multipart': false,
+            'send_file_name': false,
+            'send_chunk_number': false,
+            'http_method': 'PUT',
+            'headers': headers,
+            'url': res.url,
+            'multipart_params': {},
+        };
+    }
 }
+
 const tengxunCosVendorType = {
     type:'tengxun_cos',
-    combineUploadParam:function f(res,file, filename){
+    combineUploadParam:function f(up,res,file, filename){
         res.params = res.params || {};
         res.params['Content-Type']=file.type;
 
-        return res;
+        return {
+            'url': res.url,
+            'multipart_params': res.params,
+        };
     },
 }
 
@@ -105,14 +130,9 @@ function handleUploadProcess(up,filename,ret,policyGetUrl,file, hashId, vendorTy
 }
 
 function startUpload(up,res, file, filename, vendorTypeObj ){
-    const newRes = vendorTypeObj.combineUploadParam(res, file, filename);
+    const newRes = vendorTypeObj.combineUploadParam(up, res, file, filename);
 
-    const opt = {
-        'url': newRes.url,
-        'multipart_params': newRes.params,
-    }
-
-    up.setOption(opt);
+    up.setOption(newRes);
     up.start();
 }
 

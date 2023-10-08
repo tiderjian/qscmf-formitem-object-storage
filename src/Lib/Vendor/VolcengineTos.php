@@ -75,64 +75,76 @@ class VolcengineTos implements IVendor
         return $this->_tos_client->preSignedURL($input);
     }
 
-    public function policyGet(string $type){
-//        $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type),
-//            'callbackBody'=>'filename=${object}&size=${size}&mimeType=${mimeType}&upload_type=${x:upload_type}&image_format=${imageInfo.format}',
-//            'callbackBodyType'=>"application/x-www-form-urlencoded");
-//        if (I('get.title')){
-//            $callback_param['callbackBody'].='&title=${x:title}';
-//        }
-//        if (I('get.hash_id')){
-//            $callback_param['callbackBody'].='&hash_id=${x:hash_id}';
-//        }
-//        if (I('get.resize')){
-//            $callback_param['callbackBody'].='&resize=${x:resize}';
-//        }
-//        $callback_string = json_encode($callback_param);
-//        $base64_callback_body = base64_encode($callback_string);
-//
-//        $callback_var = array('x:upload_type' => $type);
-//        if (I('get.title')){
-//            $callback_var['x:title'].=I('get.title');
-//        }
-//        if (I('get.hash_id')){
-//            $callback_var['x:hash_id'].=I('get.hash_id');
-//        }
-//        if (I('get.resize')){
-//            $callback_var['x:resize'].=I('get.resize');
-//        }
-//        $callback_var=json_encode($callback_var);
-//        $base64_callback_var=base64_encode($callback_var);
-//        $query['x-tos-callback'] = $base64_callback_body;
-//        $query['x-tos-callback-var'] = $base64_callback_var;
-//
-//        $config = C('UPLOAD_TYPE_' . strtoupper($type));
-//
-//        $ext='';
-//        if (I('get.title') && strpos(I('get.title'),'.')!==false){
-//            $ext = '.'.pathinfo(urldecode(I('get.title')),PATHINFO_EXTENSION);
-//        }
-//
-//        $dir = Common::genObjectName($config, $ext);
-//
-//        $pathname=$dir;
-//        str_starts_with($pathname, '/') && ($pathname = ltrim($pathname, '/'));
-//
-//        try {
-//            $output = $this->genClient($type)->signUrl(env('VOLC_BUCKET'), $pathname, 3600, Enum::HttpMethodPut, $query);
-//            // 获取预签名的 URL 和头域
-//            $sign_url = $output->getSignedUrl();
-//            $header = $output->getSignedHeader();
-//
-//            return [
-//                'url'=> $sign_url,
-//                'dir'=> $dir,
-//                'headers' => $header,
-//            ];
-//
-//        } catch (\RuntimeException $ex) {
-//            echo $ex->getMessage() . PHP_EOL;
-//        }
+    private function _cbParam(string $type):array{
+        $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), I('get.hash_id'), I('get.resize')),
+            'callbackBody'=>'filename=${object}&size=${size}&mimeType=${mimeType}&upload_type=${x:upload_type}&image_format=${imageInfo.format}',
+            'callbackBodyType'=>"application/x-www-form-urlencoded");
+        if (I('get.title')){
+            $callback_param['callbackBody'].='&title=${x:title}';
+        }
+        if (I('get.hash_id')){
+            $callback_param['callbackBody'].='&hash_id=${x:hash_id}';
+        }
+        if (I('get.resize')){
+            $callback_param['callbackBody'].='&resize=${x:resize}';
+        }
+        $callback_string = json_encode($callback_param);
+        $base64_callback_body = base64_encode($callback_string);
+
+        $callback_var = array('x:upload_type' => $type);
+        if (I('get.title')){
+            $callback_var['x:title'].=I('get.title');
+        }
+        if (I('get.hash_id')){
+            $callback_var['x:hash_id'].=I('get.hash_id');
+        }
+        if (I('get.resize')){
+            $callback_var['x:resize'].=I('get.resize');
+        }
+        $callback_var=json_encode($callback_var);
+        $base64_callback_var=base64_encode($callback_var);
+
+        return [$base64_callback_body,$base64_callback_var];
+    }
+
+    private function _genPutSignedParamsDemo(string $type){
+        list($base64_callback_body,$base64_callback_var) = $this->_cbParam($type);
+
+        $query['x-tos-callback'] = $base64_callback_body;
+        $query['x-tos-callback-var'] = $base64_callback_var;
+
+        $config = C('UPLOAD_TYPE_' . strtoupper($type));
+
+        $ext='';
+        if (I('get.title') && strpos(I('get.title'),'.')!==false){
+            $ext = '.'.pathinfo(urldecode(I('get.title')),PATHINFO_EXTENSION);
+        }
+
+        $dir = Common::genObjectName($config, $ext);
+
+        $pathname=$dir;
+        str_starts_with($pathname, '/') && ($pathname = ltrim($pathname, '/'));
+
+        try {
+            $output = $this->genClient($type)->signUrl(env('VOLC_BUCKET'), $pathname, 3600, Enum::HttpMethodPut, $query);
+            // 获取预签名的 URL 和头域
+            $sign_url = $output->getSignedUrl();
+            $header = $output->getSignedHeader();
+
+            return [
+                'url'=> $sign_url,
+                'dir'=> $dir,
+                'headers' => $header,
+            ];
+
+        } catch (\RuntimeException $ex) {
+            echo $ex->getMessage() . PHP_EOL;
+        }
+    }
+
+    private function _genPostObjParam(string $type){
+        list($base64_callback_body,$base64_callback_var) = $this->_cbParam($type);
+
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
         $host = $this->getUploadHost($config);
 
@@ -146,29 +158,46 @@ class VolcengineTos implements IVendor
         $pathname=$dir;
         substr($pathname, 0, 1) != '/' && ($pathname = '/' . $pathname);
 
-//        $authorization=$this->getAuthorization($pathname,'POST');
-
         return [
             'url'=>$host.$pathname,
-//            'authorization'=>$authorization,
             'params'=>[
                 'key'=>$dir,
-                'success_action_redirect'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), I('get.hash_id'), I('get.resize')),
+                'x-tos-callback' => $base64_callback_body,
+                'x-tos-callback-var' => $base64_callback_var,
+//                'success_action_redirect'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), I('get.hash_id'), I('get.resize')),
             ]
         ];
     }
 
-    public function extraObject(?array $params = []){
-        $body_obj = $this->headObj($params[$this->getShowHostKey()],$params['cb_key']);
-        $body_arr = [
-            'key' => $params['cb_key'],
-            'contentType' => $body_obj[0]->getContentType(),
-            'contentLength' => $body_obj[0]->getContentLength(),
-        ];
+    public function policyGet(string $type){
+//       return $this->_genPutSignedParamsDemo($type);
+       return $this->_genPostObjParam($type);
+    }
 
-        $body_arr['mimeType'] = $this->_extraObjectMimeType($body_arr);
+    private function _extraObjectViaInput(?array $params = []){
+        $body = file_get_contents('php://input');
+        parse_str($body, $body_arr);
+
+        $body_arr['key'] = $body_arr['filename'];
+        $body_arr['contentType'] = $body_arr['mimeType'];
+        $body_arr['contentLength'] = $body_arr['size'];
 
         return $body_arr;
+    }
+
+    public function extraObject(?array $params = []){
+        return $this->_extraObjectViaInput($params);
+
+//        $body_obj = $this->headObj($params[$this->getShowHostKey()],$params['cb_key']);
+//        $body_arr = [
+//            'key' => $params['cb_key'],
+//            'contentType' => $body_obj[0]->getContentType(),
+//            'contentLength' => $body_obj[0]->getContentLength(),
+//        ];
+//
+//        $body_arr['mimeType'] = $this->_extraObjectMimeType($body_arr);
+//
+//        return $body_arr;
     }
 
     public function formatHeicToJpg(string $url):string{
