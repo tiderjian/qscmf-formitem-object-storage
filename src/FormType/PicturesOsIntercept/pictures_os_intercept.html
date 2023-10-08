@@ -1,0 +1,67 @@
+
+    <div class="form-group item_{$form.name} {$form.extra_class}">
+        <label class="left control-label">{$form.title}：</label>
+        <div class="right">
+            <notdefined name="pictures_os_intercept">
+            <link rel="stylesheet" href="{:asset('object-storage/ossuploader/jquery.ossuploader.css')}">
+            <link rel="stylesheet" href="{:asset('object-storage/cropper/cropper.min.css')}">
+
+            <script type="text/javascript" src="{:asset('object-storage/cropper/cropper.js')}"></script>
+            <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/moxie.min.js')}"></script>
+            <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.full.min.js')}"></script>
+            <script type="text/javascript" src="{:asset('object-storage/ossuploader/jquery.ossuploader.js')}"></script>
+            <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
+            <script type="text/javascript" src="{:asset('object-storage/os_upload.js')}"></script>
+
+            <define name="pictures_os_intercept" value="1" />
+            </notdefined>
+            <php>
+                $default_opt=array(
+                    'type'=>'image',
+                    'width'=>1,
+                    'height'=>1
+                );
+                if(!$form['options']){
+                    $form['options']=$default_opt;
+                }
+                $form['options']=array_merge($default_opt,$form['options']);
+
+                if($form['value']){
+                    $picture_ids=explode(',', $form['value']);
+                    $pictures_json=array();
+                    foreach ($picture_ids as $picture_id) {
+                        $pictures_json[]=showFileUrl($picture_id);
+                    }
+                    $pictures_json=htmlentities(json_encode($pictures_json));
+                }else{
+                    $$pictures_json='';
+                }
+            </php>
+            <input type="hidden" name="{$form.name}" value="{$form.value}" data-srcjson="{$pictures_json}">
+            <notempty name="form.tip">
+                <span class="check-tips small">{$form.tip}</span>
+            </notempty>
+            <script>
+                $(function () {
+                    $('input[name="{$form.name}"]').ossuploader({
+                        multi_selection:true,
+                        url:'{$data_url}',
+                        oss:true,
+                        crop:{
+                            dragMode: 'move',
+                            aspectRatio: {$form.options.width}/{$form.options.height},
+                            viewMode: 1,
+                            ready: function () {
+                                croppable = true;
+                            }
+                        },
+                        set_upload_param:function f(up, file) {
+                            window.calc_file_hash(file.getNative()).then(function(res){
+                                osHandleUpload(up, file.name, false, '{$data_url}',file, res, '{$vendor_type}');
+                            });
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>

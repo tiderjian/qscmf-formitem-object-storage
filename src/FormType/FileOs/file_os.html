@@ -1,0 +1,171 @@
+
+<div class="form-group item_{$form.name} {$form.extra_class}">
+    <label class="left control-label">{$form.title}：</label>
+    <div class="right">
+        <div id="upload_{$gid}" <empty name='form.extra_attr'>data-url="{$data_url}"<else/>{$form.extra_attr}</empty>>
+        <a id="selectfiles_{$gid}" class='uploadify-button btn btn-primary pure-button button-more button-xsmall' href="javascript:void(0);">上传文件</a>
+        <div class="uploadify-queue">
+        </div>
+    </div>
+    <div id="preview_{$gid}">
+        <input type="hidden" name="{$form.name}" value="{$file.id}">
+        <ul class="list-group file-box">
+            <notempty name="form.value">
+                <li class="list-group-item file-item" data-id="{$file.id}">
+                    <i class="fa fa-file"></i>
+                    <span>{:showFileTitle($file['id'])}
+                            <a href="{$file.url}" target="_blank">下载</a>
+                            <notempty name="file['preview_url']">
+                                <a href="{$file.preview_url}" target="_blank" style="margin-left: 5px;">预览</a>
+                            </notempty>
+                        </span>
+                    <i class="fa fa-times-circle remove-file"></i>
+                </li>
+            </notempty>
+        </ul>
+    </div>        <notempty name="form.tip">
+    <span class="check-tips small">{$form.tip}</span>
+</notempty>
+    <notdefined name="file_os">
+        <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.full.min.js')}"></script>
+        <script type="text/javascript" src="{:asset('object-storage/os_upload.js')}"></script>
+        <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
+        <define name="file_os" value="1" />
+    </notdefined>
+    <script type="text/javascript">
+        (function () {
+            {$js_fn}
+
+            var fileExts_{$gid} = "{$file_ext}";
+
+            new plupload.Uploader({
+                runtimes : 'html5,flash,silverlight,html4',
+                browse_button : 'selectfiles_{$gid}',
+                multi_selection: false,
+                container: document.getElementById('upload_{$gid}'),
+                flash_swf_url : '{:asset("object-storage/plupload-2.3.9/js/Moxie.swf")}',
+                silverlight_xap_url : '{:asset("object-storage/plupload-2.3.9/js/Moxie.xap")}',
+
+                filters: {
+                    mime_types : [
+                        { title : "files", extensions : fileExts_{$gid} },
+                    ],
+                    prevent_duplicates : false //不允许选取重复文件
+                },
+
+                init: {
+                    PostInit: function() {
+                        $('#upload_{$gid}').children('.uploadify-queue').html('');
+                    },
+
+                    FilesAdded: function(up, files) {
+                        plupload.each(files, function(file) {
+                            var html = '<div id="' + file.id + '" class="uploadify-queue-item">' +
+                                '<div class="uploadify-progress" lastloaded="0">' +
+                                '<div class="uploadify-progress-bar" style="width: 0%;">' +
+                                '</div>' +
+                                '</div>' +
+                                '<span class="up_percent">0%</span>' +
+                                '<span class="up_filename">' + file.name + '</span>' +
+                                '</div>';
+                            $('#upload_{$gid}').children('.uploadify-queue').html(html);
+                            window.calc_file_hash(file.getNative()).then(function(res){
+                                osHandleUpload(up, file.name, false, $('#upload_{$gid}').data('url'),file, res, '{$vendor_type}');
+                            });
+
+                        });
+
+                    },
+
+    //                        BeforeUpload: function(up, file) {
+    //                            check_object_radio();
+    //                        },
+
+                    UploadProgress: function(up, file) {
+                        $('#' + file.id).children('.uploadify-progress').attr('lastloaded', file.loaded);
+                        $('#' + file.id).find('.uploadify-progress-bar').css('width', file.percent + "%");
+                        $('#' + file.id).children('.up_percent').html(file.percent + "%");
+                    },
+
+                    FileUploaded: function(up, file, info) {
+                        if (info.status == 200)
+                        {
+                            var response = JSON.parse(info.response);
+                            if (response.err_msg) {
+                                $('#upload_{$gid}').children('.uploadify-queue').empty();
+                                alert(response.err_msg);
+                                return;
+                            }
+                            appendOneFile(file, response);
+                        }
+                        else
+                        {
+                            alert(info.response);
+                        }
+                        $('#upload_{$gid}').children('.uploadify-queue').empty();
+                    },
+
+                    Error: function(up, err) {
+                        var MAX_SIZE_ALLOWED = '';
+                        var errText = '';
+                        var codeMap = {
+                            EntityTooLarge: -600,
+                        }
+                        try{
+                            var parser = new DOMParser();
+                            xmlDoc = parser.parseFromString(err.response, "text/xml");
+                            errText = $(xmlDoc).find('Code').text();
+                            MAX_SIZE_ALLOWED = ($(xmlDoc).find('MaxSizeAllowed').text() / 1024 / 1024) + 'Mb';
+                        }catch(e){
+                        }
+
+                        err.code = errText ? codeMap[errText] : err.code;
+
+                        $('#' + err.file.id).remove();
+
+                        if (err.code == codeMap.EntityTooLarge) {
+                            alert("选择的文件太大了,建议不超过"+ MAX_SIZE_ALLOWED +",请重新上传");
+                        }
+                        else if (err.code == -601) {
+                            alert("选择的文件后缀不对,建议上传"+ fileExts_{$gid} +",请重新上传");
+                        }
+                        else if (err.code == -602) {
+                            alert("这个文件已经上传过一遍了");
+                        }
+                        else
+                        {
+                            alert(err.response);
+                        }
+                    }
+                }
+            }).init();
+
+                //删除视频文件
+                $('body').on('click', '#preview_{$gid} .remove-file', function () {
+                    $('#preview_{$gid} input').val('');//删除后覆盖原input的值为空
+                    var ready_for_remove_id = $(this).closest('.file-item').attr('data-id'); //获取待删除的文件ID
+                    if(!ready_for_remove_id) {
+                        toastr.remove();
+                        $.bs_messagebox('错误', '错误', 'ok');
+                    }
+                    console.log($(this).closest('.file-item'));
+                    $(this).closest('.file-item').remove(); //删除文件预览
+                });
+
+                function appendOneFile(file, response){
+                    var new_file = '<li class="list-group-item file-item" data-id="'+response.file_id+'"><i class="fa fa-file"></i> '
+                        +file.name+' <a href="' + '{:U('/extends/ObjectStorage/download', [], '', true)}/file_id/' + response.file_id + '" target="_blank">下载</a>';
+
+                    var preview_url = previewUrl(response.file_url);
+                    if(preview_url){
+                        new_file += '<a href="' + preview_url + '" target="_blank" style="margin-left: 5px;">预览</a>';
+                    }
+
+                    new_file += '<i class="fa fa-times-circle remove-file"></i></li>';
+                    $('#preview_{$gid} .list-group').html(new_file);
+                    $('#preview_{$gid} input').attr('value', response.file_id);
+                }
+        })();
+    </script>
+</div>
+</div>
