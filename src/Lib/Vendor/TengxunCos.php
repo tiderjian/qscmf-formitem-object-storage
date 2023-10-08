@@ -173,7 +173,7 @@ class TengxunCos implements IVendor
 
     public function combineImgOpt(string $url, string $img_opt):string
     {
-        return combineCosUrlImgOpt($url, $img_opt);
+        return Common::combineCosUrlImgOpt($url, $img_opt);
     }
 
     public function extraObject(?array $params = []){

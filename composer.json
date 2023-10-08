@@ -12,7 +12,7 @@
   ],
   "require": {
     "php": ">=7.2.0",
-    "tiderjian/think-core":  "*@dev",
+    "tiderjian/think-core":  ">=11.46.1",
     "aliyuncs/oss-sdk-php": "^2.0",
     "volcengine/volc-sdk-php": "^1.0",
     "volcengine/ve-tos-php-sdk": "^2.0",

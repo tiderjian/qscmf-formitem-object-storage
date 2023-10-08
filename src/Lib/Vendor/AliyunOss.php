@@ -233,7 +233,7 @@ class AliyunOss implements IVendor {
 
     public function combineImgOpt(string $url, string $img_opt):string
     {
-        return combineOssUrlImgOpt($url, $img_opt);
+        return Common::combineOssUrlImgOpt($url, $img_opt);
     }
 
     public function extraFile(array $config, array $body_arr):array{

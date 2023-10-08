@@ -161,7 +161,7 @@ class VolcengineTos implements IVendor
 
     public function combineImgOpt(string $url, string $img_opt):string
     {
-        return combineTosUrlImgOpt($url, $img_opt);
+        return Common::combineTosUrlImgOpt($url, $img_opt);
     }
 
     public function resizeImg(string $url, string $width = '', string $height = ''):string

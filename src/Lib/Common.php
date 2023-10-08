@@ -155,4 +155,45 @@ class Common
         }
         return U('/extends/objectStorage/policyGet', $param);
     }
+
+    public static function combineOssUrlImgOpt(string $url, string $img_opt):string
+    {
+        $oss_handle_prefix = 'x-oss-process=image';
+
+        return self::combineOsUrlImgOpt($oss_handle_prefix, $url, $img_opt);
+    }
+
+    public static function combineCosUrlImgOpt(string $url, string $img_opt):string
+    {
+        $oss_handle_prefix = 'imageMogr2';
+
+        return self::combineOsUrlImgOpt($oss_handle_prefix, $url, $img_opt);
+    }
+
+    public static function combineTosUrlImgOpt(string $url, string $img_opt):string
+    {
+        $oss_handle_prefix = 'x-tos-process=image';
+
+        return self::combineOsUrlImgOpt($oss_handle_prefix, $url, $img_opt);
+    }
+
+    public static function combineOsUrlImgOpt(string $handle_prefix, string $url, string $img_opt):string
+    {
+        $img_opt = str_replace($handle_prefix.'/', '', $img_opt);
+        if (empty($img_opt)) {
+            return $url;
+        }
+        $img_opt = '/'.$img_opt;
+
+        $has_img_opt = strpos($url, $handle_prefix);
+        if ($has_img_opt === false){
+            $has_query = strpos($url, '?');
+            $join_str = $has_query === false ? '?' : '&';
+            $url .= $join_str.$handle_prefix.$img_opt;
+        }else{
+            $url .= $img_opt;
+        }
+
+        return $url;
+    }
 }
