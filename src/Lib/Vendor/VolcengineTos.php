@@ -163,8 +163,7 @@ class VolcengineTos implements IVendor
             'params'=>[
                 'key'=>$dir,
                 'x-tos-callback' => $base64_callback_body,
-                'x-tos-callback-var' => $base64_callback_var,
-//                'success_action_redirect'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), I('get.hash_id'), I('get.resize')),
+                'x-tos-callback-var' => $base64_callback_var
             ]
         ];
     }
@@ -178,26 +177,23 @@ class VolcengineTos implements IVendor
         $body = file_get_contents('php://input');
         parse_str($body, $body_arr);
 
-        $body_arr['key'] = $body_arr['filename'];
-        $body_arr['contentType'] = $body_arr['mimeType'];
-        $body_arr['contentLength'] = $body_arr['size'];
+        return $body_arr;
+    }
+
+    private function _extraObjectViaHeadObj(?array $params = []){
+        $body_obj = $this->headObj($params[$this->getShowHostKey()],$params['cb_key']);
+
+        $body_arr = [
+            'filename' => $params['cb_key'],
+            'mimeType' => $body_obj[0]->getContentType(),
+            'size' => $body_obj[0]->getContentLength(),
+        ];
 
         return $body_arr;
     }
 
     public function extraObject(?array $params = []){
         return $this->_extraObjectViaInput($params);
-
-//        $body_obj = $this->headObj($params[$this->getShowHostKey()],$params['cb_key']);
-//        $body_arr = [
-//            'key' => $params['cb_key'],
-//            'contentType' => $body_obj[0]->getContentType(),
-//            'contentLength' => $body_obj[0]->getContentLength(),
-//        ];
-//
-//        $body_arr['mimeType'] = $this->_extraObjectMimeType($body_arr);
-//
-//        return $body_arr;
     }
 
     public function formatHeicToJpg(string $url):string{
@@ -226,11 +222,11 @@ class VolcengineTos implements IVendor
         if ($body_arr['title']){
             $file_data['title'] = $body_arr['title'];
         }else {
-            $name_arr = explode('/', $body_arr['key']);
+            $name_arr = explode('/', $body_arr['filename']);
             $file_data['title'] = end($name_arr);
         }
-        $file_data['url'] = $config[$this->getShowHostKey()] . '/' . $body_arr['key'];
-        $file_data['size'] = $body_arr['contentLength'];
+        $file_data['url'] = $config[$this->getShowHostKey()] . '/' . $body_arr['filename'];
+        $file_data['size'] = $body_arr['size'];
         $file_data['security'] = $config['security'] ? 1 : 0;
         $file_data['file'] = '';
 
