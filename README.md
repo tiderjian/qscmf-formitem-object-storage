@@ -31,7 +31,7 @@ composer require quansitech/qscmf-formitem-object-storage
   
   + 修改 *upload_config.php* 的上传配置
   
-    ```
+    ```php
     /* 图片上传相关配置 */
     'UPLOAD_TYPE_IMAGE' => array(
         // 其他配置省略
@@ -43,7 +43,7 @@ composer require quansitech/qscmf-formitem-object-storage
   
   + 添加 *env* *OS_VENDOR_TYPE*，全局配置
   
-    ```
+    ```php
     OS_VENDOR_TYPE=aliyun_oss
     ```
   
@@ -116,5 +116,74 @@ composer require quansitech/qscmf-formitem-object-storage
       | -------- | -------- | ---- |
       | tos_host | 是       |      |
 
-      
+
+
+#### 支持组件
+
+##### ColumnItem
+
+- 上传文件：file_os
+
+  ```php
+  ->addTableColumn("file_id", "单个文件", 'file_os', '', true)
+  ```
+
+  
+
+- 上传图片：picture_os
+
+  ```php
+  ->addTableColumn("picture", "封面tos", 'picture_os', '', true)
+  ```
+
+  
+
+##### FormItem
+
+- 上传音频：audio_os/audios_os
+
+  ```php
+  ->addFormItem('audio_id', 'audio_os', '单个音频')
+  ->addFormItem('audios_id', 'audios_os', '多个音频')
+  ```
+
+  
+
+- 上传文件：file_os/files_os
+
+  ```php
+  ->addFormItem('file_id', 'file_os', '单个文件')
+  ->addFormItem('files_id', 'files_os', '多个文件')
+  ```
+
+  
+
+- 上传图片：picture_os/pictures_os
+
+  ```php
+  ->addFormItem('picture_id', 'picture_os', '单张图片')
+  ->addFormItem('pictures_id', 'pictures_os', '多张图片')
+  
+  $options = ['process'=>'?x-oss-process=image/resize,m_fill,w_300,h_200'] //其中w_300,h_200为参数宽300高200，请参考不同供应商图片处理参数，根据实际需求填写
+  // 如表单没有显示缩略图需求，$options可以不传，$options为空时显示原图
+  ->addFormItem('picture_id', 'picture_os', '单张图片', '',$options , '', '')
+  ```
+
+  
+
+- 上传裁剪后的图片：picture_os_intercept/pictures_os_intercept
+
+  ```php
+  $option = [
+    'type' => 'image', // 默认值
+    'width' => 1, // 裁剪框宽高比例，此为宽度，默认为1
+    'height' => 1 // 裁剪框宽高比例，此为高度，默认1
+  ];
+  
+  // 如没有特别需求，$option可不传
+  ->addFormItem('cover', 'picture_os_intercept', '单张裁剪后的图片', '', $option)
+  ->addFormItem('covers', 'pictures_os_intercept', '多张裁剪后的图片')
+  ```
+
+  
 
