@@ -31,7 +31,6 @@
     </notempty>
     <notdefined name="files_os">
         <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.full.min.js')}"></script>
-<!--        <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.dev.js')}"></script>-->
         <script type="text/javascript" src="{:asset('object-storage/os_upload.js')}"></script>
         <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
         <define name="files_os" value="1" />
@@ -48,8 +47,6 @@
                 browse_button : 'selectfiles_{$gid}',
                 multi_selection: true,
                 container: document.getElementById('upload_{$gid}'),
-                flash_swf_url : '{:asset("object-storage/plupload-2.3.9/js/Moxie.swf")}',
-                silverlight_xap_url : '{:asset("object-storage/plupload-2.3.9/js/Moxie.xap")}',
 
                 filters: {
                     mime_types : [
