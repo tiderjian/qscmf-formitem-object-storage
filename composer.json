@@ -1,8 +1,8 @@
 {
   "name": "quansitech/qscmf-formitem-object-storage",
-  "description": "qscmf formbuilder item cos oss tos oss",
+  "description": "qscmf formbuilder item cos oss tos",
   "type": "library",
-  "keywords": ["thinkphp", "admin", "component", "formbuilder", "qscmf", "aliyun", "oss","volcengine","tencentcloud"],
+  "keywords": ["thinkphp", "admin", "component", "formbuilder", "qscmf", "aliyun", "oss","tos","cos","volcengine","tencentcloud"],
   "license": "MIT",
   "authors": [
     {
