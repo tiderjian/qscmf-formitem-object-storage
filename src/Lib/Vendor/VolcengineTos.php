@@ -247,6 +247,9 @@ class VolcengineTos implements IVendor
     }
 
     public function policyGet(string $type){
+        if (empty(I("get.title")) || empty(I('get.file_type'))){
+            E("缺少必填参数");
+        }
 //        $this->_genPutSignedParamsDemo($type);
        return $this->_genPostObjParam($type);
     }
