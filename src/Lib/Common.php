@@ -35,17 +35,17 @@ class Common
 
     public static function isOss(string $url):bool{
         $host = env("ALIOSS_HOST");
-        return strpos($url, $host) !== false;
+        return $host && strpos($url, $host) !== false;
     }
 
     public static function isCos(string $url):bool{
         $host = env("COS_HOST");
-        return strpos($url, $host) !== false;
+        return $host && strpos($url, $host) !== false;
     }
 
     public static function isTos(string $url):bool{
-        $host = env("TOS_HOST");
-        return strpos($url, $host) !== false;
+        $host = env("VOLC_HOST");
+        return $host && strpos($url, $host) !== false;
     }
 
     public static  function intersectMimeType(string $format, string $mime_type):string{
