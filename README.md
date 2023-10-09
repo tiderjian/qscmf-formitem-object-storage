@@ -57,9 +57,9 @@ composer require quansitech/qscmf-formitem-object-storage
 
   
 
-  - aliyun_oss
+  - **aliyun_oss**
 
-    - env 配置
+    - *env* 配置
 
       | 名称                     |
       | ------------------------ |
@@ -78,9 +78,9 @@ composer require quansitech/qscmf-formitem-object-storage
 
       
 
-  - tengxun_cos
+  - **tengxun_cos**
 
-    - env 配置
+    - *env* 配置
 
       | 名称          |
       | ------------- |
@@ -98,9 +98,9 @@ composer require quansitech/qscmf-formitem-object-storage
 
       
 
-  - volcengine_tos
+  - **volcengine_tos**
 
-    - env 配置
+    - *env* 配置
 
       | 名称            |
       | --------------- |
