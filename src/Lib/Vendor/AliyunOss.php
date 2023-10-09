@@ -38,20 +38,6 @@ class AliyunOss implements IVendor {
         return $this->getOssClient($type);
     }
 
-//    public function checkConfig(string $type, string $vendor_type, ?array $config = []){
-//        if(!$config){
-//            E('缺少此类型的上传配置');
-//        }
-//
-//        if(!$config[$this->getShowHostKey()]){
-//            E($type.' 这不是'.$vendor_type.'上传配置类型!');
-//        }
-//
-//        if(!preg_match('/https*:\/\/([\w\-_]+?)\.[\w\-_.]+/', $config[$this->getShowHostKey()], $match)){
-//            E($type . '类型上传配置项中匹配不到bucket项');
-//        }
-//    }
-
     public function getOssClient($type){
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
         if(!$config){

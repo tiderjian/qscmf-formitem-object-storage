@@ -171,7 +171,7 @@ class VolcengineTos implements IVendor
     }
 
     private function _genPostSignPolicy(string $dir,int $now, string $bucket, array $common_params):string{
-        $expire = 60*2;
+        $expire = 10;
         $end = $now + $expire;
         $expiration = date('Y-m-d\TH:i:s.z', $end).'Z';
 
@@ -190,7 +190,7 @@ class VolcengineTos implements IVendor
             'conditions'=>$conditions
         ];
 
-        $policy = json_encode($arr, JSON_UNESCAPED_SLASHES);
+        $policy = json_encode($arr);
         return base64_encode($policy);
     }
 

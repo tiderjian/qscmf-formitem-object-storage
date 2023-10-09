@@ -5,8 +5,6 @@ namespace FormItem\ObjectStorage\Lib\Vendor;;
 interface IVendor
 {
 
-//    public function checkConfig(?array $config = []);
-
     public function getUploadHostKey():string;
 
     public function getUploadHost(array $config):string;
