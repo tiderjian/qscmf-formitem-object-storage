@@ -1,7 +1,7 @@
 const vendorType = {
     type:'',
-    combinePolicyGetUrl:function f(policyGetUrl, filename, hashId){
-        return policyGetUrl+'?title='+encodeURIComponent(filename)+'&hash_id='+hashId
+    combinePolicyGetUrl:function f(policyGetUrl, filename,file,hashId){
+        return policyGetUrl+'?title='+encodeURIComponent(filename)+'&hash_id='+hashId+'&file_type='+file.type
     },
     combineUploadParam:function f(up,res,file,filename){
         return {
@@ -57,9 +57,6 @@ const volcengineTosVendorType = {
     type:'volcengine_tos',
     combineUploadParam:function f(up,res,file, filename){
         // return this.handlePutParamDemo(up,res,file, filename);
-
-        res.params = res.params || {};
-        res.params['Content-Type']=file.type;
 
         return {
             'url': res.url,
@@ -119,7 +116,7 @@ function genVendorType(type){
 function handleUploadProcess(up,filename,ret,policyGetUrl,file, hashId, vendorType){
     const vendorTypeObj = genVendorType(vendorType);
 
-    let resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl,filename,hashId));
+    let resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl,filename,file,hashId));
     let res = eval("(" + resBody + ")");
 
     if (parseInt(res.status) === 2){

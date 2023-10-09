@@ -53,8 +53,8 @@ class VolcengineTos implements IVendor
         $this->_tos_client = new TosClient([
             'region' => $this->_region,
             'endpoint' => $this->_end_point,
-            'ak' => env('VOLC_ACCESSKEY'),
-            'sk' => env('VOLC_SECRETKEY'),
+            'ak' => env('VOLC_ACCESS_KEY'),
+            'sk' => env('VOLC_SECRET_KEY'),
         ]);
 
         return $this;
@@ -142,11 +142,66 @@ class VolcengineTos implements IVendor
         }
     }
 
+    private function _genCredential(int $now, string $region):string{
+        $date = date('Ymd', $now);
+
+        return env('VOLC_ACCESS_KEY').'/'.$date.'/'.$region.'/tos/request';
+    }
+
+    private function _genSignKey(int $now, string $region):string{
+        $date = date('Ymd', $now);
+
+        $dateKey = hash_hmac('sha256', $date, env('VOLC_SECRET_KEY'), true);
+        $regionKey = hash_hmac('sha256', $region, $dateKey, true);
+        $serviceKey = hash_hmac('sha256', 'tos', $regionKey, true);
+        $signingKey = hash_hmac('sha256', 'request', $serviceKey, true);
+        return $signingKey;
+    }
+
+    private function _genPostSignature(string $string_to_sign, int $now, string $region):string{
+        return hash_hmac('sha256', $string_to_sign, $this->_genSignKey($now, $region));
+    }
+
+    private function _genSignDate(int $now):string{
+        return date('Ymd\THis', $now).'Z';
+    }
+
+    private function _genSignAlgorithm():string{
+        return 'TOS4-HMAC-SHA256';
+    }
+
+    private function _genPostSignPolicy(string $dir,int $now, string $bucket, array $common_params):string{
+        $expire = 60*2;
+        $end = $now + $expire;
+        $expiration = date('Y-m-d\TH:i:s.z', $end).'Z';
+
+        $conditions = [];
+        $conditions[] = ['bucket' => $bucket];
+
+        $start = ['starts-with', '$key', $dir];
+        $conditions[] = $start;
+        $common_params = collect($common_params)->map(function($val, $key){
+            return [$key => $val];
+        })->values()->all();
+        $conditions = collect($conditions)->merge($common_params)->all();
+
+        $arr = [
+            'expiration'=>$expiration,
+            'conditions'=>$conditions
+        ];
+
+        $policy = json_encode($arr, JSON_UNESCAPED_SLASHES);
+        return base64_encode($policy);
+    }
+
     private function _genPostObjParam(string $type){
         list($base64_callback_body,$base64_callback_var) = $this->_cbParam($type);
 
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
         $host = $this->getUploadHost($config);
+        $handle = $this->_handleTosUrl($host);
+        $bucket = $handle['bucket'];
+        $region = $handle['region'];
 
         $ext='';
         if (I('get.title') && strpos(I('get.title'),'.')!==false){
@@ -158,18 +213,41 @@ class VolcengineTos implements IVendor
         $pathname=$dir;
         substr($pathname, 0, 1) != '/' && ($pathname = '/' . $pathname);
 
+        $now = microtime(true);
+
+        $algorithm = $this->_genSignAlgorithm();
+        $date = $this->_genSignDate($now);
+        $credential = $this->_genCredential($now, $region);
+
+        $common_params = [
+            'Content-Type' => I('get.file_type'),
+            'name' => I('get.title'),
+            'x-tos-callback' => $base64_callback_body,
+            'x-tos-callback-var' => $base64_callback_var,
+            'x-tos-credential' => $credential,
+            'x-tos-algorithm' => $algorithm,
+            'x-tos-date' => $date,
+//                'x-tos-security-token' => '',
+        ];
+
+        $base64_policy = $this->_genPostSignPolicy($dir, $now, $bucket, $common_params);
+
+        $signature = $this->_genPostSignature($base64_policy, $now, $region);
+
         return [
-            'url'=>$host.$pathname,
-            'params'=>[
-                'key'=>$dir,
-                'x-tos-callback' => $base64_callback_body,
-                'x-tos-callback-var' => $base64_callback_var
-            ]
+            'url' => $host.$pathname,
+            'params' => array_merge($common_params,
+                [
+                    'key' => $dir,
+                    'policy' => $base64_policy,
+                    'x-tos-signature' => $signature,
+                ]
+            )
         ];
     }
 
     public function policyGet(string $type){
-//       return $this->_genPutSignedParamsDemo($type);
+//        $this->_genPutSignedParamsDemo($type);
        return $this->_genPostObjParam($type);
     }
 
@@ -240,7 +318,7 @@ class VolcengineTos implements IVendor
         $res['key']=$parse['path'];
 
         $host=explode('.',$parse['host']);
-        $res['region']=$host[1];
+        $res['region']=trim($host[1], 'tos-');
         $res['bucket']=$host[0];
         $res['endpoint']=$host[1].'.'.$host[2].'.'.$host[3];
 
