@@ -61,7 +61,7 @@ class VolcengineTos implements IVendor
     }
 
     public function genSignedUrl(array $param){
-        $obj = $this->signUrl(env('VOLC_BUCKET'), $param['object'], $param['timeout']);
+        $obj = $this->signUrl($this->_bucket, $param['object'], $param['timeout']);
         return $obj->getSignedUrl();
     }
 
@@ -77,7 +77,7 @@ class VolcengineTos implements IVendor
 
     private function _cbParam(string $type):array{
         $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), I('get.hash_id'), I('get.resize')),
-            'callbackBody'=>'filename=${object}&size=${size}&mimeType=${mimeType}&upload_type=${x:upload_type}&image_format=${imageInfo.format}',
+            'callbackBody'=>'filename=${object}&size=${size}&mimeType=${mimeType}&upload_type=${x:upload_type}',
             'callbackBodyType'=>"application/x-www-form-urlencoded");
         if (I('get.title')){
             $callback_param['callbackBody'].='&title=${x:title}';
@@ -126,7 +126,8 @@ class VolcengineTos implements IVendor
         str_starts_with($pathname, '/') && ($pathname = ltrim($pathname, '/'));
 
         try {
-            $output = $this->genClient($type)->signUrl(env('VOLC_BUCKET'), $pathname, 3600, Enum::HttpMethodPut, $query);
+            $handle = $this->_handleTosUrl($config[$this->getUploadHostKey()]);
+            $output = $this->genClient($type)->signUrl($handle['bucket'], $pathname, 3600, Enum::HttpMethodPut, $query);
             // 获取预签名的 URL 和头域
             $sign_url = $output->getSignedUrl();
             $header = $output->getSignedHeader();
@@ -250,7 +251,7 @@ class VolcengineTos implements IVendor
         if (empty(I("get.title")) || empty(I('get.file_type'))){
             E("缺少必填参数");
         }
-//        $this->_genPutSignedParamsDemo($type);
+//        return $this->_genPutSignedParamsDemo($type);
        return $this->_genPostObjParam($type);
     }
 

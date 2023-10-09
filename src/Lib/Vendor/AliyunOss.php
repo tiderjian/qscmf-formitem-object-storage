@@ -55,7 +55,7 @@ class AliyunOss implements IVendor {
         
         $this->_bucket = $match[1];
         $this->_end_point = str_replace($this->_bucket . '.', '', $config[$this->getShowHostKey()]);
-        $this->_oss_client = new \OSS\OssClient(C('ALIOSS_ACCESS_KEY_ID'), C('ALIOSS_ACCESS_KEY_SECRET'), $this->_end_point);
+        $this->_oss_client = new \OSS\OssClient(env('ALIOSS_ACCESS_KEY_ID'), env('ALIOSS_ACCESS_KEY_SECRET'), $this->_end_point);
         return $this;
     }
     
@@ -115,7 +115,7 @@ class AliyunOss implements IVendor {
         $policy = json_encode($arr);
         $base64_policy = base64_encode($policy);
         $string_to_sign = $base64_policy;
-        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, C('ALIOSS_ACCESS_KEY_SECRET'), true));
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, env('ALIOSS_ACCESS_KEY_SECRET'), true));
 
         $callback_var = array('x:upload_type' => $type);
         if (I('get.title')){
@@ -130,7 +130,7 @@ class AliyunOss implements IVendor {
         $callback_var=json_encode($callback_var);
 
         $response = array();
-        $response['accessid'] = C('ALIOSS_ACCESS_KEY_ID');
+        $response['accessid'] = env('ALIOSS_ACCESS_KEY_ID');
         $response['host'] = $this->getUploadHost($config);
         $response['policy'] = $base64_policy;
         $response['signature'] = $signature;
