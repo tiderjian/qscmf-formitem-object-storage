@@ -3,13 +3,13 @@
         <label class="left control-label">{$form.title}：</label>
         <div class="right">
             <notdefined name="pictures_os_intercept">
-            <link rel="stylesheet" href="{:asset('object-storage/ossuploader/jquery.ossuploader.css')}">
+            <link rel="stylesheet" href="{:asset('object-storage/osuploader/jquery.osuploader.css')}">
             <link rel="stylesheet" href="{:asset('object-storage/cropper/cropper.min.css')}">
 
             <script type="text/javascript" src="{:asset('object-storage/cropper/cropper.js')}"></script>
             <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/moxie.min.js')}"></script>
             <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.full.min.js')}"></script>
-            <script type="text/javascript" src="{:asset('object-storage/ossuploader/jquery.ossuploader.js')}"></script>
+            <script type="text/javascript" src="{:asset('object-storage/osuploader/jquery.osuploader.js')}"></script>
             <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
             <script type="text/javascript" src="{:asset('object-storage/os_upload.js')}"></script>
 
@@ -43,11 +43,10 @@
             </notempty>
             <script>
                 $(function () {
-                    $('input[name="{$form.name}"]').ossuploader({
+                    $('input[name="{$form.name}"]').osuploader({
                         multi_selection:true,
                         url:'{$data_url}',
                         vendor_type:'{$vendor_type}',
-                        os:true,
                         crop:{
                             dragMode: 'move',
                             aspectRatio: {$form.options.width}/{$form.options.height},

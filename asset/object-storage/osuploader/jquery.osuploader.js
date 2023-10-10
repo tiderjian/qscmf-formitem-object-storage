@@ -127,10 +127,11 @@
         
     }
     
-    $.fn.ossuploader = function (option) {
+    $.fn.osuploader = function (option) {
         var dashBorderInfo = {};
         
         var defaultSetting = {
+            os: true,
             multi_selection: false,
             show_msg: function (msg) {
                 alert(msg);

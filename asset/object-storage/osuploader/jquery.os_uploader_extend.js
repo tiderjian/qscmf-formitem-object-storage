@@ -76,7 +76,7 @@
 			}
 		},
 	};
-	$.fn.ossuploaderWrapper = function (option, extend) {
+	$.fn.osuploaderWrapper = function (option, extend) {
 		extend = Array.isArray(extend) ? extend : ['preventUpload'];
 		var that = this;
 		
@@ -124,6 +124,6 @@
 			option[i] = runCallbackQueue(item);
 		}
 		
-		return $(this).ossuploader(option);
+		return $(this).osuploader(option);
 	};
 })(jQuery);
