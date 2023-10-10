@@ -51,11 +51,6 @@
                             ready: function () {
                                 croppable = true;
                             }
-                        },
-                        set_upload_param:function f(up, file) {
-                            window.calc_file_hash(file.getNative()).then(function(res){
-                                osHandleUpload(up, file.name, '{$data_url}', file, '{$vendor_type}', res);
-                            });
                         }
                     });
                 });

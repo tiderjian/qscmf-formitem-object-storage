@@ -152,14 +152,11 @@
         
         var setting = $.extend({},defaultSetting, option);
         show_msg = setting.show_msg;
-        let set_upload_param = setting.set_upload_param;
         const custom_up_file = function (setting, up, file){
             if (setting.os === true) {
-                if (set_upload_param){
-                    set_upload_param(up, file)
-                }else{
-                    osHandleUpload(up, file.name, setting.url, file, setting.vendor_type);
-                }
+                window.calc_file_hash(file.getNative()).then(function(res){
+                    osHandleUpload(up, file.name, setting.url, file, setting.vendor_type, res);
+                });
             } else {
                 up.setOption({
                     'url': setting.url
@@ -372,7 +369,7 @@
                     
                     // BeforeUpload: function (up, file) {
                     //     if (setting.os === true) {
-                    //         set_upload_param(up, file)
+                    //         custom_up_file(setting, up, file)
                     //     } else {
                     //         up.setOption({
                     //             'url': setting.url
