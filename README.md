@@ -22,30 +22,50 @@ composer require quansitech/qscmf-formitem-object-storage
   
   + 调用组件时设置 *options*
   
-    ```php
+    ```text
+    适用情景：项目使用了多个云服务商，且同一个上传配置类型需要上传至不同云服务商
+    ```
+    
+  ```php
     // 使用formItem
-    ->addFormItem("picture_cos", "picture_os", "封面cos","",['vendor_type' => 'tengxun_cos'])
+  ->addFormItem("picture_cos", "picture_os", "封面cos","",['vendor_type' => 'tengxun_cos'])
     // 使用columnItem
     ->addTableColumn("picture", "封面tos", 'picture_os', ['vendor_type' => 'volcengine_tos'], true)
-    ```
+  ```
+  
+    
   
   + 修改 *upload_config.php* 的上传配置
   
+    ```text
+    适用情景：项目使用了多个云服务商，同一个上传配置类型上传至固定的云服务商
+    ```
+    
     ```php
-    /* 图片上传相关配置 */
+  /* 图片上传相关配置 */
     'UPLOAD_TYPE_IMAGE' => array(
-        // 其他配置省略
+      // 其他配置省略
         'oss_host' => env("ALIOSS_HOST"),
         'oss_meta' => array('Cache-Control' => 'max-age=2592000'),
         'vendorType' => 'aliyun_oss',
     ),
     ```
-  
+    
+    
+    
   + 添加 *env* *OS_VENDOR_TYPE*，全局配置
   
+    ```text
+    适用情景：项目只使用一个云服务商
+    ```
+    
+    
+    
     ```php
     OS_VENDOR_TYPE=aliyun_oss
     ```
+  
+  
   
 + 供应商可选值及其相关配置
 
@@ -66,55 +86,67 @@ composer require quansitech/qscmf-formitem-object-storage
       | ALIOSS_ACCESS_KEY_ID     |
       | ALIOSS_ACCESS_KEY_SECRET |
       | ALIOSS_HOST              |
-
-      
-
+    | ALIOSS_BUCKET            |
+      | ALIOSS_ENDPOINT          |
+    | ALIOSS_REGION            |
+  
+    
+  
     - *upload_config.php* 需要添加的配置
-
+  
+      | 名称            | 是否必填 | 备注       |
+    | --------------- | -------- | ---------- |
+      | oss_host        | 是       |            |
+    | upload_oss_host | 否       | 上传用域名 |
+  
+    
+    
+  - **tengxun_cos**
+  
+    - *env* 配置
+  
+        | 名称          |
+        | ------------- |
+        | COS_SECRETID  |
+        | COS_SECRETKEY |
+        | COS_HOST      |
+        | COS_BUCKET    |
+        | COS_ENDPOINT  |
+        | COS_REGION    |
+  
+    
+  
+    - *upload_config.php* 需要添加的配置
+  
+        | 名称            | 是否必填 | 备注       |
+        | --------------- | -------- | ---------- |
+        | cos_host        | 是       |            |
+        | upload_cos_host | 否       | 上传用域名 |
+  
+      
+  
+  - **volcengine_tos**
+  
+    - *env* 配置
+  
+        | 名称            |
+        | --------------- |
+        | VOLC_ACCESS_KEY |
+        | VOLC_SECRET_KEY |
+        | VOLC_HOST       |
+        | VOLC_BUCKET     |
+        | VOLC_ENDPOINT   |
+        | VOLC_REGION     |
+  
+    
+  
+    - *upload_config.php* 需要添加的配置
+  
       | 名称            | 是否必填 | 备注       |
       | --------------- | -------- | ---------- |
-      | oss_host        | 是       |            |
-      | upload_oss_host | 否       | 上传用域名 |
-
-      
-
-  - **tengxun_cos**
-
-    - *env* 配置
-
-      | 名称          |
-      | ------------- |
-      | COS_SECRETID  |
-      | COS_SECRETKEY |
-      | COS_HOST      |
-
-      
-
-    - *upload_config.php* 需要添加的配置
-
-      | 名称     | 是否必填 | 备注 |
-      | -------- | -------- | ---- |
-      | cos_host | 是       |      |
-
-      
-
-  - **volcengine_tos**
-
-    - *env* 配置
-
-      | 名称            |
-      | --------------- |
-      | VOLC_ACCESS_KEY |
-      | VOLC_SECRET_KEY |
-      | VOLC_HOST       |
-
-      
-
-    - *upload_config.php* 需要添加的配置
-
-      | 名称     | 是否必填 | 备注 |
-      | -------- | -------- | ---- |
-      | tos_host | 是       |      |
+      | tos_host        | 是       |            |
+      | upload_tos_host | 否       | 上传用域名 |
+  
 
 
 
@@ -187,3 +219,296 @@ composer require quansitech/qscmf-formitem-object-storage
 
   
 
+
+
+#### 自定义组件用法
+
+此扩展包使用的是直传功能，主要分为以下步骤：
+
+1. 服务端实现签名，返回请求的路径等信息
+2. 客户端发起POST请求，直传文件到云服务商。
+
+
+
+##### 参考文档
+
+| 名称           | 供应商                                                       |
+| -------------- | ------------------------------------------------------------ |
+| aliyun_oss     | [阿里云-服务端签名直传](https://help.aliyun.com/zh/oss/use-cases/obtain-signature-information-from-the-server-and-upload-data-to-oss#concept-en4-sjy-5db) |
+| tengxun_cos    | [腾讯云-Web 端直传实践](https://cloud.tencent.com/document/product/436/9067) |
+| volcengine_tos | 火山引擎 [PostObject](https://www.volcengine.com/docs/6349/129228) 和  [Post 表单预签名](https://www.volcengine.com/docs/6349/1123288) |
+
+
+
+##### 用法
+
+1. 向服务端请求 *policy* 等信息
+
+   
+
+   **接口地址：/extends/objectStorage/policyGet**
+
+   
+
+   **请求方法**
+
+   **GET**
+
+   
+
+   **请求参数**
+
+   | 参数        | 是否必选 | 类型   | 说明                                                         |
+   | ----------- | -------- | ------ | ------------------------------------------------------------ |
+   | type        | 是       | string | 与 upload_config.php 中 UPLOAD_TYPE_XXX 的 XXX 对应，如图片 image；文件 file |
+   | vendor_type | 否       | string | 供应商名称                                                   |
+   | title       | 是       | string | 文件标题                                                     |
+   | hash_id     | 否       | string | 文件 MD5 信息                                                |
+   | file_type   | 是       | string | 文件 mime-type 类型，例如 image/png                          |
+
+   
+
+   **返回示例**
+
+   ###### 正常
+
+   - aliyun_oss
+
+     
+     
+     
+
+   - tengxun_cos
+
+     
+
+   - volcengine_tos
+
+     ```
+    {
+         "url": "url",
+         "params": {
+             "Content-Type": "image/png",
+             "name": "test.png",
+             "x-tos-callback": "xxx",
+             "x-tos-callback-var": "xxx",
+             "x-tos-credential": "testAK/20231009/cn-guangzhou/tos/request",
+             "x-tos-algorithm": "TOS4-HMAC-SHA256",
+             "x-tos-date": "20231009T111513Z",
+             "key": "Uploads/image/20231009/6523704131c24.png",
+             "policy": "xxx",
+             "x-tos-signature": "xxx"
+         },
+         "vendor_type": "volcengine_tos"
+     }
+     ```
+   
+     
+
+   ###### 异常
+
+   以接口实际返回值为准
+   
+   
+
+2. 使用 *Post* 方法向云服务商发送文件上传请求
+
+   1. 根据不同供应商组装请求参数
+
+      - aliyun_oss
+
+        - 请求地址为**步骤1**返回的 *url*
+     - *formData* 需与**步骤1**返回的 *params* 一致
+   
+     
+   
+   - tengxun_cos
+   
+        1. 请求地址为**步骤1**返回的 *url*
+   
+        2. *formData* 需与**步骤1**返回的 *params* 一致
+   
+           
+   
+   - volcengine_tos
+   
+     - 请求地址为**步骤1**返回的 *url*
+        - *formData* 需与**步骤1**返回的 *params* 一致
+   
+      
+   
+   2. 返回示例
+   
+      ###### 正常
+   
+      ```
+      {
+        "file_id": "5693",
+        "file_url": "url",
+        "status": 1
+      }
+      ```
+   
+      
+   
+      ###### 异常
+   
+      以接口实际返回值为准
+
+
+
+[FormItem\ObjectStorage\Lib\Common 帮助函数类使用说明](https://github.com/quansitech/qscmf-formitem-object-storage/blob/master/Common.md)
+
+
+
+
+## <a name="os_uploader">os_uploader 上传图片</a>
+
+### 介绍
+
+  图片裁剪上传功能,内置cropper.js,可配置是否裁剪。
+
+### 功能：
+
+* 可配置是否裁剪
+
+* 可以定义裁剪尺寸,裁剪比例
+
+* 可以定义限制文件后缀、大小以及是否允许选取重复文件
+
+* 限制上传张数
+
+* 可自定义提示函数
+
+* 裁剪上传图会默认转成jpg;png透明背景默认转成白色
+  
+* 支持文件查重，避免重复上传同一个文件
+  
+  
+  
+  ##### 简单使用
+  
+  ```php
+  // 服务端生成 url 和 供应商类型 vendor_type
+  public function customUpload(){
+      list($data_url, $vendor_type)= Common::genPolicyDataUrl('image');
+  
+      $this->assign('data_url', $data_url);
+      $this->assign('vendor_type', $vendor_type);
+  
+      $this->display();
+  }
+  ```
+  
+  
+  
+  ```javascript
+  // customUpload.html
+  
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8" />
+      <title>Document</title>
+  </head>
+  <body>
+  <input type="hidden" name="test_os" value="{$form.value}" data-srcjson="{$pictures_json}">
+  
+  <notdefined name="pictures_os_intercept">
+      // 需要同时引入静态资源
+      <script src="__PUBLIC__/libs/jquery/jquery.js"></script>
+  
+      <link rel="stylesheet" href="{:asset('object-storage/osuploader/jquery.osuploader.css')}">
+      <link rel="stylesheet" href="{:asset('object-storage/cropper/cropper.min.css')}">
+  
+      <script type="text/javascript" src="{:asset('object-storage/cropper/cropper.js')}"></script>
+      <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/moxie.min.js')}"></script>
+      <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.full.min.js')}"></script>
+      <script type="text/javascript" src="{:asset('object-storage/osuploader/jquery.osuploader.js')}"></script>
+      <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
+      <script type="text/javascript" src="{:asset('object-storage/os_upload.js')}"></script>
+  
+      <define name="pictures_os_intercept" value="1" />
+  </notdefined>
+  
+  <script>
+      $(function () {
+          $('input[name="test_os"]').osuploader({
+              multi_selection:true,
+              url:'{$data_url}',
+              vendor_type:'{$vendor_type}',
+              crop:{
+                  dragMode: 'move',
+                  aspectRatio: 120/120,
+                  viewMode: 1,
+                  ready: function () {
+                      croppable = true;
+                  }
+              }
+      });
+      });
+  </script>
+  </body>
+  </html>
+  ```
+  
+  
+  
+  ###### osuploader option 说明
+  
+  ```javascript
+  <script>
+      $(selector).osuploader(option); //selector 为隐藏域
+  
+      option: {
+        url:                //string require  上传图片的地址
+        vendor_type:        //string require  供应商类型
+        multi_selection:    //boolean optional 是否多选
+        canvasOption:{       //object optional 配置getCroppedCanvas
+            //修改裁剪后图片的背景色 为黑色
+            fillColor: '#333',
+        } 
+        //get more information: https://github.com/fengyuanchen/cropperjs
+  
+        crop:{              //object optional cropper配置,若存在此项，则裁剪图片,更多配置请参考cropper.js官网
+            aspectRatio: 120/120,
+            viewMode: 1,
+            ready: function () { 
+                croppable = true;
+            }
+        },
+        //由于plup_upload内置的filter,出错时会触发Error回调
+        //导致上一个上传任务的失败,自定义了 check_image,limit_file_size,用于前端验证文件后缀格式与文件大小
+        filters: {                // object optional
+             check_image:         // Boolean 是否检查图片类型(若为true: 对于裁剪上传,允许无后缀文件;多选上传,不允许无后缀文件)
+             limit_file_size:     // Number 限制文件大小，参考格式：5 * 1024 * 1024
+             prevent_duplicates:  // Boolean 是否允许选取重复文件，false：是，true 否，默认为false
+        },
+        show_msg:           //function optional 展示提示消息的函数,默认为window.alert
+        limit:              //number   optional 上传图片张数的限制,默认值32
+        tpye:               //string   optional 上传类型 file | image 默认值 image
+        beforeUpload:       //function optional 回调 参考回调说明
+        filePerUploaded:    //function optional 回调 参考回调说明
+        uploadCompleted:    //function optional 回调 参考回调说明
+        uploadError:        //function optional 回调 参考回调说明
+        deleteFile:         //function optional 回调 参考回调说明
+      }
+  
+  </script>
+  ```
+  
+  备注:
+1. cropper：
+   
+   - <a href="https://fengyuanchen.github.io/cropper/">官网demo</a>  
+   - <a href="https://github.com/fengyuanchen/cropper/blob/master/README.md">github</a>
+
+2. 回调说明:
+   
+   - beforeUpload : 当选中文件时的回调。若返回false,则不添加选中的文件
+   - filePerUploaded : 每个文件上传完成，都会触发此回调
+   - uploadCompleted : 若多选上传选中3个图，则3个图完成上传才触发此回调
+   - uploadError : 上传出错
+   - deleteFile : 删除图片
+   
+   
