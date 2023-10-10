@@ -42,7 +42,8 @@
                 $(function () {
                     $('input[name="{$form.name}"]').ossuploader({
                         url:'{$data_url}',
-                        oss:true,
+                        vendor_type:'{$vendor_type}',
+                        os:true,
                         crop:{
                             dragMode: 'move',
                             aspectRatio: {$form.options.width}/{$form.options.height},
@@ -53,7 +54,7 @@
                         },
                         set_upload_param:function f(up, file) {
                             window.calc_file_hash(file.getNative()).then(function(res){
-                                osHandleUpload(up, file.name, false, '{$data_url}',file, res, '{$vendor_type}');
+                                osHandleUpload(up, file.name, '{$data_url}', file, '{$vendor_type}', res);
                             });
                         }
                     });

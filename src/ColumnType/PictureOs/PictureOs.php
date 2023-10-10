@@ -20,7 +20,11 @@ class PictureOs extends ColumnType implements EditableInterface {
         $image = [
             'url' => showFileUrl($data[$option['name']]),
         ];
-        $os_cls = Context::genVendorByUrl($image['url']);
+
+        $upload_type_cls = $this->genUploadConfigCls($option['extra_attr'],'image');
+        $vendor_type = Common::getVendorType($upload_type_cls->getType(), $option['options']['vendor_type']);
+
+        $os_cls = Context::genVendorByType($vendor_type);
         $image['small_url'] = $os_cls->resizeImg($image['url'], '40','40');
 
         $view->assign('image', $image);
@@ -34,20 +38,24 @@ class PictureOs extends ColumnType implements EditableInterface {
         $image = [
             'url' => showFileUrl($data[$option['name']]),
         ];
-        $os_cls = Context::genVendorByUrl($image['url']);
-        $image['small_url'] = $os_cls->resizeImg($image['url'], '40','40');
 
         $upload_type_cls = $this->genUploadConfigCls($option['extra_attr'],'image');
+        list($data_url, $vendor_type) =  Common::genItemDataUrl($upload_type_cls->getType(),
+            Common::getVendorType($upload_type_cls->getType(), $option['options']['vendor_type'])
+            ,['resize' => '1']);
+
+        $os_cls = Context::genVendorByType($vendor_type);
+        $image['small_url'] = $os_cls->resizeImg($image['url'], '40','40');
 
         $view = new View();
-        $view->assign('data_url', Common::genItemDataUrl($option, 'image',['resize' => '1']));
+        $view->assign('data_url', $data_url);
         $view->assign('option', $option);
         $view->assign('image', $image);
         $view->assign('class', $class);
         $view->assign('image_id', $data[$option['name']]);
         $view->assign('gid', Str::uuid()->getHex());
         $view->assign('file_ext',  $upload_type_cls->getExts());
-        $view->assign('vendor_type',  Common::getVendorType('image', $option['options']['vendor_type']));
+        $view->assign('vendor_type',  $vendor_type);
         $content = $view->fetch(__DIR__ . '/picture_os_editable.html');
         return $content;
     }

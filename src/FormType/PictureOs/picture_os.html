@@ -28,6 +28,7 @@
             <script type="text/javascript">
                 (function () {
                     var fileExts_{$gid} = "{$file_ext}";
+                    let policyGetUrl = $('#upload_{$gid}').data('url') || "{$data_url}";
 
                     new plupload.Uploader({
                         runtimes : 'html5,flash,silverlight,html4',
@@ -59,7 +60,7 @@
                                             '</div>';
                                     $('#upload_{$gid}').children('.uploadify-queue').html(html);
                                     window.calc_file_hash(file.getNative()).then(function(res){
-                                        osHandleUpload(up, file.name, false,  $('#upload_{$gid}').data('url'),file, res, '{$vendor_type}');
+                                        osHandleUpload(up, file.name, policyGetUrl,file, '{$vendor_type}', res);
                                     });
                                 });
 

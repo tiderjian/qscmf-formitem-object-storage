@@ -1,9 +1,11 @@
 <?php
 
-namespace FormItem\ObjectStorage\Lib\Vendor;;
+namespace FormItem\ObjectStorage\Lib\Vendor;
 
 interface IVendor
 {
+
+    public function genVendorConfig(array $config):VendorConfig;
 
     public function getUploadHostKey():string;
 

@@ -154,8 +154,12 @@
         show_msg = setting.show_msg;
         let set_upload_param = setting.set_upload_param;
         const custom_up_file = function (setting, up, file){
-            if (setting.oss === true) {
-                set_upload_param(up, file)
+            if (setting.os === true) {
+                if (set_upload_param){
+                    set_upload_param(up, file)
+                }else{
+                    osHandleUpload(up, file.name, setting.url, file, setting.vendor_type);
+                }
             } else {
                 up.setOption({
                     'url': setting.url
@@ -367,7 +371,7 @@
                     },
                     
                     // BeforeUpload: function (up, file) {
-                    //     if (setting.oss === true) {
+                    //     if (setting.os === true) {
                     //         set_upload_param(up, file)
                     //     } else {
                     //         up.setOption({

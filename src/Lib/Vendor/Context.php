@@ -11,9 +11,10 @@ class Context
     const VENDOR_VOLCENGINE_TOS = 'volcengine_tos';
 
     public static function genVendorByType(string $vendor_type):?IVendor{
-        return self::genByType($vendor_type);
+        return $vendor_type ? self::genByType($vendor_type) : null;
     }
 
+    // 谨慎使用，url为自定义域名时，匹配规则会失效
     public static function genVendorByUrl(string $url):?IVendor{
         $vendor_type = Common::extraTypeByUrl($url);
         return $vendor_type ? self::genByType($vendor_type) : null;

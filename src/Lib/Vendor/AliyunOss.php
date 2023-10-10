@@ -10,16 +10,30 @@ namespace FormItem\ObjectStorage\Lib\Vendor;
 use FormItem\ObjectStorage\Lib\Common;
 
 class AliyunOss implements IVendor {
-    private $_bucket;
-    private $_end_point;
-    private $_oss_client;
-    private $_config;
-
     public $vendor_type = Context::VENDOR_ALIYUN_OSS;
 
-    // oss上传地址和展示地址有可能分开
+    private $_oss_client;
+    private $_upload_config;
+    private $_vendor_config;
+
     private $_host_key = 'oss_host';
     private $_upload_host_key = 'upload_oss_host';
+
+    public function __construct()
+    {
+        $this->_vendor_config = $this->genVendorConfig([
+            'accessKey' => env('ALIOSS_ACCESS_KEY_ID'),
+            'secretKey' => env('ALIOSS_ACCESS_KEY_SECRET'),
+            'bucket' => env('ALIOSS_BUCKET'),
+            'endPoint' => env('ALIOSS_ENDPOINT'),
+            'region' => env('ALIOSS_REGION'),
+        ]);
+    }
+
+    public function genVendorConfig(array $config): VendorConfig
+    {
+        return new VendorConfig($config);
+    }
 
     public function getShowHostKey():string{
         return $this->_host_key;
@@ -40,30 +54,23 @@ class AliyunOss implements IVendor {
 
     public function getOssClient($type){
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
-        if(!$config){
-            E('上传类型' . $type . '不存在!');
+
+        if (Common::checkUploadConfig($type, $this->vendor_type, $this->getShowHostKey(), $config)){
+            $this->_upload_config = $config;
+
+            $this->_oss_client = new \OSS\OssClient($this->_vendor_config->getAccessKey(),
+                $this->_vendor_config->getSecretKey(),
+                $this->_vendor_config->getEndPoint());
+
+            return $this;
         }
-        $this->_config = $config;
-        
-        if(!$config[$this->getShowHostKey()]){
-            E($type . '这不是oss上传配置类型!');
-        }
-        
-        if(!preg_match('/https*:\/\/([\w\-_]+?)\.[\w\-_.]+/', $config[$this->getShowHostKey()], $match)){
-            E($type . '类型上传配置项中匹配不到bucket项');
-        }
-        
-        $this->_bucket = $match[1];
-        $this->_end_point = str_replace($this->_bucket . '.', '', $config[$this->getShowHostKey()]);
-        $this->_oss_client = new \OSS\OssClient(env('ALIOSS_ACCESS_KEY_ID'), env('ALIOSS_ACCESS_KEY_SECRET'), $this->_end_point);
-        return $this;
     }
     
     public function uploadFile($file, $options){
         $ext = pathinfo($file, PATHINFO_EXTENSION);
-        $object = self::genOssObjectName($this->_config, '.' . $ext);
+        $object = self::genOssObjectName($this->_upload_config, '.' . $ext);
         $header_options = array(\OSS\OssClient::OSS_HEADERS => $options);
-        return $this->_oss_client->uploadFile($this->_bucket, $object, $file, $header_options);
+        return $this->_oss_client->uploadFile($this->_vendor_config->getBucket(), $object, $file, $header_options);
     }
 
     public function genSignedUrl(array $param){
@@ -72,7 +79,7 @@ class AliyunOss implements IVendor {
     
     public function signUrl($object, $timeout){
         
-        $signedUrl = $this->_oss_client->signUrl($this->_bucket, $object, $timeout);
+        $signedUrl = $this->_oss_client->signUrl($this->_vendor_config->getBucket(), $object, $timeout);
         return $signedUrl;
     }
     
@@ -264,6 +271,7 @@ class AliyunOss implements IVendor {
         $file_data['cate'] = $body_arr['upload_type'];
         $file_data['security'] = $config['security'] ? 1 : 0;
         $file_data['file'] = '';
+        $file_data['vendor_type'] = $this->vendor_type;
 
         return $file_data;
     }

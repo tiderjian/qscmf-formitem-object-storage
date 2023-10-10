@@ -1,9 +1,11 @@
 <?php
 namespace FormItem\ObjectStorage\Behaviors;
 
+use FormItem\ObjectStorage\Lib\File;
 use FormItem\ObjectStorage\Lib\Vendor\Context;
 
 class SecurityUrlBehavior{
+    protected $file;
 
     public function run(&$params)
     {
@@ -12,7 +14,9 @@ class SecurityUrlBehavior{
         }
 
         $file_ent = $params['file_ent'];
-        $os_cls =  Context::genVendorByUrl($file_ent['url']);
+        $this->file = new File($file_ent['url'], $file_ent['mime_type'], $file_ent['vendor_type']);
+
+        $os_cls = Context::genVendorByType($this->file->getVendorType());
         if ($os_cls){
             $config = C('UPLOAD_TYPE_' . strtoupper($file_ent['cate']));
             $object = trim(str_replace($config[$os_cls->getShowHostKey()], '', $file_ent['url']), '/');

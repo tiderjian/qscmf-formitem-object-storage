@@ -9,13 +9,29 @@ use FormItem\ObjectStorage\Lib\Common;
 class TengxunCos implements IVendor
 {
     public $vendor_type = Context::VENDOR_TENGXUN_COS;
-    private $_bucket;
-    private $_region;
-    private $_config;
+
     private $_cos_client;
+    private $_upload_config;
+    private $_vendor_config;
 
     private $_host_key = 'cos_host';
     private $_upload_host_key = 'cos_host';
+
+    public function __construct()
+    {
+        $this->_vendor_config = $this->genVendorConfig([
+            'accessKey' => env('COS_SECRETID'),
+            'secretKey' => env('COS_SECRETKEY'),
+            'bucket' => env('COS_BUCKET'),
+            'endPoint' => env('COS_ENDPOINT'),
+            'region' => env('COS_REGION'),
+        ]);
+    }
+
+    public function genVendorConfig(array $config): VendorConfig
+    {
+        return new VendorConfig($config);
+    }
 
     public function getShowHostKey():string{
         return $this->_host_key;
@@ -31,38 +47,32 @@ class TengxunCos implements IVendor
 
     public function getCosClient($type){
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
-        if(!$config){
-            E('上传类型' . $type . '不存在!');
+
+        if (Common::checkUploadConfig($type, $this->vendor_type, $this->getShowHostKey(), $config)){
+            $this->_upload_config = $config;
+
+            $handle = $this->_handleCosUrl($config[$this->getShowHostKey()]);
+
+            $config = array(
+                'region' => $this->_vendor_config->getRegion(),
+                'schema' => $handle['protocol'], //协议头部，默认为 http
+                'credentials' => array(
+                    'secretId' => $this->_vendor_config->getAccessKey(),
+                    'secretKey' => $this->_vendor_config->getSecretKey()
+                )
+            );
+
+            $this->_cos_client = new \Qcloud\Cos\Client($config);
+
+            return $this;
         }
-        $this->_config = $config;
-
-        if(!$config[$this->getShowHostKey()]){
-            E($type . '这不是cos上传配置类型!');
-        }
-
-        $handle = $this->_handleCosUrl($config[$this->getShowHostKey()]);
-        $this->_bucket = $handle['bucket'];
-        $this->_region = $handle['region'];
-
-        $config = array(
-            'region' => $this->_region,
-            'schema' => $handle['protocol'], //协议头部，默认为 http
-            'credentials' => array(
-                'secretId' => env("COS_SECRETID"),
-                'secretKey' => env("COS_SECRETKEY")
-            )
-        );
-
-        $this->_cos_client = new \Qcloud\Cos\Client($config);
-
-        return $this;
     }
 
 
     public function getAuthorization($pathname,$method='GET',$queryParams = array(),$headers = array()){
 
-        $secretId = env("COS_SECRETID"); //"云 API 密钥 SecretId";
-        $secretKey = env("COS_SECRETKEY"); //"云 API 密钥 SecretKey";
+        $secretId = $this->_vendor_config->getAccessKey(); //"云 API 密钥 SecretId";
+        $secretKey = $this->_vendor_config->getSecretKey(); //"云 API 密钥 SecretKey";
 
         // 获取个人 API 密钥 https://console.qcloud.com/capi
         $sid = $secretId;
@@ -152,7 +162,7 @@ class TengxunCos implements IVendor
      */
     public function headObj($bucket_host,$key){
         $obj = $this->_cos_client->headObject([
-            'Bucket' => $this->_bucket,
+            'Bucket' => $this->_vendor_config->getBucket(),
             'Key' => $key
         ]);
         return $obj->toArray();
@@ -167,7 +177,7 @@ class TengxunCos implements IVendor
 
 ### 使用封装的 getObjectUrl 获取下载签名
         try {
-            $bucket =  $this->_bucket; //存储桶，格式：BucketName-APPID
+            $bucket =  $this->_vendor_config->getBucket(); //存储桶，格式：BucketName-APPID
             $signedUrl = $this->_cos_client->getObjectUrl($bucket, $key, '+'.$expire.' seconds'); //签名的有效时间
             // 请求成功
             return $signedUrl;
@@ -248,6 +258,7 @@ class TengxunCos implements IVendor
         $file_data['size'] = $body_arr['ContentLength'];
         $file_data['security'] = $config['security'] ? 1 : 0;
         $file_data['file'] = '';
+        $file_data['vendor_type'] = $this->vendor_type;
 
         return $file_data;
     }

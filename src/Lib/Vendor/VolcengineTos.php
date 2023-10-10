@@ -13,14 +13,29 @@ class VolcengineTos implements IVendor
 {
 
     public $vendor_type = Context::VENDOR_VOLCENGINE_TOS;
-    private $_bucket;
-    private $_region;
-    private $_end_point;
-    private $_config;
+
     private $_tos_client;
+    private $_upload_config;
+    private $_vendor_config;
 
     private $_host_key = 'tos_host';
-    private $_upload_host_key = 'tos_host';
+    private $_upload_host_key = 'upload_tos_host';
+
+    public function __construct()
+    {
+        $this->_vendor_config = $this->genVendorConfig([
+            'accessKey' => env('VOLC_ACCESS_KEY'),
+            'secretKey' => env('VOLC_SECRET_KEY'),
+            'bucket' => env('VOLC_BUCKET'),
+            'endPoint' => env('VOLC_ENDPOINT'),
+            'region' => env('VOLC_REGION'),
+        ]);
+    }
+
+    public function genVendorConfig(array $config): VendorConfig
+    {
+        return new VendorConfig($config);
+    }
 
     public function getShowHostKey():string{
         return $this->_host_key;
@@ -36,32 +51,23 @@ class VolcengineTos implements IVendor
 
     public function genClient(string $type){
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
-        if(!$config){
-            E('上传类型' . $type . '不存在!');
+
+        if (Common::checkUploadConfig($type, $this->vendor_type, $this->getShowHostKey(), $config)){
+            $this->_upload_config = $config;
+
+            $this->_tos_client = new TosClient([
+                'region' => $this->_vendor_config->getRegion(),
+                'endpoint' => $this->_vendor_config->getEndPoint(),
+                'ak' => $this->_vendor_config->getAccessKey(),
+                'sk' => $this->_vendor_config->getSecretKey(),
+            ]);
+
+            return $this;
         }
-        $this->_config = $config;
-
-        if(!$config[$this->getShowHostKey()]){
-            E($type . '这不是tos上传配置类型!');
-        }
-
-        $handle = $this->_handleTosUrl($config[$this->getShowHostKey()]);
-        $this->_bucket = $handle['bucket'];
-        $this->_region = $handle['region'];
-        $this->_end_point = $handle['endpoint'];
-
-        $this->_tos_client = new TosClient([
-            'region' => $this->_region,
-            'endpoint' => $this->_end_point,
-            'ak' => env('VOLC_ACCESS_KEY'),
-            'sk' => env('VOLC_SECRET_KEY'),
-        ]);
-
-        return $this;
     }
 
     public function genSignedUrl(array $param){
-        $obj = $this->signUrl($this->_bucket, $param['object'], $param['timeout']);
+        $obj = $this->signUrl($this->_vendor_config->getBucket(), $param['object'], $param['timeout']);
         return $obj->getSignedUrl();
     }
 
@@ -126,8 +132,7 @@ class VolcengineTos implements IVendor
         str_starts_with($pathname, '/') && ($pathname = ltrim($pathname, '/'));
 
         try {
-            $handle = $this->_handleTosUrl($config[$this->getUploadHostKey()]);
-            $output = $this->genClient($type)->signUrl($handle['bucket'], $pathname, 3600, Enum::HttpMethodPut, $query);
+            $output = $this->genClient($type)->signUrl($this->_vendor_config->getBucket(), $pathname, 3600, Enum::HttpMethodPut, $query);
             // 获取预签名的 URL 和头域
             $sign_url = $output->getSignedUrl();
             $header = $output->getSignedHeader();
@@ -146,13 +151,13 @@ class VolcengineTos implements IVendor
     private function _genCredential(int $now, string $region):string{
         $date = date('Ymd', $now);
 
-        return env('VOLC_ACCESS_KEY').'/'.$date.'/'.$region.'/tos/request';
+        return $this->_vendor_config->getAccessKey().'/'.$date.'/'.$region.'/tos/request';
     }
 
     private function _genSignKey(int $now, string $region):string{
         $date = date('Ymd', $now);
 
-        $dateKey = hash_hmac('sha256', $date, env('VOLC_SECRET_KEY'), true);
+        $dateKey = hash_hmac('sha256', $date, $this->_vendor_config->getSecretKey(), true);
         $regionKey = hash_hmac('sha256', $region, $dateKey, true);
         $serviceKey = hash_hmac('sha256', 'tos', $regionKey, true);
         $signingKey = hash_hmac('sha256', 'request', $serviceKey, true);
@@ -200,9 +205,8 @@ class VolcengineTos implements IVendor
 
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
         $host = $this->getUploadHost($config);
-        $handle = $this->_handleTosUrl($host);
-        $bucket = $handle['bucket'];
-        $region = $handle['region'];
+        $bucket = $this->_vendor_config->getBucket();
+        $region = $this->_vendor_config->getRegion();
 
         $ext='';
         if (I('get.title') && strpos(I('get.title'),'.')!==false){
@@ -311,6 +315,7 @@ class VolcengineTos implements IVendor
         $file_data['size'] = $body_arr['size'];
         $file_data['security'] = $config['security'] ? 1 : 0;
         $file_data['file'] = '';
+        $file_data['vendor_type'] = $this->vendor_type;
 
         return $file_data;
     }
@@ -330,7 +335,7 @@ class VolcengineTos implements IVendor
     }
 
     public function headObj($bucket_host,$key){
-        $input = new HeadObjectInput($this->_bucket, $key);
+        $input = new HeadObjectInput($this->_vendor_config->getBucket(), $key);
 
         $obj = $this->_tos_client->headObject($input);
 

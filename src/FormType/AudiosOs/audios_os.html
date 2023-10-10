@@ -38,6 +38,7 @@
             <script type="text/javascript">
                 (function () {
                     var fileExts_{$gid} = "{$file_ext}";
+                    let policyGetUrl = $('#{$gid}').data('url') || "{$data_url}";
 
                     $('#{$gid}_preview .audio_oss').audioPlayer();
                     new plupload.Uploader({
@@ -71,7 +72,7 @@
                                             '</div>';
                                     $('#{$gid}').children('.uploadify-queue').append(html);
                                     window.calc_file_hash(file.getNative()).then(function(res){
-                                        osHandleUpload(up, file.name, false,  $('#{$gid}').data('url'),file, res, '{$vendor_type}');
+                                        osHandleUpload(up, file.name, policyGetUrl, file, '{$vendor_type}', res);
                                     });
                                 });
                                 // up.start();

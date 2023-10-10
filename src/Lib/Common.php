@@ -119,7 +119,7 @@ class Common
         return $name;
     }
 
-    public static function getFileByHash(string $hash_id, $os_cls = '', string $resize = ''):?array{
+    public static function getFileByHash(string $hash_id, IVendor $os_cls, string $resize = ''):?array{
         $file_data = D("FilePic")->where(['hash_id' => $hash_id])->find();
         if ($file_data){
             $file_data = self::handleCbRes($file_data, $os_cls, $resize);
@@ -128,8 +128,7 @@ class Common
         return $file_data;
     }
 
-    public static function handleCbRes(array $file_data, ?IVendor $os_cls = null, ?string $resize = ''):array{
-        !$os_cls && $os_cls = Context::genVendorByUrl($file_data['url']);
+    public static function handleCbRes(array $file_data, IVendor $os_cls, ?string $resize = ''):array{
         if($file_data['security'] == 1){
             $parse=parse_url($file_data['url']);
             $params = [
@@ -147,13 +146,22 @@ class Common
         return $file_data;
     }
 
-    public static function genItemDataUrl(array $form_type, string $type, ?array $custom_params = []):string{
+    public static function genItemDataUrl(string $type, ?string $vendor_type = '', ?array $custom_params = []):array{
+        return self::genPolicyDataUrl($type, $vendor_type, $custom_params);
+    }
+
+    public static function genPolicyDataUrl(string $type, ?string $vendor_type = '', ?array $custom_params = []):array{
+        return self::combinePolicyDataUrl('/extends/objectStorage/policyGet', $type, $vendor_type, $custom_params);
+    }
+
+    public static function combinePolicyDataUrl(string $method_path, string $type, ?string $vendor_type = '', ?array $custom_params = []):array{
         $param = $custom_params;
         $param['type'] = $type;
-        if ($form_type['options']['vendor_type']){
-            $param['vendor_type'] = $form_type['options']['vendor_type'];
+        if ($vendor_type){
+            $param['vendor_type'] = $vendor_type;
         }
-        return U('/extends/objectStorage/policyGet', $param);
+
+        return [U($method_path, $param), $vendor_type];
     }
 
     public static function combineOssUrlImgOpt(string $url, string $img_opt):string
@@ -195,5 +203,17 @@ class Common
         }
 
         return $url;
+    }
+
+    public static function checkUploadConfig(string $type, string $vendor_type, string $key,?array $config = []):bool{
+        if(!$config){
+            E('上传类型' . $type . '不存在!');
+        }
+
+        if(!$config[$key]){
+            E($type . '这不是'.$vendor_type.'上传配置类型!');
+        }
+
+        return true;
     }
 }

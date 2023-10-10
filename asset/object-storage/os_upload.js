@@ -113,7 +113,7 @@ function genVendorType(type){
     return vendorTypeObj;
 }
 
-function handleUploadProcess(up,filename,ret,policyGetUrl,file, hashId, vendorType){
+function handleUploadProcess(up,filename,policyGetUrl,file, hashId, vendorType){
     const vendorTypeObj = genVendorType(vendorType);
 
     let resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl,filename,file,hashId));
@@ -133,16 +133,16 @@ function startUpload(up,res, file, filename, vendorTypeObj ){
     up.start();
 }
 
-function osHandleUpload(up, filename, ret, policyGetUrl, file, vendorType, hashId){
+function osHandleUpload(up, filename, policyGetUrl, file, vendorType, hashId){
     if (file.type === ''){
         getFileType.start(file, function f(type){
             if (type === 'image/heic'){
                 file.type = type;
             }
-            handleUploadProcess(up,filename,ret,policyGetUrl,file, vendorType, hashId)
+            handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId)
         })
     }else{
-        handleUploadProcess(up,filename,ret,policyGetUrl,file, vendorType, hashId)
+        handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId)
     }
 }
 

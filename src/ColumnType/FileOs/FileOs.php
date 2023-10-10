@@ -2,6 +2,7 @@
 namespace FormItem\ObjectStorage\ColumnType\FileOs;
 
 use FormItem\ObjectStorage\Lib\Common;
+use FormItem\ObjectStorage\Lib\CommonItemProp;
 use FormItem\ObjectStorage\Lib\TUploadConfig;
 use Qscmf\Builder\ColumnType\ColumnType;
 use Illuminate\Support\Str;
@@ -13,6 +14,7 @@ class FileOs extends ColumnType implements EditableInterface {
 
     use TUploadConfig;
     use TargetFormTrait;
+    use CommonItemProp;
 
     public function build(array &$option, array $data, $listBuilder){
 	    $view = new View();
@@ -43,8 +45,9 @@ class FileOs extends ColumnType implements EditableInterface {
         $view->assign('file_id', $data[$option['name']]);
         $view->assign('gid', Str::uuid()->getHex());
         $view->assign('file_ext',  $upload_type_cls->getExts());
-        $view->assign('data_url',  Common::genItemDataUrl($option, 'file'));
-        $view->assign('vendor_type',  Common::getVendorType('file', $option['options']['vendor_type']));
+
+        self::commonAssign($upload_type_cls, $option, $view);
+
         $content = $view->fetch(__DIR__ . '/file_os_editable.html');
         return $content;
     }

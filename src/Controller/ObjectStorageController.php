@@ -79,7 +79,10 @@ class ObjectStorageController extends \Think\Controller{
     public function policyGet($type, $vendor_type = ''){
         $hash_id = I("get.hash_id");
         $resize = I("get.resize");
-        if ($hash_id && $file_data = Common::getFileByHash($hash_id, null, $resize)){
+        $vendor_type = Common::getVendorType($type, $vendor_type);
+        $os_cls = Context::genVendorByType($vendor_type);
+
+        if ($hash_id && $file_data = Common::getFileByHash($hash_id, $os_cls, $resize)){
             $res = [
                 'file_id' => $file_data['id'],
                 'file_url' => $file_data['url'],
@@ -90,9 +93,7 @@ class ObjectStorageController extends \Think\Controller{
 
             $this->ajaxReturn($res);
         }
-        $vendor_type = Common::getVendorType($type, $vendor_type);
 
-        $os_cls = Context::genVendorByType($vendor_type);
         $response = $os_cls->policyGet($type);
         $response['vendor_type'] = $vendor_type;
 
