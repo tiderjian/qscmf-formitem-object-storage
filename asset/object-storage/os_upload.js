@@ -113,7 +113,7 @@ function genVendorType(type){
     return vendorTypeObj;
 }
 
-function handleUploadProcess(up,filename,policyGetUrl,file, hashId, vendorType){
+function handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId){
     const vendorTypeObj = genVendorType(vendorType);
 
     let resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl,filename,file,hashId));

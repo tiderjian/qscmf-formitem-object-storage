@@ -157,11 +157,9 @@ class Common
     public static function combinePolicyDataUrl(string $method_path, string $type, ?string $vendor_type = '', ?array $custom_params = []):array{
         $param = $custom_params;
         $param['type'] = $type;
-        if ($vendor_type){
-            $param['vendor_type'] = $vendor_type;
-        }
+        $param['vendor_type'] = self::getVendorType($type,$vendor_type);
 
-        return [U($method_path, $param), $vendor_type];
+        return [U($method_path, $param), $param['vendor_type']];
     }
 
     public static function combineOssUrlImgOpt(string $url, string $img_opt):string
