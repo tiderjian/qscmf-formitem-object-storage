@@ -22,7 +22,7 @@ class PicturesOs implements FormType {
         $view->assign('gid', Str::uuid()->getHex());
         $view->assign('file_ext',  $upload_type_cls->getExts());
 
-        self::commonAssign($upload_type_cls, $form_type, $view);
+        self::commonAssign($upload_type_cls, $view, $form_type['options']['vendor_type']);
 
         $content = $view->fetch(__DIR__ . '/pictures_os.html');
         return $content;

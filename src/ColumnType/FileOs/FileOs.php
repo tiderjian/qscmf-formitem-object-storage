@@ -46,7 +46,7 @@ class FileOs extends ColumnType implements EditableInterface {
         $view->assign('gid', Str::uuid()->getHex());
         $view->assign('file_ext',  $upload_type_cls->getExts());
 
-        self::commonAssign($upload_type_cls, $option, $view);
+        self::commonAssign($upload_type_cls, $view, $option['value']['vendor_type']);
 
         $content = $view->fetch(__DIR__ . '/file_os_editable.html');
         return $content;

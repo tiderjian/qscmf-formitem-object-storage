@@ -19,7 +19,7 @@ class PictureOsIntercept implements FormType {
 
         $view->assign('form', $form_type);
 
-        self::commonAssign($upload_type_cls, $form_type, $view);
+        self::commonAssign($upload_type_cls, $view, $form_type['options']['vendor_type']);
 
         $content = $view->fetch(__DIR__ . '/picture_os_intercept.html');
         return $content;

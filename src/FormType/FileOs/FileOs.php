@@ -32,7 +32,7 @@ class FileOs extends FileFormType implements FormType{
         $view->assign('file_ext',  $upload_type_cls->getExts());
         $view->assign('js_fn', $this->buildJsFn());
 
-        self::commonAssign($upload_type_cls, $form_type, $view);
+        self::commonAssign($upload_type_cls, $view, $form_type['options']['vendor_type']);
 
         $content = $view->fetch(__DIR__ . '/file_os.html');
         return $content;
