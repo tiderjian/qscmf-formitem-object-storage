@@ -274,13 +274,36 @@ composer require quansitech/qscmf-formitem-object-storage
 
    - aliyun_oss
 
-     
-     
+     ```json
+     {
+       "accessid": "testaccessid",
+       "host": "host",
+       "policy": "xxx",
+       "expire": 1696934405,
+       "callback": "xxx",
+       "callback_var": "xxx",
+       "dir": "Uploads/file/20231010/652529fb6bd3e",
+       "vendor_type": "aliyun_oss"
+     }
+     ```
+
      
 
    - tengxun_cos
 
-     
+     ```json
+     {
+       "url": "url",
+       "authorization": "authorization",
+       "params": {
+         "key": "Uploads/image/20231010/652527bb43ebd.png",
+         "success_action_redirect": "url"
+       },
+       "vendor_type": "tengxun_cos"
+     }
+     ```
+
+   
 
    - volcengine_tos
 
@@ -302,57 +325,69 @@ composer require quansitech/qscmf-formitem-object-storage
          "vendor_type": "volcengine_tos"
      }
      ```
-   
+
      
 
    ###### 异常
 
    以接口实际返回值为准
-   
+
    
 
 2. 使用 *Post* 方法向云服务商发送文件上传请求
 
-   1. 根据不同供应商组装请求参数
+   - aliyun_oss
 
-      - aliyun_oss
+     - 请求地址为**步骤1**返回的 *host*
+     - 按照官方文档组装表单字段
+
+    
+
+   - tengxun_cos
 
         - 请求地址为**步骤1**返回的 *url*
-     - *formData* 需与**步骤1**返回的 *params* 一致
-   
-     
-   
-   - tengxun_cos
-   
-        1. 请求地址为**步骤1**返回的 *url*
-   
-        2. *formData* 需与**步骤1**返回的 *params* 一致
-   
-           
-   
+        - 按照官方文档组装表单字段
+
+          
+
    - volcengine_tos
-   
+
      - 请求地址为**步骤1**返回的 *url*
-        - *formData* 需与**步骤1**返回的 *params* 一致
-   
+     - *formData* 需与**步骤1**返回的 *params* 一致
+
       
-   
+
    2. 返回示例
-   
+
       ###### 正常
-   
-      ```
-      {
-        "file_id": "5693",
-        "file_url": "url",
-        "status": 1
-      }
-      ```
-   
       
-   
+
+      - 已存在文件
+      
+          ```json
+          {
+            "file_id": "5657",
+            "file_url": "url",
+            "status": 2
+          }
+          ```
+      
+          
+
+      - 上传成功
+      
+          ```json
+          {
+            "file_id": "5693",
+           "file_url": "url",
+            "status": 1
+       }
+         ```
+      
+      
+      
       ###### 异常
-   
+      
       以接口实际返回值为准
 
 
