@@ -16,6 +16,23 @@ composer require quansitech/qscmf-formitem-object-storage
 
 
 
+#### 替换 *oss/cos* 上传组件用法
+
+```text
+若项目之前使用了 quansitech/qscmf-formitem-aliyun-oss 或者 quansitech/qscmf-formitem-tengxun-cos 上传组件，以下是替换步骤 
+```
+
+- 移除 *oss/cos* 扩展包
+- **[安装](https://github.com/quansitech/qscmf-formitem-object-storage#%E5%AE%89%E8%A3%85)**此扩展包
+- 执行数据迁移
+- 添加数据迁移文件，修改 *qs_file_pic* 数据表，赋值 vendor_type字段
+- 按照**[使用](https://github.com/quansitech/qscmf-formitem-object-storage#%E4%BD%BF%E7%94%A8)**修改配置
+- 根据[**支持组件用法**](https://github.com/quansitech/qscmf-formitem-object-storage#%E6%94%AF%E6%8C%81%E7%BB%84%E4%BB%B6)修改后台的上传组件
+- 若前台使用了 *ossuploader* ，参考 [*osuploader* 用法](https://github.com/quansitech/qscmf-formitem-object-storage#%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8)修改
+- 若前后端开发分离的项目，前端按照[**自定义组件用法**](https://github.com/quansitech/qscmf-formitem-object-storage#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%84%E4%BB%B6%E7%94%A8%E6%B3%95)修改上传组件
+
+
+
 #### 使用
 
 + 配置使用的供应商，若同时配置，则优先级按顺序依次降低
@@ -26,12 +43,12 @@ composer require quansitech/qscmf-formitem-object-storage
     适用情景：项目使用了多个云服务商，且同一个上传配置类型需要上传至不同云服务商
     ```
     
-  ```php
+    ```php
     // 使用formItem
-  ->addFormItem("picture_cos", "picture_os", "封面cos","",['vendor_type' => 'tengxun_cos'])
+    ->addFormItem("picture_cos", "picture_os", "封面cos","",['vendor_type' => 'tengxun_cos'])
     // 使用columnItem
     ->addTableColumn("picture", "封面tos", 'picture_os', ['vendor_type' => 'volcengine_tos'], true)
-  ```
+    ```
   
     
   
@@ -58,8 +75,6 @@ composer require quansitech/qscmf-formitem-object-storage
     ```text
     适用情景：项目只使用一个云服务商
     ```
-    
-    
     
     ```php
     OS_VENDOR_TYPE=aliyun_oss
@@ -380,8 +395,8 @@ composer require quansitech/qscmf-formitem-object-storage
           {
             "file_id": "5693",
            "file_url": "url",
-            "status": 1
-       }
+           "status": 1
+      }
          ```
       
       
