@@ -100,6 +100,14 @@ composer require quansitech/qscmf-formitem-object-storage
   
     - *upload_config.php* 需要添加的配置
   
+      ```text
+      当 upload_oss_host 为空时，上传默认使用 oss_host
+      
+      当 oss_host 为自定义域名时，可以将 upload_oss_host 设置为 bucket 域名，接口返回的路径会是自定义域名
+      ```
+      
+      
+      
       | 名称            | 是否必填 | 备注       |
       | --------------- | -------- | ---------- |
       | oss_host        | 是       |            |
@@ -109,7 +117,7 @@ composer require quansitech/qscmf-formitem-object-storage
   
     - *env* 配置
   
-        | 名称          |
+      | 名称          |
         | ------------- |
         | COS_SECRETID  |
         | COS_SECRETKEY |
@@ -117,7 +125,7 @@ composer require quansitech/qscmf-formitem-object-storage
         | COS_BUCKET    |
         | COS_ENDPOINT  |
         | COS_REGION    |
-
+  
     - *upload_config.php* 需要添加的配置
   
         | 名称            | 是否必填 | 备注       |
@@ -137,7 +145,7 @@ composer require quansitech/qscmf-formitem-object-storage
         | VOLC_BUCKET     |
         | VOLC_ENDPOINT   |
         | VOLC_REGION     |
-   
+  
     - *upload_config.php* 需要添加的配置
   
       | 名称            | 是否必填 | 备注       |
@@ -283,7 +291,7 @@ composer require quansitech/qscmf-formitem-object-storage
        "dir": "Uploads/file/20231010/652529fb6bd3e",
        "vendor_type": "aliyun_oss"
      }
-     ```     
+     ```
 
    - tengxun_cos
 
@@ -297,7 +305,7 @@ composer require quansitech/qscmf-formitem-object-storage
        },
        "vendor_type": "tengxun_cos"
      }
-     ```   
+     ```
 
    - volcengine_tos
 
@@ -357,7 +365,7 @@ composer require quansitech/qscmf-formitem-object-storage
             "file_url": "url",
             "status": 2
           }
-          ```          
+          ```
 
       - 上传成功
       
@@ -376,6 +384,31 @@ composer require quansitech/qscmf-formitem-object-storage
 
 
 [FormItem\ObjectStorage\Lib\Common 帮助函数类使用说明](https://github.com/quansitech/qscmf-formitem-object-storage/blob/master/Common.md)
+
+
+
+[FormItem\ObjectStorage\Lib\Context 供应商类使用说明](https://github.com/quansitech/qscmf-formitem-object-storage/blob/master/Vendor.md)
+
+
+
+#### 服务端上传文件
+
+###### 用法
+
+```php
+$file_path = WWW_DIR.'/Uploads/image/xxx/xxx.jpg';
+$object = 'Uploads/image/xxx/xxx.jpg';
+$options = [
+    'Content-Type' => 'image/png'
+];
+
+// Context 供应商类用法参考上文使用说明
+$os_vendor = Context::genVendorByType('volcengine_tos');
+$os_vendor->setBucket("bucket");
+$os_vendor->setEndpoint("bucket");
+
+$res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options);
+```
 
 
 
