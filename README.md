@@ -23,12 +23,12 @@ composer require quansitech/qscmf-formitem-object-storage
 ```
 
 - 移除 *oss/cos* 扩展包
-- **[安装](https://github.com/quansitech/qscmf-formitem-object-storage#%E5%AE%89%E8%A3%85)**此扩展包
+- [**安装**](https://github.com/quansitech/qscmf-formitem-object-storage#%E5%AE%89%E8%A3%85)此扩展包
 - 执行数据迁移
 - 添加数据迁移文件，修改 *qs_file_pic* 数据表，赋值 vendor_type字段
-- 按照**[使用](https://github.com/quansitech/qscmf-formitem-object-storage#%E4%BD%BF%E7%94%A8)**修改配置
+- 按照[**使用**](https://github.com/quansitech/qscmf-formitem-object-storage#%E4%BD%BF%E7%94%A8)修改配置
 - 根据[**支持组件用法**](https://github.com/quansitech/qscmf-formitem-object-storage#%E6%94%AF%E6%8C%81%E7%BB%84%E4%BB%B6)修改后台的上传组件
-- 若前台使用了 *ossuploader* ，参考 [*osuploader* 用法](https://github.com/quansitech/qscmf-formitem-object-storage#%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8)修改
+- 若前台使用了 *ossuploader* ，参考 [***osuploader* 用法**](https://github.com/quansitech/qscmf-formitem-object-storage#%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8)修改
 - 若前后端开发分离的项目，前端按照[**自定义组件用法**](https://github.com/quansitech/qscmf-formitem-object-storage#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%84%E4%BB%B6%E7%94%A8%E6%B3%95)修改上传组件
 
 
@@ -50,8 +50,6 @@ composer require quansitech/qscmf-formitem-object-storage
     ->addTableColumn("picture", "封面tos", 'picture_os', ['vendor_type' => 'volcengine_tos'], true)
     ```
   
-    
-  
   + 修改 *upload_config.php* 的上传配置
   
     ```text
@@ -59,16 +57,13 @@ composer require quansitech/qscmf-formitem-object-storage
     ```
     
     ```php
-  /* 图片上传相关配置 */
-    'UPLOAD_TYPE_IMAGE' => array(
-      // 其他配置省略
-        'oss_host' => env("ALIOSS_HOST"),
-        'oss_meta' => array('Cache-Control' => 'max-age=2592000'),
-        'vendorType' => 'aliyun_oss',
-    ),
+      'UPLOAD_TYPE_IMAGE' => array(
+          // 其他配置省略
+            'oss_host' => env("ALIOSS_HOST"),
+            'oss_meta' => array('Cache-Control' => 'max-age=2592000'),
+            'vendorType' => 'aliyun_oss',
+        ),
     ```
-    
-    
     
   + 添加 *env* *OS_VENDOR_TYPE*，全局配置
   
@@ -90,31 +85,25 @@ composer require quansitech/qscmf-formitem-object-storage
   | tengxun_cos    | 腾讯云   |
   | volcengine_tos | 火山引擎 |
 
-  
-
   - **aliyun_oss**
 
     - *env* 配置
 
       | 名称                     |
       | ------------------------ |
-      | ALIOSS_ACCESS_KEY_ID     |
-      | ALIOSS_ACCESS_KEY_SECRET |
-      | ALIOSS_HOST              |
-    | ALIOSS_BUCKET            |
-      | ALIOSS_ENDPOINT          |
-    | ALIOSS_REGION            |
-  
-    
+      | ALIOSS_ACCESS_KEY_ID|
+      | ALIOSS_ACCESS_KEY_SECRET|
+      | ALIOSS_HOST|
+      | ALIOSS_BUCKET|
+      | ALIOSS_ENDPOINT|
+      | ALIOSS_REGION|
   
     - *upload_config.php* 需要添加的配置
   
       | 名称            | 是否必填 | 备注       |
-    | --------------- | -------- | ---------- |
+      | --------------- | -------- | ---------- |
       | oss_host        | 是       |            |
-    | upload_oss_host | 否       | 上传用域名 |
-  
-    
+      | upload_oss_host | 否       | 上传用域名 |
     
   - **tengxun_cos**
   
@@ -128,17 +117,13 @@ composer require quansitech/qscmf-formitem-object-storage
         | COS_BUCKET    |
         | COS_ENDPOINT  |
         | COS_REGION    |
-  
-    
-  
+
     - *upload_config.php* 需要添加的配置
   
         | 名称            | 是否必填 | 备注       |
         | --------------- | -------- | ---------- |
         | cos_host        | 是       |            |
         | upload_cos_host | 否       | 上传用域名 |
-  
-      
   
   - **volcengine_tos**
   
@@ -152,9 +137,7 @@ composer require quansitech/qscmf-formitem-object-storage
         | VOLC_BUCKET     |
         | VOLC_ENDPOINT   |
         | VOLC_REGION     |
-  
-    
-  
+   
     - *upload_config.php* 需要添加的配置
   
       | 名称            | 是否必填 | 备注       |
@@ -300,9 +283,7 @@ composer require quansitech/qscmf-formitem-object-storage
        "dir": "Uploads/file/20231010/652529fb6bd3e",
        "vendor_type": "aliyun_oss"
      }
-     ```
-
-     
+     ```     
 
    - tengxun_cos
 
@@ -316,14 +297,12 @@ composer require quansitech/qscmf-formitem-object-storage
        },
        "vendor_type": "tengxun_cos"
      }
-     ```
-
-   
+     ```   
 
    - volcengine_tos
 
-     ```
-    {
+     ```json
+     {
          "url": "url",
          "params": {
              "Content-Type": "image/png",
@@ -341,8 +320,6 @@ composer require quansitech/qscmf-formitem-object-storage
      }
      ```
 
-     
-
    ###### 异常
 
    以接口实际返回值为准
@@ -356,14 +333,10 @@ composer require quansitech/qscmf-formitem-object-storage
      - 请求地址为**步骤1**返回的 *host*
      - 按照官方文档组装表单字段
 
-    
-
    - tengxun_cos
 
         - 请求地址为**步骤1**返回的 *url*
-        - 按照官方文档组装表单字段
-
-          
+        - 按照官方文档组装表单字段          
 
    - volcengine_tos
 
@@ -376,7 +349,6 @@ composer require quansitech/qscmf-formitem-object-storage
 
       ###### 正常
       
-
       - 已存在文件
       
           ```json
@@ -385,21 +357,17 @@ composer require quansitech/qscmf-formitem-object-storage
             "file_url": "url",
             "status": 2
           }
-          ```
-      
-          
+          ```          
 
       - 上传成功
       
           ```json
           {
             "file_id": "5693",
-           "file_url": "url",
-           "status": 1
-      }
+            "file_url": "url",
+            "status": 1
+      	  }
          ```
-      
-      
       
       ###### 异常
       
