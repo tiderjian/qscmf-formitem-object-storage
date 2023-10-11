@@ -278,7 +278,8 @@ class TengxunCos implements IVendor
     public function uploadFile(string $file_path, ?string $object_name = '', ?array $header_options = []){
         $output = $this->_client->upload($this->_vendor_config->getBucket(), $object_name,
             Utils::tryFopen($file_path, 'r'), $header_options);
-        if ($output->toArray()['ContentLength'] > 0){
+        $output_arr = $output->toArray();
+        if (isset($output_arr['ETag']) && $output['ETag']){
             return $object_name;
         }
 
