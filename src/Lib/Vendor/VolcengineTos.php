@@ -3,10 +3,13 @@
 namespace FormItem\ObjectStorage\Lib\Vendor;
 
 use FormItem\ObjectStorage\Lib\Common;
+use Illuminate\Support\Str;
 use Tos\Model\Enum;
 use Tos\Model\HeadObjectInput;
 use Tos\Model\PreSignedURLInput;
 use Tos\Model\PreSignedURLOutput;
+use Tos\Model\PutObjectFromFileInput;
+use Tos\Model\PutObjectFromFileOutput;
 use Tos\TosClient;
 
 class VolcengineTos implements IVendor
@@ -14,7 +17,7 @@ class VolcengineTos implements IVendor
 
     public $vendor_type = Context::VENDOR_VOLCENGINE_TOS;
 
-    private $_tos_client;
+    private $_client;
     private $_upload_config;
     private $_vendor_config;
 
@@ -30,6 +33,18 @@ class VolcengineTos implements IVendor
             'endPoint' => env('VOLC_ENDPOINT'),
             'region' => env('VOLC_REGION'),
         ]);
+    }
+
+    public function setBucket(string $bucket): IVendor
+    {
+        $this->_vendor_config->setBucket($bucket);
+        return $this;
+    }
+
+    public function setEndPoint(string $endPoint): IVendor
+    {
+        $this->_vendor_config->setEndPoint($endPoint);
+        return $this;
     }
 
     public function genVendorConfig(array $config): VendorConfig
@@ -55,7 +70,7 @@ class VolcengineTos implements IVendor
         if (Common::checkUploadConfig($type, $this->vendor_type, $this->getShowHostKey(), $config)){
             $this->_upload_config = $config;
 
-            $this->_tos_client = new TosClient([
+            $this->_client = new TosClient([
                 'region' => $this->_vendor_config->getRegion(),
                 'endpoint' => $this->_vendor_config->getEndPoint(),
                 'ak' => $this->_vendor_config->getAccessKey(),
@@ -78,7 +93,7 @@ class VolcengineTos implements IVendor
         $input->setExpires($timeout);
         $input->setQuery($query);
 
-        return $this->_tos_client->preSignedURL($input);
+        return $this->_client->preSignedURL($input);
     }
 
     private function _cbParam(string $type):array{
@@ -337,9 +352,31 @@ class VolcengineTos implements IVendor
     public function headObj($bucket_host,$key){
         $input = new HeadObjectInput($this->_vendor_config->getBucket(), $key);
 
-        $obj = $this->_tos_client->headObject($input);
+        $obj = $this->_client->headObject($input);
 
         return array($obj);
+    }
+
+    public function uploadFile(string $file_path, ?string $object_name = '', ?array $header_options = []){
+        $input = new PutObjectFromFileInput($this->_vendor_config->getBucket(), $object_name, $file_path);
+        $header_options && $this->_setUploadOptions($input, $header_options);
+        $output = $this->_client->PutObjectFromFile($input);
+        if ($output->getStatusCode() === 200){
+            return $object_name;
+        }
+
+        return $output;
+    }
+
+    private function _transcodeKeyToFunName(string $key):string{
+        return 'set'.ucfirst(Str::camel(str_replace('-', '_', $key)));
+    }
+
+    private function _setUploadOptions(PutObjectFromFileInput &$input, array $header_options){
+        collect($header_options)->each(function($val,$name) use(&$input){
+            $fun = $this->_transcodeKeyToFunName($name);
+            $input->$fun($val);
+        });
     }
 
 }

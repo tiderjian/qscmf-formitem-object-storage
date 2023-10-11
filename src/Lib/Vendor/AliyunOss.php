@@ -12,7 +12,7 @@ use FormItem\ObjectStorage\Lib\Common;
 class AliyunOss implements IVendor {
     public $vendor_type = Context::VENDOR_ALIYUN_OSS;
 
-    private $_oss_client;
+    private $_client;
     private $_upload_config;
     private $_vendor_config;
 
@@ -28,6 +28,18 @@ class AliyunOss implements IVendor {
             'endPoint' => env('ALIOSS_ENDPOINT'),
             'region' => env('ALIOSS_REGION'),
         ]);
+    }
+
+    public function setBucket(string $bucket): IVendor
+    {
+        $this->_vendor_config->setBucket($bucket);
+        return $this;
+    }
+
+    public function setEndPoint(string $endPoint): IVendor
+    {
+        $this->_vendor_config->setEndPoint($endPoint);
+        return $this;
     }
 
     public function genVendorConfig(array $config): VendorConfig
@@ -58,7 +70,7 @@ class AliyunOss implements IVendor {
         if (Common::checkUploadConfig($type, $this->vendor_type, $this->getShowHostKey(), $config)){
             $this->_upload_config = $config;
 
-            $this->_oss_client = new \OSS\OssClient($this->_vendor_config->getAccessKey(),
+            $this->_client = new \OSS\OssClient($this->_vendor_config->getAccessKey(),
                 $this->_vendor_config->getSecretKey(),
                 $this->_vendor_config->getEndPoint());
 
@@ -66,11 +78,16 @@ class AliyunOss implements IVendor {
         }
     }
     
-    public function uploadFile($file, $options){
-        $ext = pathinfo($file, PATHINFO_EXTENSION);
-        $object = self::genOssObjectName($this->_upload_config, '.' . $ext);
-        $header_options = array(\OSS\OssClient::OSS_HEADERS => $options);
-        return $this->_oss_client->uploadFile($this->_vendor_config->getBucket(), $object, $file, $header_options);
+    public function uploadFile(string $file_path, ?string $object_name = '', ?array $header_options = []){
+        $ext = pathinfo($file_path, PATHINFO_EXTENSION);
+        $object_name = $object_name ?: self::genOssObjectName($this->_upload_config, '.' . $ext);
+        $header_options = array(\OSS\OssClient::OSS_HEADERS => $header_options);
+        $res = $this->_client->uploadFile($this->_vendor_config->getBucket(), $object_name, $file_path, $header_options);
+        if (isset($res['info']['http_code']) && $res['info']['http_code'] === 200){
+            return $object_name;
+        }
+
+        return $res;
     }
 
     public function genSignedUrl(array $param){
@@ -79,7 +96,7 @@ class AliyunOss implements IVendor {
     
     public function signUrl($object, $timeout){
         
-        $signedUrl = $this->_oss_client->signUrl($this->_vendor_config->getBucket(), $object, $timeout);
+        $signedUrl = $this->_client->signUrl($this->_vendor_config->getBucket(), $object, $timeout);
         return $signedUrl;
     }
     

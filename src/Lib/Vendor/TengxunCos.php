@@ -5,12 +5,14 @@ namespace FormItem\ObjectStorage\Lib\Vendor;
 
 
 use FormItem\ObjectStorage\Lib\Common;
+use GuzzleHttp\Psr7\Utils;
+use Tos\Model\PutObjectFromFileInput;
 
 class TengxunCos implements IVendor
 {
     public $vendor_type = Context::VENDOR_TENGXUN_COS;
 
-    private $_cos_client;
+    private $_client;
     private $_upload_config;
     private $_vendor_config;
 
@@ -26,6 +28,18 @@ class TengxunCos implements IVendor
             'endPoint' => env('COS_ENDPOINT'),
             'region' => env('COS_REGION'),
         ]);
+    }
+
+    public function setBucket(string $bucket): IVendor
+    {
+        $this->_vendor_config->setBucket($bucket);
+        return $this;
+    }
+
+    public function setEndPoint(string $endPoint): IVendor
+    {
+        $this->_vendor_config->setEndPoint($endPoint);
+        return $this;
     }
 
     public function genVendorConfig(array $config): VendorConfig
@@ -53,16 +67,14 @@ class TengxunCos implements IVendor
 
             $handle = $this->_handleCosUrl($config[$this->getShowHostKey()]);
 
-            $config = array(
+            $this->_client = new \Qcloud\Cos\Client([
                 'region' => $this->_vendor_config->getRegion(),
                 'schema' => $handle['protocol'], //协议头部，默认为 http
                 'credentials' => array(
                     'secretId' => $this->_vendor_config->getAccessKey(),
                     'secretKey' => $this->_vendor_config->getSecretKey()
                 )
-            );
-
-            $this->_cos_client = new \Qcloud\Cos\Client($config);
+            ]);
 
             return $this;
         }
@@ -161,7 +173,7 @@ class TengxunCos implements IVendor
      * @return array
      */
     public function headObj($bucket_host,$key){
-        $obj = $this->_cos_client->headObject([
+        $obj = $this->_client->headObject([
             'Bucket' => $this->_vendor_config->getBucket(),
             'Key' => $key
         ]);
@@ -178,7 +190,7 @@ class TengxunCos implements IVendor
 ### 使用封装的 getObjectUrl 获取下载签名
         try {
             $bucket =  $this->_vendor_config->getBucket(); //存储桶，格式：BucketName-APPID
-            $signedUrl = $this->_cos_client->getObjectUrl($bucket, $key, '+'.$expire.' seconds'); //签名的有效时间
+            $signedUrl = $this->_client->getObjectUrl($bucket, $key, '+'.$expire.' seconds'); //签名的有效时间
             // 请求成功
             return $signedUrl;
         } catch (\Exception $e) {
@@ -261,5 +273,15 @@ class TengxunCos implements IVendor
         $file_data['vendor_type'] = $this->vendor_type;
 
         return $file_data;
+    }
+
+    public function uploadFile(string $file_path, ?string $object_name = '', ?array $header_options = []){
+        $output = $this->_client->upload($this->_vendor_config->getBucket(), $object_name,
+            Utils::tryFopen($file_path, 'r'), $header_options);
+        if ($output->toArray()['ContentLength'] > 0){
+            return $object_name;
+        }
+
+        return $output;
     }
 }

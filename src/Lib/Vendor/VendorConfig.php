@@ -58,6 +58,16 @@ class VendorConfig
         return $this->config['secretKey'];
     }
 
+    public function setBucket(string $bucket):self{
+        $this->config['bucket'] = $bucket;
+        return $this;
+    }
+
+    public function setEndPoint(string $endPoint):self{
+        $this->config['endPoint'] = $endPoint;
+        return $this;
+    }
+
     public function __call($method,$args) {
         if (function_exists($this->$method)){
             $this->$method($args);

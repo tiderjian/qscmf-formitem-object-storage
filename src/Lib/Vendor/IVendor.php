@@ -7,6 +7,10 @@ interface IVendor
 
     public function genVendorConfig(array $config):VendorConfig;
 
+    public function setBucket(string $bucket):self;
+
+    public function setEndPoint(string $endPoint):self;
+
     public function getUploadHostKey():string;
 
     public function getUploadHost(array $config):string;
@@ -28,5 +32,7 @@ interface IVendor
     public function combineImgOpt(string $url, string $img_opt):string;
 
     public function extraFile(array $config, array $body_arr):array;
+
+    public function uploadFile(string $file_path, ?string $object_name = '', ?array $header_options = []);
 
 }
