@@ -2,6 +2,7 @@
 namespace FormItem\ObjectStorage\Behaviors;
 
 use FormItem\ObjectStorage\Lib\File;
+use FormItem\ObjectStorage\Lib\UploadConfig;
 use FormItem\ObjectStorage\Lib\Vendor\Context;
 
 class SecurityUrlBehavior{
@@ -18,8 +19,8 @@ class SecurityUrlBehavior{
 
         $os_cls = Context::genVendorByType($this->file->getVendorType());
         if ($os_cls){
-            $config = C('UPLOAD_TYPE_' . strtoupper($file_ent['cate']));
-            $object = trim(str_replace($config[$os_cls->getShowHostKey()], '', $file_ent['url']), '/');
+            $config_cls = new UploadConfig($file_ent['cate']);
+            $object = trim(str_replace($config_cls->getHost($os_cls->getVendorConfig()->getHostKey()), '', $file_ent['url']), '/');
 
             $url = $os_cls->genClient($file_ent['cate'])->genSignedUrl(['object' => $object, 'timeout' => $params['timeout']]);
             if($url){

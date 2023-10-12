@@ -22,9 +22,6 @@ class VolcengineTos implements IVendor
     private $_upload_config;
     private $_vendor_config;
 
-    private $_host_key = 'tos_host';
-    private $_upload_host_key = 'upload_tos_host';
-
     public function __construct()
     {
         $this->setVendorConfig([
@@ -33,6 +30,10 @@ class VolcengineTos implements IVendor
             'bucket' => env('VOLC_BUCKET'),
             'endPoint' => env('VOLC_ENDPOINT'),
             'region' => env('VOLC_REGION'),
+            'host' => env('VOLC_HOST'),
+            'upload_host' => env('VOLC_UPLOAD_HOST'),
+            'host_key' => 'tos_host',
+            'upload_host_key' => 'upload_tos_host',
         ]);
     }
 
@@ -81,23 +82,15 @@ class VolcengineTos implements IVendor
         return $this;
     }
 
-    public function getShowHostKey():string{
-        return $this->_host_key;
-    }
-
-    public function getUploadHostKey():string{
-        return $this->_upload_host_key;
-    }
-
     public function getUploadHost(array $config):string{
-        return $config[$this->getUploadHostKey()] ?? $config[$this->getShowHostKey()];
+        $config[$this->getVendorConfig()->getUploadHostKey()] ?? $config[$this->getVendorConfig()->getHostKey()];
     }
 
-    public function genClient(string $type){
+    public function genClient(string $type, ?bool $check_config = true){
         if (!isset($this->_upload_config) || !$this->getUploadConfig()->getAll()){
             $this->setUploadConfig($type);
         }
-        if (Common::checkUploadConfig($this)){
+        if (!$check_config || Common::checkUploadConfig($this)){
 
             $this->_client = new TosClient([
                 'region' => $this->_vendor_config->getRegion(),
@@ -312,7 +305,7 @@ class VolcengineTos implements IVendor
     }
 
     private function _extraObjectViaHeadObj(?array $params = []){
-        $body_obj = $this->headObj($params[$this->getShowHostKey()],$params['cb_key']);
+        $body_obj = $this->headObj($params[$this->getVendorConfig()->getHostKey()],$params['cb_key']);
 
         $body_arr = [
             'filename' => $params['cb_key'],
@@ -356,7 +349,7 @@ class VolcengineTos implements IVendor
             $name_arr = explode('/', $body_arr['filename']);
             $file_data['title'] = end($name_arr);
         }
-        $file_data['url'] = $config[$this->getShowHostKey()] . '/' . $body_arr['filename'];
+        $file_data['url'] = $config[$this->getVendorConfig()->getHostKey()] . '/' . $body_arr['filename'];
         $file_data['size'] = $body_arr['size'];
         $file_data['security'] = $config['security'] ? 1 : 0;
         $file_data['file'] = '';

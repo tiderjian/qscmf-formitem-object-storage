@@ -28,6 +28,10 @@ class TengxunCos implements IVendor
             'bucket' => env('COS_BUCKET'),
             'endPoint' => env('COS_ENDPOINT'),
             'region' => env('COS_REGION'),
+            'host' => env('COS_HOST'),
+            'upload_host' => env('COS_UPLOAD_HOST'),
+            'host_key' => 'cos_host',
+            'upload_host_key' => 'cos_host',
         ]);
     }
 
@@ -75,24 +79,16 @@ class TengxunCos implements IVendor
         return $this;
     }
 
-    public function getShowHostKey():string{
-        return $this->_host_key;
-    }
-
-    public function getUploadHostKey():string{
-        return $this->_upload_host_key;
-    }
-
     public function getUploadHost(array $config):string{
-        return $config[$this->getUploadHostKey()] ?? $config[$this->getShowHostKey()];
+        return $config[$this->getVendorConfig()->getUploadHostKey()] ?? $config[$this->getVendorConfig()->getHostKey()];
     }
 
-    public function getCosClient($type){
+    public function getCosClient($type, ?bool $check_config = true){
         if (!isset($this->_upload_config) || !$this->getUploadConfig()->getAll()){
             $this->setUploadConfig($type);
         }
-        if (Common::checkUploadConfig($this)){
-            $handle = $this->_handleCosUrl($this->getUploadConfig()->getAll()[$this->getShowHostKey()]);
+        if (!$check_config || Common::checkUploadConfig($this)){
+            $handle = $this->_handleCosUrl($this->getUploadConfig()->getAll()[$this->getVendorConfig()->getHostKey()]);
 
             $this->_client = new \Qcloud\Cos\Client([
                 'region' => $this->_vendor_config->getRegion(),
@@ -244,7 +240,7 @@ class TengxunCos implements IVendor
         $body = file_get_contents('php://input');
         parse_str($body, $body_arr);
 
-        $body_arr = $this->headObj($params[$this->getShowHostKey()],$params['cb_key']);
+        $body_arr = $this->headObj($params[$this->getVendorConfig()->getHostKey()],$params['cb_key']);
         $body_arr['filename'] = $params['cb_key'];
         $body_arr['mimeType'] = $this->_extraObjectMimeType($body_arr);
 
@@ -278,8 +274,8 @@ class TengxunCos implements IVendor
         ];
     }
 
-    public function genClient(string $type){
-        return self::getCosClient($type);
+    public function genClient(string $type, ?bool $check_config = true){
+        return self::getCosClient($type, $check_config);
     }
 
     private function _extraObjectMimeType(?array $params = []){
@@ -294,7 +290,7 @@ class TengxunCos implements IVendor
             $file_data['title'] = end($array);
         }
 
-        $file_data['url'] = $config[$this->getShowHostKey()] . '/' . $body_arr['Key'];
+        $file_data['url'] = $config[$this->getVendorConfig()->getHostKey()] . '/' . $body_arr['Key'];
         $file_data['size'] = $body_arr['ContentLength'];
         $file_data['security'] = $config['security'] ? 1 : 0;
         $file_data['file'] = '';

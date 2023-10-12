@@ -35,6 +35,9 @@ class VendorConfig
             'bucket',
             'endPoint',
             'region',
+            'host',
+            'host_key',
+            'upload_host_key',
         ];
     }
 
@@ -66,6 +69,18 @@ class VendorConfig
     public function setEndPoint(string $endPoint):self{
         $this->config['endPoint'] = $endPoint;
         return $this;
+    }
+
+    public function getHostKey():string{
+        return $this->config['host_key'];
+    }
+
+    public function getUploadHostKey():string{
+        return $this->config['upload_host_key'];
+    }
+
+    public function getUploadHost():string{
+        return $this->config['upload_host'] ?: $this->config['host'];
     }
 
     public function __call($method,$args) {

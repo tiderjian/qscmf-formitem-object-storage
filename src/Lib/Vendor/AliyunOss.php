@@ -17,9 +17,6 @@ class AliyunOss implements IVendor {
     private $_upload_config;
     private $_vendor_config;
 
-    private $_host_key = 'oss_host';
-    private $_upload_host_key = 'upload_oss_host';
-
     public function __construct()
     {
         $this->setVendorConfig([
@@ -29,6 +26,10 @@ class AliyunOss implements IVendor {
             'endPoint' => env('ALIOSS_ENDPOINT'),
             'region' => env('ALIOSS_REGION'),
             'isCname' => strpos(env('VOLC_ENDPOINT'), 'aliyuncs.com') !== false,
+            'host' => env('ALIOSS_HOST'),
+            'upload_host' => env('ALIOSS_UPLOAD_HOST'),
+            'host_key' => 'oss_host',
+            'upload_host_key' => 'upload_oss_host',
         ]);
     }
 
@@ -76,33 +77,26 @@ class AliyunOss implements IVendor {
         return $this;
     }
 
-    public function getShowHostKey():string{
-        return $this->_host_key;
-    }
-
-    public function getUploadHostKey():string{
-        return $this->_upload_host_key;
-    }
-
     public function getUploadHost(array $config):string{
-        return $config[$this->getUploadHostKey()] ?? $config[$this->getShowHostKey()];
+        return $config[$this->getVendorConfig()->getUploadHostKey()] ?? $config[$this->getVendorConfig()->getHostKey()];
     }
 
-    public function genClient(string $type)
+    public function genClient(string $type, ?bool $check_config = true)
     {
-        return $this->getOssClient($type);
+        return $this->getOssClient($type, $check_config);
     }
 
-    public function getOssClient($type){
+    public function getOssClient($type, ?bool $check_config = true){
         if (!isset($this->_upload_config) || !$this->getUploadConfig()->getAll()){
             $this->setUploadConfig($type);
         }
-        if (Common::checkUploadConfig($this)){
+        if (!$check_config || Common::checkUploadConfig($this)){
 
-            $this->_client = new \OSS\OssClient($this->_vendor_config->getAccessKey(),
-                $this->_vendor_config->getSecretKey(),
-                $this->_vendor_config->getEndPoint(),
-                $this->_vendor_config->getIsCname()
+            $this->_client = new \OSS\OssClient(
+                $this->getVendorConfig()->getAccessKey(),
+                $this->getVendorConfig()->getSecretKey(),
+                $this->getVendorConfig()->getEndPoint(),
+                $this->getVendorConfig()->getIsCname()
             );
 
             return $this;
@@ -113,7 +107,7 @@ class AliyunOss implements IVendor {
         $ext = pathinfo($file_path, PATHINFO_EXTENSION);
         $object_name = $object_name ?: self::genOssObjectName($this->getUploadConfig()->getAll(), '.' . $ext);
         $header_options = array(\OSS\OssClient::OSS_HEADERS => $header_options);
-        $res = $this->_client->uploadFile($this->_vendor_config->getBucket(), $object_name, $file_path, $header_options);
+        $res = $this->_client->uploadFile($this->getVendorConfig()->getBucket(), $object_name, $file_path, $header_options);
         if (isset($res['info']['http_code']) && $res['info']['http_code'] === 200){
             return $object_name;
         }
@@ -155,8 +149,9 @@ class AliyunOss implements IVendor {
         $end = $now + $expire;
         $expiration = gmt_iso8601($end);
 
-        $config_cls = new UploadConfig($type);
-        $config = $config_cls->getAll();
+        $this->setUploadConfig($type);
+        $config_cls = $this->getUploadConfig();
+        $config = $this->getUploadConfig()->getAll();
 
         $dir = self::genOssObjectName($config);
         $condition = array(0=>'content-length-range', 1=>0, 2=> Common::getMaxSize($type));
@@ -186,7 +181,7 @@ class AliyunOss implements IVendor {
         $callback_var=json_encode($callback_var);
 
         $response = array();
-        $response['accessid'] = env('ALIOSS_ACCESS_KEY_ID');
+        $response['accessid'] = $this->getVendorConfig()->getAccessKey();
         $response['host'] = $this->getUploadHost($config);
         $response['policy'] = $base64_policy;
         $response['signature'] = $signature;
@@ -316,7 +311,7 @@ class AliyunOss implements IVendor {
             $name_arr = explode('/', $body_arr['filename']);
             $file_data['title'] = end($name_arr);
         }
-        $file_data['url'] = $config[$this->getShowHostKey()] . '/' . $body_arr['filename'] . ($config['oss_style'] ? $config['oss_style'] : '');
+        $file_data['url'] = $this->getVendorConfig()->getHost() . '/' . $body_arr['filename'] . ($config['oss_style'] ? $config['oss_style'] : '');
         $file_data['size'] = $body_arr['size'];
         $file_data['cate'] = $body_arr['upload_type'];
         $file_data['security'] = $config['security'] ? 1 : 0;

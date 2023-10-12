@@ -20,6 +20,16 @@ class UploadConfig
         return $this->type;
     }
 
+    public function getHost(string $key, ?string $env_key = ''){
+//        return !empty($this->config[$key]) ? $this->config[$key] : env($env_key);
+        return $this->config[$key];
+    }
+
+    public function getUploadHost(string $key, ?string $env_key = ''){
+//        return !empty($this->config[$key]) ? $this->config[$key] : env($env_key);
+        return $this->config[$key];
+    }
+
     public function getExts(){
         return !empty($this->config['exts']) ? $this->config['exts'] : '*';
     }

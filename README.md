@@ -104,6 +104,9 @@ composer require quansitech/qscmf-formitem-object-storage
       当 upload_oss_host 为空时，上传默认使用 oss_host
       
       当 oss_host 为自定义域名时，可以将 upload_oss_host 设置为 bucket 域名，接口返回的路径会是自定义域名
+      其他类型的 upload_xxx_host 是同样的作用，不再说明
+      
+      自定义域名常用于配置CDN加速域名
       ```     
 
       | 名称            | 是否必填 | 备注       |
@@ -226,8 +229,21 @@ composer require quansitech/qscmf-formitem-object-storage
   ->addFormItem('cover', 'picture_os_intercept', '单张裁剪后的图片', '', $option)
   ->addFormItem('covers', 'pictures_os_intercept', '多张裁剪后的图片')
   ```
-
   
+- 富文本上传文件： ueditor
+  addFormItem第七个参数，传递指定的上传处理地址, 地址参数说明
+ 
+  | 参数名称       | 类型     | 是否必填 | 备注                                               |
+  |---------------|--------|--------------------------------------------------|-------------------------------------|
+  | $os | string | 是    | 恒为1                                           |
+  | $type         | string | 否    | 与上传配置 UPLOAD_TYPE_XXX 的 XXX 对应，如图片 image；文件 file |
+  | $vendor_type   | array  | 否    | 供应商类型              |
+
+  ```php
+  ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=aliyun_oss"')
+  ->addFormItem('tos', 'ueditor', 'tos','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=volcengine_tos"')
+  ->addFormItem('cos', 'ueditor', 'cos','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=tengxun_cos"')
+  ```
 
 
 

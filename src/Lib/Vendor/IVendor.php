@@ -11,6 +11,8 @@ interface IVendor
 
     public function setVendorConfig(array $config):self;
 
+    public function getVendorConfig():VendorConfig;
+
     public function setUploadConfig(string $type, ?array $config = []):self;
 
     public function getUploadConfig():UploadConfig;
@@ -19,13 +21,9 @@ interface IVendor
 
     public function setEndPoint(string $endPoint):self;
 
-    public function getUploadHostKey():string;
-
     public function getUploadHost(array $config):string;
 
-    public function getShowHostKey():string;
-
-    public function genClient(string $type);
+    public function genClient(string $type, ?bool $check_config = true);
 
     public function getClient();
 

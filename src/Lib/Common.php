@@ -72,12 +72,12 @@ class Common
         return (new \Symfony\Component\Mime\MimeTypes())->getMimeTypes('heic');
     }
 
-    public static function getVendorType(string $type = '', ?string $vendor_type = ''):string{
+    public static function getVendorType(string $type = '', ?string $vendor_type = '', ?array $config = []):string{
         if ($vendor_type){
             return $vendor_type;
         }
 
-        if ($type && $config_vendor_type = (new UploadConfig($type))->getVendorType()){
+        if ($type && $config_vendor_type = (new UploadConfig($type, $config))->getVendorType()){
             return $config_vendor_type;
         }
 
@@ -213,7 +213,7 @@ class Common
         }
 
         $vendor_type = $vendor_cls->vendor_type;
-        if(!$config[$vendor_cls->getShowHostKey()]){
+        if(!$config[$vendor_cls->getVendorConfig()->getHostKey()]){
             E($type . '这不是'.$vendor_type.'上传配置类型!');
         }
 
