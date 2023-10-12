@@ -8,6 +8,7 @@ namespace FormItem\ObjectStorage\Lib\Vendor;
  */
 
 use FormItem\ObjectStorage\Lib\Common;
+use FormItem\ObjectStorage\Lib\UploadConfig;
 
 class AliyunOss implements IVendor {
     public $vendor_type = Context::VENDOR_ALIYUN_OSS;
@@ -21,13 +22,27 @@ class AliyunOss implements IVendor {
 
     public function __construct()
     {
-        $this->_vendor_config = $this->genVendorConfig([
+        $this->setVendorConfig([
             'accessKey' => env('ALIOSS_ACCESS_KEY_ID'),
             'secretKey' => env('ALIOSS_ACCESS_KEY_SECRET'),
             'bucket' => env('ALIOSS_BUCKET'),
             'endPoint' => env('ALIOSS_ENDPOINT'),
             'region' => env('ALIOSS_REGION'),
+            'isCname' => strpos(env('VOLC_ENDPOINT'), 'aliyuncs.com') !== false,
         ]);
+    }
+
+    public function getVendorType():string{
+        return $this->vendor_type;
+    }
+
+    public function getUploadConfig():UploadConfig{
+        return $this->_upload_config;
+    }
+
+    public function getClient()
+    {
+        return $this->_client;
     }
 
     public function setBucket(string $bucket): IVendor
@@ -42,9 +57,23 @@ class AliyunOss implements IVendor {
         return $this;
     }
 
-    public function genVendorConfig(array $config): VendorConfig
+    public function getVendorConfig():VendorConfig
     {
-        return new VendorConfig($config);
+        return $this->_vendor_config;
+    }
+
+    public function setVendorConfig(array $config): IVendor
+    {
+        $this->_vendor_config = new VendorConfig($config);
+
+        return $this;
+    }
+
+    public function setUploadConfig(string $type, ?array $config = []): IVendor
+    {
+        $this->_upload_config = new UploadConfig($type, $config);
+
+        return $this;
     }
 
     public function getShowHostKey():string{
@@ -65,14 +94,16 @@ class AliyunOss implements IVendor {
     }
 
     public function getOssClient($type){
-        $config = C('UPLOAD_TYPE_' . strtoupper($type));
-
-        if (Common::checkUploadConfig($type, $this->vendor_type, $this->getShowHostKey(), $config)){
-            $this->_upload_config = $config;
+        if (!isset($this->_upload_config) || !$this->getUploadConfig()->getAll()){
+            $this->setUploadConfig($type);
+        }
+        if (Common::checkUploadConfig($this)){
 
             $this->_client = new \OSS\OssClient($this->_vendor_config->getAccessKey(),
                 $this->_vendor_config->getSecretKey(),
-                $this->_vendor_config->getEndPoint());
+                $this->_vendor_config->getEndPoint(),
+                $this->_vendor_config->getIsCname()
+            );
 
             return $this;
         }
@@ -80,7 +111,7 @@ class AliyunOss implements IVendor {
     
     public function uploadFile(string $file_path, ?string $object_name = '', ?array $header_options = []){
         $ext = pathinfo($file_path, PATHINFO_EXTENSION);
-        $object_name = $object_name ?: self::genOssObjectName($this->_upload_config, '.' . $ext);
+        $object_name = $object_name ?: self::genOssObjectName($this->getUploadConfig()->getAll(), '.' . $ext);
         $header_options = array(\OSS\OssClient::OSS_HEADERS => $header_options);
         $res = $this->_client->uploadFile($this->_vendor_config->getBucket(), $object_name, $file_path, $header_options);
         if (isset($res['info']['http_code']) && $res['info']['http_code'] === 200){
@@ -124,7 +155,8 @@ class AliyunOss implements IVendor {
         $end = $now + $expire;
         $expiration = gmt_iso8601($end);
 
-        $config = C('UPLOAD_TYPE_' . strtoupper($type));
+        $config_cls = new UploadConfig($type);
+        $config = $config_cls->getAll();
 
         $dir = self::genOssObjectName($config);
         $condition = array(0=>'content-length-range', 1=>0, 2=> Common::getMaxSize($type));
@@ -161,9 +193,10 @@ class AliyunOss implements IVendor {
         $response['expire'] = $end;
         $response['callback'] = $base64_callback_body;
         $response['callback_var'] = $callback_var;
-        if($config['oss_meta']){
+        $upload_meta = $config_cls->getMeta();
+        if($upload_meta){
             $get_data = I('get.');
-            foreach($config['oss_meta'] as $k => &$vo){
+            foreach($upload_meta as $k => &$vo){
                 $vo = preg_replace_callback('/__(\w+?)__/', function($matches) use($get_data){
                     return $get_data[$matches[1]];
                 }, $vo);
@@ -175,7 +208,7 @@ class AliyunOss implements IVendor {
                     }, $vo);
                 }
             }
-            $response['oss_meta'] = json_encode($config['oss_meta']);
+            $response['oss_meta'] = json_encode($upload_meta);
         }
         //这个参数是设置用户上传指定的前缀
         $response['dir'] = $dir;

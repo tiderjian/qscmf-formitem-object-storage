@@ -3,6 +3,7 @@
 namespace FormItem\ObjectStorage\Lib\Vendor;
 
 use FormItem\ObjectStorage\Lib\Common;
+use FormItem\ObjectStorage\Lib\UploadConfig;
 use Illuminate\Support\Str;
 use Tos\Model\Enum;
 use Tos\Model\HeadObjectInput;
@@ -26,13 +27,39 @@ class VolcengineTos implements IVendor
 
     public function __construct()
     {
-        $this->_vendor_config = $this->genVendorConfig([
+        $this->setVendorConfig([
             'accessKey' => env('VOLC_ACCESS_KEY'),
             'secretKey' => env('VOLC_SECRET_KEY'),
             'bucket' => env('VOLC_BUCKET'),
             'endPoint' => env('VOLC_ENDPOINT'),
             'region' => env('VOLC_REGION'),
         ]);
+    }
+
+    public function getVendorType():string
+    {
+        return $this->vendor_type;
+    }
+
+    public function setUploadConfig(string $type, ?array $config = []): IVendor
+    {
+        $this->_upload_config = new UploadConfig($type, $config);
+
+        return $this;
+    }
+
+    public function getUploadConfig():UploadConfig{
+        return $this->_upload_config;
+    }
+
+    public function getClient()
+    {
+        return $this->_client;
+    }
+
+    public function getVendorConfig():VendorConfig
+    {
+        return $this->_vendor_config;
     }
 
     public function setBucket(string $bucket): IVendor
@@ -47,9 +74,11 @@ class VolcengineTos implements IVendor
         return $this;
     }
 
-    public function genVendorConfig(array $config): VendorConfig
+    public function setVendorConfig(array $config): IVendor
     {
-        return new VendorConfig($config);
+        $this->_vendor_config = new VendorConfig($config);
+
+        return $this;
     }
 
     public function getShowHostKey():string{
@@ -65,10 +94,10 @@ class VolcengineTos implements IVendor
     }
 
     public function genClient(string $type){
-        $config = C('UPLOAD_TYPE_' . strtoupper($type));
-
-        if (Common::checkUploadConfig($type, $this->vendor_type, $this->getShowHostKey(), $config)){
-            $this->_upload_config = $config;
+        if (!isset($this->_upload_config) || !$this->getUploadConfig()->getAll()){
+            $this->setUploadConfig($type);
+        }
+        if (Common::checkUploadConfig($this)){
 
             $this->_client = new TosClient([
                 'region' => $this->_vendor_config->getRegion(),
@@ -144,7 +173,7 @@ class VolcengineTos implements IVendor
         $dir = Common::genObjectName($config, $ext);
 
         $pathname=$dir;
-        str_starts_with($pathname, '/') && ($pathname = ltrim($pathname, '/'));
+        strpos($pathname, '/') === 0 && ($pathname = ltrim($pathname, '/'));
 
         try {
             $output = $this->genClient($type)->signUrl($this->_vendor_config->getBucket(), $pathname, 3600, Enum::HttpMethodPut, $query);
@@ -218,7 +247,8 @@ class VolcengineTos implements IVendor
     private function _genPostObjParam(string $type){
         list($base64_callback_body,$base64_callback_var) = $this->_cbParam($type);
 
-        $config = C('UPLOAD_TYPE_' . strtoupper($type));
+        $config_cls = new UploadConfig($type);
+        $config = $config_cls->getAll();
         $host = $this->getUploadHost($config);
         $bucket = $this->_vendor_config->getBucket();
         $region = $this->_vendor_config->getRegion();

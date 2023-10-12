@@ -7,9 +7,13 @@ class UploadConfig
     protected $config;
     protected $type;
 
-    public function __construct($type){
+    public function __construct(string $type, ?array $config = []){
         $this->type = $type;
-        $this->config = C('UPLOAD_TYPE_' . strtoupper($type));
+        $this->config = $config ?: C('UPLOAD_TYPE_' . strtoupper($type));
+    }
+
+    public function getAll(){
+        return $this->config;
     }
 
     public function getType(){
@@ -18,6 +22,15 @@ class UploadConfig
 
     public function getExts(){
         return !empty($this->config['exts']) ? $this->config['exts'] : '*';
+    }
+
+    // v13 think-core 不兼容
+    public function getMeta(){
+        if (isset($this->config['os_upload_meta'])){
+            return $this->config['os_upload_meta'];
+        }
+
+        return $this->config['oss_meta'];
     }
 
     public function getMaxSize(){

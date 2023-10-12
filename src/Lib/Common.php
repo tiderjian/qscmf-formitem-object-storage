@@ -203,12 +203,17 @@ class Common
         return $url;
     }
 
-    public static function checkUploadConfig(string $type, string $vendor_type, string $key,?array $config = []):bool{
+    public static function checkUploadConfig(IVendor $vendor_cls):bool{
+        $config_cls = $vendor_cls->getUploadConfig();
+        $config = $config_cls->getAll();
+        $type = $config_cls->getType();
+
         if(!$config){
             E('上传类型' . $type . '不存在!');
         }
 
-        if(!$config[$key]){
+        $vendor_type = $vendor_cls->vendor_type;
+        if(!$config[$vendor_cls->getShowHostKey()]){
             E($type . '这不是'.$vendor_type.'上传配置类型!');
         }
 

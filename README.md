@@ -104,10 +104,8 @@ composer require quansitech/qscmf-formitem-object-storage
       当 upload_oss_host 为空时，上传默认使用 oss_host
       
       当 oss_host 为自定义域名时，可以将 upload_oss_host 设置为 bucket 域名，接口返回的路径会是自定义域名
-      ```
-      
-      
-      
+      ```     
+
       | 名称            | 是否必填 | 备注       |
       | --------------- | -------- | ---------- |
       | oss_host        | 是       |            |
@@ -152,6 +150,12 @@ composer require quansitech/qscmf-formitem-object-storage
       | --------------- | -------- | ---------- |
       | tos_host        | 是       |            |
       | upload_tos_host | 否       | 上传用域名 |
+
+  *upload_config.php* 通用配置
+  
+    | 名称            | 是否必填 | 备注     |
+    |------|--------| ---------- |
+    | os_upload_meta        | 否    | 设置 HTTP 标准头域,如 Content-Type 等 |
   
 
 

@@ -5,6 +5,7 @@ namespace FormItem\ObjectStorage\Lib\Vendor;
 
 
 use FormItem\ObjectStorage\Lib\Common;
+use FormItem\ObjectStorage\Lib\UploadConfig;
 use GuzzleHttp\Psr7\Utils;
 use Tos\Model\PutObjectFromFileInput;
 
@@ -21,13 +22,38 @@ class TengxunCos implements IVendor
 
     public function __construct()
     {
-        $this->_vendor_config = $this->genVendorConfig([
+        $this->setVendorConfig([
             'accessKey' => env('COS_SECRETID'),
             'secretKey' => env('COS_SECRETKEY'),
             'bucket' => env('COS_BUCKET'),
             'endPoint' => env('COS_ENDPOINT'),
             'region' => env('COS_REGION'),
         ]);
+    }
+
+    public function getVendorType():string{
+        return $this->vendor_type;
+    }
+
+    public function setUploadConfig(string $type, ?array $config = []): IVendor
+    {
+        $this->_upload_config = new UploadConfig($type, $config);
+
+        return $this;
+    }
+
+    public function getUploadConfig():UploadConfig{
+        return $this->_upload_config;
+    }
+
+    public function getClient()
+    {
+        return $this->_client;
+    }
+
+    public function getVendorConfig():VendorConfig
+    {
+        return $this->_vendor_config;
     }
 
     public function setBucket(string $bucket): IVendor
@@ -42,9 +68,11 @@ class TengxunCos implements IVendor
         return $this;
     }
 
-    public function genVendorConfig(array $config): VendorConfig
+    public function setVendorConfig(array $config): IVendor
     {
-        return new VendorConfig($config);
+        $this->_vendor_config = new VendorConfig($config);
+
+        return $this;
     }
 
     public function getShowHostKey():string{
@@ -60,12 +88,11 @@ class TengxunCos implements IVendor
     }
 
     public function getCosClient($type){
-        $config = C('UPLOAD_TYPE_' . strtoupper($type));
-
-        if (Common::checkUploadConfig($type, $this->vendor_type, $this->getShowHostKey(), $config)){
-            $this->_upload_config = $config;
-
-            $handle = $this->_handleCosUrl($config[$this->getShowHostKey()]);
+        if (!isset($this->_upload_config) || !$this->getUploadConfig()->getAll()){
+            $this->setUploadConfig($type);
+        }
+        if (Common::checkUploadConfig($this)){
+            $handle = $this->_handleCosUrl($this->getUploadConfig()->getAll()[$this->getShowHostKey()]);
 
             $this->_client = new \Qcloud\Cos\Client([
                 'region' => $this->_vendor_config->getRegion(),
@@ -225,7 +252,8 @@ class TengxunCos implements IVendor
     }
 
     public function policyGet($type){
-        $config = C('UPLOAD_TYPE_' . strtoupper($type));
+        $config_cls = new UploadConfig($type);
+        $config = $config_cls->getAll();
         $host = $this->getUploadHost($config);
 
         $ext='';

@@ -76,6 +76,11 @@ class VendorConfig
             $key = lcfirst(substr($method, 3));
             return $this->config[$key];
         }
+        if(substr($method,0,3)==='set') {
+            $key = lcfirst(substr($method, 3));
+            $this->config[$key] = $args;
+            return $this;
+        }
     }
 
 }

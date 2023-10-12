@@ -2,10 +2,18 @@
 
 namespace FormItem\ObjectStorage\Lib\Vendor;
 
+use FormItem\ObjectStorage\Lib\UploadConfig;
+
 interface IVendor
 {
 
-    public function genVendorConfig(array $config):VendorConfig;
+    public function getVendorType():string;
+
+    public function setVendorConfig(array $config):self;
+
+    public function setUploadConfig(string $type, ?array $config = []):self;
+
+    public function getUploadConfig():UploadConfig;
 
     public function setBucket(string $bucket):self;
 
@@ -18,6 +26,8 @@ interface IVendor
     public function getShowHostKey():string;
 
     public function genClient(string $type);
+
+    public function getClient();
 
     public function genSignedUrl(array $param);
 
