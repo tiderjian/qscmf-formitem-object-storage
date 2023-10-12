@@ -46,6 +46,10 @@ composer require quansitech/qscmf-formitem-object-storage
     ```php
     // 使用formItem
     ->addFormItem("picture_cos", "picture_os", "封面cos","",['vendor_type' => 'tengxun_cos'])
+    
+    // 使用富文本则是配置第七个参数
+    ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=aliyun_oss"')
+    
     // 使用columnItem
     ->addTableColumn("picture", "封面tos", 'picture_os', ['vendor_type' => 'volcengine_tos'], true)
     ```
@@ -233,11 +237,11 @@ composer require quansitech/qscmf-formitem-object-storage
 - 富文本上传文件： ueditor
   addFormItem第七个参数，传递指定的上传处理地址, 地址参数说明
  
-  | 参数名称       | 类型     | 是否必填 | 备注                                               |
+  | 参数名称      | 类型     | 是否必填 | 备注                                               |
   |---------------|--------|--------------------------------------------------|-------------------------------------|
-  | $os | string | 是    | 恒为1                                           |
-  | $type         | string | 否    | 与上传配置 UPLOAD_TYPE_XXX 的 XXX 对应，如图片 image；文件 file |
-  | $vendor_type   | array  | 否    | 供应商类型              |
+  | os | string | 是    | 恒为1                                           |
+  | type        | string | 否    | 与上传配置 UPLOAD_TYPE_XXX 的 XXX 对应，如图片 image；文件 file |
+  | vendor_type | array  | 否    | 供应商类型              |
 
   ```php
   ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=aliyun_oss"')
