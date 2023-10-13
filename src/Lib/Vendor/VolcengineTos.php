@@ -83,7 +83,7 @@ class VolcengineTos implements IVendor
     }
 
     public function getUploadHost(array $config):string{
-        $config[$this->getVendorConfig()->getUploadHostKey()] ?? $config[$this->getVendorConfig()->getHostKey()];
+        return $config[$this->getVendorConfig()->getUploadHostKey()] ?? $config[$this->getVendorConfig()->getHostKey()];
     }
 
     public function genClient(string $type, ?bool $check_config = true){
