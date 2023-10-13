@@ -405,13 +405,13 @@ composer require quansitech/qscmf-formitem-object-storage
       
       以接口实际返回值为准
 
-
+#### 类使用说明
 
 [FormItem\ObjectStorage\Lib\Common 帮助函数类使用说明](https://github.com/quansitech/qscmf-formitem-object-storage/blob/master/Common.md)
 
+[FormItem\ObjectStorage\Lib\Context 供应商生成类使用说明](https://github.com/quansitech/qscmf-formitem-object-storage/blob/master/Context.md)
 
-
-[FormItem\ObjectStorage\Lib\Context 供应商类使用说明](https://github.com/quansitech/qscmf-formitem-object-storage/blob/master/Vendor.md)
+[FormItem\ObjectStorage\Lib\Vendor 供应商类使用说明](https://github.com/quansitech/qscmf-formitem-object-storage/blob/master/Vendor.md)
 
 
 
@@ -426,7 +426,7 @@ $options = [
     'Content-Type' => 'image/png'
 ];
 
-// Context 供应商类用法参考上文使用说明
+// Context 供应商生成类用法参考上文使用说明
 $os_vendor = Context::genVendorByType('volcengine_tos');
 $os_vendor->setBucket("bucket");
 $os_vendor->setEndpoint("bucket");
