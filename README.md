@@ -30,6 +30,7 @@ composer require quansitech/qscmf-formitem-object-storage
 - 根据[**支持组件用法**](https://github.com/quansitech/qscmf-formitem-object-storage#%E6%94%AF%E6%8C%81%E7%BB%84%E4%BB%B6)修改后台的上传组件
 - 若前台使用了 *ossuploader* ，参考 [***osuploader* 用法**](https://github.com/quansitech/qscmf-formitem-object-storage#%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8)修改
 - 若前后端开发分离的项目，前端按照[**自定义组件用法**](https://github.com/quansitech/qscmf-formitem-object-storage#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%84%E4%BB%B6%E7%94%A8%E6%B3%95)修改上传组件
+- _think-core_ v13版本将不兼容 _ueditor oss_ 的旧配置，请参考以下文档修改
 
 
 
@@ -235,6 +236,9 @@ composer require quansitech/qscmf-formitem-object-storage
   ```
   
 - 富文本上传文件： ueditor
+  ```text
+  富文本的 UPLOAD_TYPE_XXX 无需配置 upload_xxx_host，文件上传成功返回 xxx_host 域名的链接
+  ```
 
   addFormItem第七个参数，传递指定的上传处理地址, 地址参数说明
  
