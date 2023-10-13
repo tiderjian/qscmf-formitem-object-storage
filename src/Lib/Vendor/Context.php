@@ -10,7 +10,7 @@ class Context
     const VENDOR_TENGXUN_COS = 'tengxun_cos';
     const VENDOR_VOLCENGINE_TOS = 'volcengine_tos';
 
-    public static function genVendorByType(string $vendor_type):?IVendor{
+    public static function genVendorByType(?string $vendor_type):?IVendor{
         return $vendor_type ? self::genByType($vendor_type) : null;
     }
 

@@ -19,7 +19,8 @@ class SecurityUrlBehavior{
 
         $os_cls = Context::genVendorByType($this->file->getVendorType());
         if ($os_cls){
-            $config_cls = new UploadConfig($file_ent['cate']);
+            $os_cls->setUploadConfig($file_ent['cate']);
+            $config_cls = $os_cls->getUploadConfig();
             $object = trim(str_replace($config_cls->getHost($os_cls->getVendorConfig()->getHostKey()), '', $file_ent['url']), '/');
 
             $url = $os_cls->genClient($file_ent['cate'])->genSignedUrl(['object' => $object, 'timeout' => $params['timeout']]);

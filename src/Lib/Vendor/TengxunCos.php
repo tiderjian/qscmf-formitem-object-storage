@@ -245,8 +245,8 @@ class TengxunCos implements IVendor
     }
 
     public function policyGet($type){
-        $config_cls = new UploadConfig($type);
-        $config = $config_cls->getAll();
+        $this->setUploadConfig($type);
+        $config = $this->getUploadConfig()->getAll();
         $host = $this->getUploadHost($config);
 
         $ext='';

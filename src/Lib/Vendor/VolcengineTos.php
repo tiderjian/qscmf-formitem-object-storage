@@ -243,8 +243,8 @@ class VolcengineTos implements IVendor
     private function _genPostObjParam(string $type){
         list($base64_callback_body,$base64_callback_var) = $this->_cbParam($type);
 
-        $config_cls = new UploadConfig($type);
-        $config = $config_cls->getAll();
+        $this->setUploadConfig($type);
+        $config = $this->getUploadConfig()->getAll();
         $host = $this->getUploadHost($config);
         $bucket = $this->_vendor_config->getBucket();
         $region = $this->_vendor_config->getRegion();
