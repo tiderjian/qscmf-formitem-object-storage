@@ -48,7 +48,7 @@ composer require quansitech/qscmf-formitem-object-storage
     ->addFormItem("picture_cos", "picture_os", "封面cos","",['vendor_type' => 'tengxun_cos'])
     
     // 使用富文本则是配置第七个参数
-    ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=aliyun_oss"')
+    ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=aliyun_oss"')
     
     // 使用columnItem
     ->addTableColumn("picture", "封面tos", 'picture_os', ['vendor_type' => 'volcengine_tos'], true)
@@ -235,18 +235,19 @@ composer require quansitech/qscmf-formitem-object-storage
   ```
   
 - 富文本上传文件： ueditor
+
   addFormItem第七个参数，传递指定的上传处理地址, 地址参数说明
  
-  | 参数名称      | 类型     | 是否必填 | 备注                                               |
-  |---------------|--------|--------------------------------------------------|-------------------------------------|
-  | os | string | 是    | 恒为1                                           |
-  | type        | string | 否    | 与上传配置 UPLOAD_TYPE_XXX 的 XXX 对应，如图片 image；文件 file |
-  | vendor_type | array  | 否    | 供应商类型              |
+  | 参数名称      | 类型     | 是否必填 | 备注                                          |
+  |---------------|--------|---------------------------------------------|-------------------------------------|
+  | os | string | 是    | 恒为1                                         |
+  | type        | string | 否    | 与上传配置 UPLOAD_TYPE_XXX 的 XXX 对应，如富文本 ueditor |
+  | vendor_type | array  | 否    | 供应商类型                                       |
 
   ```php
-  ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=aliyun_oss"')
-  ->addFormItem('tos', 'ueditor', 'tos','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=volcengine_tos"')
-  ->addFormItem('cos', 'ueditor', 'cos','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=image&vendor_type=tengxun_cos"')
+  ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=aliyun_oss"')
+  ->addFormItem('tos', 'ueditor', 'tos','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=volcengine_tos"')
+  ->addFormItem('cos', 'ueditor', 'cos','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=tengxun_cos"')
   ```
 
 
@@ -288,13 +289,13 @@ composer require quansitech/qscmf-formitem-object-storage
 
    **请求参数**
 
-   | 参数        | 是否必选 | 类型   | 说明                                                         |
-   | ----------- | -------- | ------ | ------------------------------------------------------------ |
+   | 参数        | 是否必选 | 类型   | 说明                                                               |
+   | ----------- | -------- |------------------------------------------------------------------| ------------------------------------------------------------ |
    | type        | 是       | string | 与 upload_config.php 中 UPLOAD_TYPE_XXX 的 XXX 对应，如图片 image；文件 file |
-   | vendor_type | 否       | string | 供应商名称                                                   |
-   | title       | 是       | string | 文件标题                                                     |
-   | hash_id     | 否       | string | 文件 MD5 信息                                                |
-   | file_type   | 是       | string | 文件 mime-type 类型，例如 image/png                          |
+   | vendor_type | 否       | string | 供应商名称                                                            |
+   | title       | 是       | string | 文件标题                                                             |
+   | hash_id     | 否       | string | 文件 MD5 信息，可用于查重                                                  |
+   | file_type   | 是       | string | 文件 mime-type 类型，例如 image/png                                     |
 
    
 
@@ -302,55 +303,67 @@ composer require quansitech/qscmf-formitem-object-storage
 
    ###### 正常
 
-   - aliyun_oss
+   - 提交了 *hash_id* 且已存在文件，则直接返回文件信息
+  
+      ```json
+      {
+        "file_id": "5657",
+        "file_url": "url",
+        "status": 2
+      }
+      ```
+    
+   - 返回不同供应商接口所需参数  
 
-     ```json
-     {
-       "accessid": "testaccessid",
-       "host": "host",
-       "policy": "xxx",
-       "expire": 1696934405,
-       "callback": "xxx",
-       "callback_var": "xxx",
-       "dir": "Uploads/file/20231010/652529fb6bd3e",
-       "vendor_type": "aliyun_oss"
-     }
-     ```
+     - aliyun_oss
 
-   - tengxun_cos
+       ```json
+       {
+         "accessid": "testaccessid",
+         "host": "host",
+         "policy": "xxx",
+         "expire": 1696934405,
+         "callback": "xxx",
+         "callback_var": "xxx",
+         "dir": "Uploads/file/20231010/652529fb6bd3e",
+         "vendor_type": "aliyun_oss"
+       }
+       ```
 
-     ```json
-     {
-       "url": "url",
-       "authorization": "authorization",
-       "params": {
-         "key": "Uploads/image/20231010/652527bb43ebd.png",
-         "success_action_redirect": "url"
-       },
-       "vendor_type": "tengxun_cos"
-     }
-     ```
+     - tengxun_cos
 
-   - volcengine_tos
-
-     ```json
-     {
+       ```json
+       {
          "url": "url",
+         "authorization": "authorization",
          "params": {
-             "Content-Type": "image/png",
-             "name": "test.png",
-             "x-tos-callback": "xxx",
-             "x-tos-callback-var": "xxx",
-             "x-tos-credential": "testAK/20231009/cn-guangzhou/tos/request",
-             "x-tos-algorithm": "TOS4-HMAC-SHA256",
-             "x-tos-date": "20231009T111513Z",
-             "key": "Uploads/image/20231009/6523704131c24.png",
-             "policy": "xxx",
-             "x-tos-signature": "xxx"
+           "key": "Uploads/image/20231010/652527bb43ebd.png",
+           "success_action_redirect": "url"
          },
-         "vendor_type": "volcengine_tos"
-     }
-     ```
+         "vendor_type": "tengxun_cos"
+       }
+       ```
+
+     - volcengine_tos
+
+       ```json
+       {
+           "url": "url",
+           "params": {
+               "Content-Type": "image/png",
+               "name": "test.png",
+               "x-tos-callback": "xxx",
+               "x-tos-callback-var": "xxx",
+               "x-tos-credential": "testAK/20231009/cn-guangzhou/tos/request",
+               "x-tos-algorithm": "TOS4-HMAC-SHA256",
+               "x-tos-date": "20231009T111513Z",
+               "key": "Uploads/image/20231009/6523704131c24.png",
+               "policy": "xxx",
+               "x-tos-signature": "xxx"
+           },
+           "vendor_type": "volcengine_tos"
+       }
+       ```
 
    ###### 异常
 
@@ -380,16 +393,6 @@ composer require quansitech/qscmf-formitem-object-storage
    2. 返回示例
 
       ###### 正常
-      
-      - 已存在文件
-      
-          ```json
-          {
-            "file_id": "5657",
-            "file_url": "url",
-            "status": 2
-          }
-          ```
 
       - 上传成功
       
