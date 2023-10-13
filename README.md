@@ -254,6 +254,26 @@ composer require quansitech/qscmf-formitem-object-storage
   ->addFormItem('cos', 'ueditor', 'cos','', '','','data-url="/Public/libs/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=tengxun_cos"')
   ```
 
+  配置说明
+  - **aliyun_oss**
+
+      - *upload_config.php* 需要添加的配置
+        ```text
+        当上传资源过大时，可以配置内网访问 endpoint，此值会替换掉 ALIOSS_ENDPOINT
+        其他类型的 xxx_endpoint 是同样的作用，不再说明
+        ```  
+
+        | 名称  | 是否必填 | 备注       |
+        | --------------- | -------- | ---------- |
+        | oss_endpoint   | 否       |  |
+
+  - **volcengine_tos**
+
+      - *upload_config.php* 需要添加的配置
+
+        | 名称         | 是否必填 | 备注       |
+        | --------------- | -------- | ---------- |
+        | tos_endpoint | 否       |  |
 
 
 #### 自定义组件用法
