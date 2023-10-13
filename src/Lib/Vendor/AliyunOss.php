@@ -25,7 +25,7 @@ class AliyunOss implements IVendor {
             'bucket' => env('ALIOSS_BUCKET'),
             'endPoint' => env('ALIOSS_ENDPOINT'),
             'region' => env('ALIOSS_REGION'),
-            'isCname' => strpos(env('ALIOSS_ENDPOINT'), 'aliyuncs.com') !== false,
+            'isCname' => false,
             'host' => env('ALIOSS_HOST'),
             'upload_host' => env('ALIOSS_UPLOAD_HOST'),
             'host_key' => 'oss_host',

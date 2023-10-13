@@ -86,6 +86,9 @@ class VendorConfig
     public function getUploadHost():string{
         return $this->config['upload_host'] ?: $this->config['host'];
     }
+    public function getIsCname():string{
+        return !(strpos($this->getEndPoint(), 'aliyuncs.com') !== false);
+    }
 
     public function __call($method,$args) {
         if (function_exists($this->$method)){
