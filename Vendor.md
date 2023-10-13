@@ -33,11 +33,11 @@ FormItem\ObjectStorage\Lib\Vendor\IVendor
 服务器上传文件
 ```
 
-| 参数名称          | 类型     | 是否必填 | 备注                                  |
-|---------------|--------|------|-------------------------------------|
-| $file_path    | string | 是    | 文件绝对路径                              |
-| $object       | string | 是    | 文件上传至云服务商的 key                      |
-| $options      | array  | 否    | 额外参数,可设置 HTTP 标准头域,如 Content-Type 等 |
+| 参数名称       | 类型     | 是否必填 | 备注                                  |
+|------------|--------|------|-------------------------------------|
+| file_path  | string | 是    | 文件绝对路径                              |
+| object     | string | 是    | 文件上传至云服务商的 key                      |
+| options    | array  | 否    | 额外参数,可设置 HTTP 标准头域,如 Content-Type 等 |
 
 **返回值**
 
