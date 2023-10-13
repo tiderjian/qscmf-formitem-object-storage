@@ -20,6 +20,12 @@ class UploadConfig
         return $this->type;
     }
 
+    public function getEndPoint(string $key, ?string $env_key = ''){
+//        return !empty($this->config[$key]) ? $this->config[$key] : env($env_key);
+        return $this->config[$key];
+
+    }
+
     public function getHost(string $key, ?string $env_key = ''){
 //        return !empty($this->config[$key]) ? $this->config[$key] : env($env_key);
         return $this->config[$key];

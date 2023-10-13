@@ -25,11 +25,12 @@ class AliyunOss implements IVendor {
             'bucket' => env('ALIOSS_BUCKET'),
             'endPoint' => env('ALIOSS_ENDPOINT'),
             'region' => env('ALIOSS_REGION'),
-            'isCname' => strpos(env('VOLC_ENDPOINT'), 'aliyuncs.com') !== false,
+            'isCname' => strpos(env('ALIOSS_ENDPOINT'), 'aliyuncs.com') !== false,
             'host' => env('ALIOSS_HOST'),
             'upload_host' => env('ALIOSS_UPLOAD_HOST'),
             'host_key' => 'oss_host',
             'upload_host_key' => 'upload_oss_host',
+            'endpoint_key' => 'oss_endpoint',
         ]);
     }
 
@@ -73,6 +74,8 @@ class AliyunOss implements IVendor {
     public function setUploadConfig(string $type, ?array $config = []): IVendor
     {
         $this->_upload_config = new UploadConfig($type, $config);
+        $config_endpoint = $this->getUploadConfig()->getEndPoint($this->getVendorConfig()->getEndPointKey());
+        $config_endpoint && $this->setEndPoint($config_endpoint);
 
         return $this;
     }

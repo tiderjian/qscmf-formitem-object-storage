@@ -79,6 +79,10 @@ class VendorConfig
         return $this->config['upload_host_key'];
     }
 
+    public function getEndPointKey():string{
+        return $this->config['endpoint_key'];
+    }
+
     public function getUploadHost():string{
         return $this->config['upload_host'] ?: $this->config['host'];
     }

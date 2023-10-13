@@ -237,7 +237,7 @@ composer require quansitech/qscmf-formitem-object-storage
   
 - 富文本上传文件： ueditor
   ```text
-  富文本的 UPLOAD_TYPE_XXX 无需配置 upload_xxx_host，文件上传成功返回 xxx_host 域名的链接
+  富文本使用服务器上传，其他配置参考服务器上传功能说明
   ```
 
   addFormItem第七个参数，传递指定的上传处理地址, 地址参数说明
@@ -440,6 +440,28 @@ $os_vendor->setEndpoint("bucket");
 
 $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options);
 ```
+
+###### 配置说明
+- **aliyun_oss**
+
+    - *upload_config.php* 需要添加的配置
+      ```text
+      当上传资源过大时，可以配置内网访问 endpoint，此值会替换掉 ALIOSS_ENDPOINT
+      其他类型的 xxx_endpoint 是同样的作用，不再说明
+      ```  
+
+      | 名称  | 是否必填 | 备注       |
+      | --------------- | -------- | ---------- |
+      | oss_endpoint   | 否       |  |
+  
+- **volcengine_tos**
+
+    - *upload_config.php* 需要添加的配置
+
+      | 名称         | 是否必填 | 备注       |
+      | --------------- | -------- | ---------- |
+      | tos_endpoint | 否       |  |
+
 
 
 

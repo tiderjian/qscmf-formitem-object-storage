@@ -34,6 +34,7 @@ class VolcengineTos implements IVendor
             'upload_host' => env('VOLC_UPLOAD_HOST'),
             'host_key' => 'tos_host',
             'upload_host_key' => 'upload_tos_host',
+            'endpoint_key' => 'tos_endpoint',
         ]);
     }
 
@@ -45,6 +46,8 @@ class VolcengineTos implements IVendor
     public function setUploadConfig(string $type, ?array $config = []): IVendor
     {
         $this->_upload_config = new UploadConfig($type, $config);
+        $config_endpoint = $this->getUploadConfig()->getEndPoint($this->getVendorConfig()->getEndPointKey());
+        $config_endpoint && $this->setEndPoint($config_endpoint);
 
         return $this;
     }
