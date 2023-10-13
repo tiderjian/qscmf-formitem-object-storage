@@ -17,9 +17,6 @@ class TengxunCos implements IVendor
     private $_upload_config;
     private $_vendor_config;
 
-    private $_host_key = 'cos_host';
-    private $_upload_host_key = 'cos_host';
-
     public function __construct()
     {
         $this->setVendorConfig([
