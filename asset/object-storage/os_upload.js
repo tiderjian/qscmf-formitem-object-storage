@@ -253,15 +253,15 @@ function calcFileHash(up, file, total, count, need_cacl){
     if (need_cacl){
         window.calc_file_hash(file.getNative()).then(function(res){
             file.hash_id = res;
-            finishedOneFile(up, total, count)
+            injectFinished(up, total, count)
         });
     }else{
         file.hash_id = '';
-        finishedOneFile(up, total, count)
+        injectFinished(up, total, count)
     }
 }
 
-function finishedOneFile(up, total, count){
+function injectFinished(up, total, count){
     count.current++;
 
     if (total === count.current ){
