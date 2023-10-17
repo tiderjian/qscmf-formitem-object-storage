@@ -165,6 +165,10 @@ composer require quansitech/qscmf-formitem-object-storage
     |------|--------| ---------- |
     | os_upload_meta        | 否    | 设置 HTTP 标准头域,如 Content-Type 等 |
   
++ 配置查重功能，0 关闭，1 开启，默认为 1
+  ```php
+  OS_FILE_DOUBLE_CHECK=1
+  ```
 
 
 
@@ -519,6 +523,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
   
       $this->assign('data_url', $data_url);
       $this->assign('vendor_type', $vendor_type);
+      $this->assign('cacl_file_hash', Common::needCaclFileHash());
   
       $this->display();
   }
@@ -561,6 +566,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
               multi_selection:true,
               url:'{$data_url}',
               vendor_type:'{$vendor_type}',
+              cacl_file_hash:'{$cacl_file_hash}',
               crop:{
                   dragMode: 'move',
                   aspectRatio: 120/120,

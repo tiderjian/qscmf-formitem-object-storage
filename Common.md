@@ -58,3 +58,8 @@ list($data_url, $vendor_type) = Common::combinePolicyDataUrl('/extends/objectSto
 // 返回值
 // ['/extends/objectStorage/policyGet/resize/1/type/image/vendor_type/volcengine_tos.html', 'volcengine_tos']
 ```
+
+#### needCaclFileHash
+```text
+是否需要计算文件哈希值，0 关闭，1 开启
+```

@@ -120,9 +120,12 @@ class Common
     }
 
     public static function getFileByHash(string $hash_id, IVendor $os_cls, string $resize = ''):?array{
-        $file_data = D("FilePic")->where(['hash_id' => $hash_id])->find();
-        if ($file_data){
-            $file_data = self::handleCbRes($file_data, $os_cls, $resize);
+        $file_data = null;
+        if (self::needCaclFileHash()){
+            $file_data = D("FilePic")->where(['hash_id' => $hash_id])->find();
+            if ($file_data){
+                $file_data = self::handleCbRes($file_data, $os_cls, $resize);
+            }
         }
 
         return $file_data;
@@ -218,5 +221,9 @@ class Common
         }
 
         return true;
+    }
+
+    public static function needCaclFileHash():int{
+        return (int)env("OS_FILE_DOUBLE_CHECK", 1);
     }
 }

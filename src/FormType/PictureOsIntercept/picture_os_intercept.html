@@ -43,6 +43,7 @@
                     $('input[name="{$form.name}"]').osuploader({
                         url:'{$data_url}',
                         vendor_type:'{$vendor_type}',
+                        cacl_file_hash:'{$cacl_file_hash}',
                         crop:{
                             dragMode: 'move',
                             aspectRatio: {$form.options.width}/{$form.options.height},

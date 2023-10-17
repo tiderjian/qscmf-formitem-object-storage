@@ -12,6 +12,7 @@ trait CommonItemProp {
 
         $view->assign('data_url', $data_url);
         $view->assign('vendor_type', $vendor_type);
+        $view->assign('cacl_file_hash', Common::needCaclFileHash());
 
     }
 }

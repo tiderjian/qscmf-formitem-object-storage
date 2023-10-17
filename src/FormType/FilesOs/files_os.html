@@ -62,6 +62,7 @@
                     },
 
                     FilesAdded: function(up, files) {
+                        let count = {current:0};
                         plupload.each(files, function(file) {
                             var html = '<div id="' + file.id + '" class="uploadify-queue-item">' +
                                 '<div class="uploadify-progress" lastloaded="0">' +
@@ -72,10 +73,11 @@
                                 '<span class="up_filename">' + file.name + '</span>' +
                                 '</div>';
                             $('#upload_{$gid}').children('.uploadify-queue').append(html);
-                            window.calc_file_hash(file.getNative()).then(function(res){
-                                osHandleUpload(up, file.name, policyGetUrl, file, '{$vendor_type}', res);
-                            });
+                            injectFileProp(up, file, files.length, count, '{$cacl_file_hash}');
                         });
+                    },
+                    BeforeUpload: function(up, file) {
+                        return osHandleUpload(up, file.name, policyGetUrl,file, '{$vendor_type}', file.hash_id);
                     },
                     UploadProgress: function(up, file) {
                         $('#' + file.id).children('.uploadify-progress').attr('lastloaded', file.loaded);

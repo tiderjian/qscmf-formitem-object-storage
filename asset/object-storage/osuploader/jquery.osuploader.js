@@ -153,18 +153,6 @@
         
         var setting = $.extend({},defaultSetting, option);
         show_msg = setting.show_msg;
-        const custom_up_file = function (setting, up, file){
-            if (setting.os === true) {
-                window.calc_file_hash(file.getNative()).then(function(res){
-                    osHandleUpload(up, file.name, setting.url, file, setting.vendor_type, res);
-                });
-            } else {
-                up.setOption({
-                    'url': setting.url
-                });
-                up.start();
-            }
-        }
 
         //upload_flag true 为文件上传流程
         //upload_flag false 数据读取流程
@@ -347,6 +335,7 @@
                         
                         currentFileLength += files.length;
                         files_length += files.length;
+                        let count = {current:0};
                         plupload.each(files, function (file) {
                             if(setting.type === 'image'){
                                 var reader = new FileReader();
@@ -355,29 +344,25 @@
                                     add_upload_item(div, file.id, e.target.result, true);
                                     currentIds[file.id] = file.id;
                                     $('#' + file.id).find('.ossuploader-progress-desc').text('准备上传');
-                                    custom_up_file(setting, up, file)
                                 };
                             }else{
                                 add_upload_item(div, file.id, file, true);
                                 currentIds[file.id] = file.id;
                                 $('#' + file.id).find('.ossuploader-progress-desc').text('准备上传');
-                                custom_up_file(setting, up, file)
                             }
-
+                            injectFileProp(up, file, files.length, count, setting.cacl_file_hash);
                         });
-                        // up.start();
                     },
                     
-                    // BeforeUpload: function (up, file) {
-                    //     if (setting.os === true) {
-                    //         custom_up_file(setting, up, file)
-                    //     } else {
-                    //         up.setOption({
-                    //             'url': setting.url
-                    //         });
-                    //         up.start();
-                    //     }
-                    // },
+                    BeforeUpload: function (up, file) {
+                        if (setting.os === true) {
+                            return osHandleUpload(up, file.name, setting.url, file, setting.vendor_type, file.hash_id);
+                        } else {
+                            up.setOption({
+                                'url': setting.url
+                            });
+                        }
+                    },
                     
                     UploadProgress: function (up, file) {
                         // var el = $('#' + file.id).children('.ossuploader-progress');
