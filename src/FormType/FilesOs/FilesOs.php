@@ -6,11 +6,11 @@ use Illuminate\Support\Str;
 use Qscmf\Builder\FormType\FormType;
 use Think\View;
 use FormItem\ObjectStorage\Lib\TUploadConfig;
-use Qscmf\Builder\FormType\FileFormType;use FormItem\ObjectStorage\Lib\CommonItemProp;
+use Qscmf\Builder\FormType\FileFormType;use FormItem\ObjectStorage\Lib\FormTypeItemProp;
 
 class FilesOs extends FileFormType implements FormType{
     use TUploadConfig;
-    use CommonItemProp;
+    use FormTypeItemProp;
 
     public function build(array $form_type){
         $form_type['options'] = (array)$form_type['options'];
@@ -39,7 +39,7 @@ class FilesOs extends FileFormType implements FormType{
         $view->assign('file_ext',  $upload_type_cls->getExts());
         $view->assign('js_fn', $this->buildJsFn());
 
-        self::commonAssign($upload_type_cls, $view, $form_type['options']['vendor_type']);
+        self::commonAssign($upload_type_cls, $view, $form_type);
 
         $content = $view->fetch(__DIR__ . '/files_os.html');
         return $content;

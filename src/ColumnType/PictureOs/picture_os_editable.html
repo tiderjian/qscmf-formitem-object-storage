@@ -69,21 +69,20 @@
                 FilesAdded: function(up, files) {
                     $("#image-container-{$gid}").html('');
                     $("#input-{$option.name}-{$gid}").val('');
+                    let count = {current:0};
                     plupload.each(files, function(file) {
                         var html = '<div id="' + file.id + '" class="picture-oss-url"></div>';
                         $("#image-container-{$gid}").append(html);
                         cicleProgress_{$gid}[file.id] = new CircleProgress(document.getElementById(file.id), {});
                         cicleProgress_{$gid}[file.id].progress(0);
-                        window.calc_file_hash(file.getNative()).then(function(res){
-                            osHandleUpload(up, file.name, policyGetUrl, file, '{$vendor_type}', res);
-                        });
+                        injectFileProp(up, file, files.length, count, '{$cacl_file_hash}');
                     });
 
                 },
 
-    //                        BeforeUpload: function(up, file) {
-    //                            check_object_radio();
-    //                        },
+               BeforeUpload: function(up, file) {
+                    return osHandleUpload(up, file.name, policyGetUrl,file, '{$vendor_type}', file.hash_id);
+               },
 
                 UploadProgress: function(up, file) {
                     // $('#' + file.id).children('.uploadify-progress').attr('lastloaded', file.loaded);

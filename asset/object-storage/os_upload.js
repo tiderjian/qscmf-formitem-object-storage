@@ -121,6 +121,7 @@ function handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId){
 
     if (parseInt(res.status) === 2){
         fileUploaded(up,file,res)
+        return false
     }else{
         startUpload(up, res, file, filename, vendorTypeObj)
     }
@@ -130,20 +131,11 @@ function startUpload(up,res, file, filename, vendorTypeObj ){
     const newRes = vendorTypeObj.combineUploadParam(up, res, file, filename);
 
     up.setOption(newRes);
-    up.start();
+    // up.start();
 }
 
 function osHandleUpload(up, filename, policyGetUrl, file, vendorType, hashId){
-    if (file.type === ''){
-        getFileType.start(file, function f(type){
-            if (type === 'image/heic'){
-                file.type = type;
-            }
-            handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId)
-        })
-    }else{
-        handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId)
-    }
+    return handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId)
 }
 
 function send_request(url){
@@ -255,4 +247,38 @@ function fileUploaded(up,file,res){
         status : 200,
         responseHeaders: ''
     });
+}
+
+function calcFileHash(up, file, total, count, need_cacl){
+    if (need_cacl){
+        window.calc_file_hash(file.getNative()).then(function(res){
+            file.hash_id = res;
+            finishedOneFile(up, total, count)
+        });
+    }else{
+        file.hash_id = '';
+        finishedOneFile(up, total, count)
+    }
+}
+
+function finishedOneFile(up, total, count){
+    count.current++;
+
+    if (total === count.current ){
+        up.start()
+    }
+}
+
+function injectFileProp(up, file, total, count, need_cacl_file_hash = 1){
+    const need_cacl = parseInt(need_cacl_file_hash) === 1;
+    if (file.type === ''){
+        getFileType.start(file, function f(type){
+            if (type === 'image/heic'){
+                file.type = type;
+            }
+            calcFileHash(up, file, total, count, need_cacl)
+        })
+    }else{
+        calcFileHash(up, file, total, count, need_cacl)
+    }
 }

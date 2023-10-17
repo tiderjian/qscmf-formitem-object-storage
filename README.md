@@ -165,6 +165,22 @@ composer require quansitech/qscmf-formitem-object-storage
     |------|--------| ---------- |
     | os_upload_meta        | 否    | 设置 HTTP 标准头域,如 Content-Type 等 |
   
++ 配置查重功能，0 关闭，1 开启，默认为 1，若同时配置，则优先级按顺序依次降低
+
+  + 调用组件时设置 *options*
+
+    ```php
+    // 使用formItem
+    ->addFormItem("picture_cos", "picture_os", "封面cos","",['file_double_check' => 0])
+    
+    // 使用columnItem
+    ->addTableColumn("picture", "封面tos", 'picture_os', ['file_double_check' => 0], true)
+    ```
+  
+  + 添加 *env* *OS_FILE_DOUBLE_CHECK*，全局配置
+    ```php
+    OS_FILE_DOUBLE_CHECK=1
+    ```
 
 
 
@@ -519,6 +535,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
   
       $this->assign('data_url', $data_url);
       $this->assign('vendor_type', $vendor_type);
+      $this->assign('cacl_file_hash', Common::needCaclFileHash());
   
       $this->display();
   }
@@ -561,6 +578,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
               multi_selection:true,
               url:'{$data_url}',
               vendor_type:'{$vendor_type}',
+              cacl_file_hash:'{$cacl_file_hash}',
               crop:{
                   dragMode: 'move',
                   aspectRatio: 120/120,

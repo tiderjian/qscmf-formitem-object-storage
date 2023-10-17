@@ -146,20 +146,25 @@ class Common
         return $file_data;
     }
 
-    public static function genItemDataUrl(string $type, ?string $vendor_type = '', ?array $custom_params = []):array{
-        return self::genPolicyDataUrl($type, $vendor_type, $custom_params);
+    public static function genItemDataUrl(string $type, ?string $vendor_type = ''
+        , ?array $custom_params = [],?int $file_double_check = 1):array{
+        return self::genPolicyDataUrl($type, $vendor_type, $custom_params, $file_double_check);
     }
 
-    public static function genPolicyDataUrl(string $type, ?string $vendor_type = '', ?array $custom_params = []):array{
-        return self::combinePolicyDataUrl('/extends/objectStorage/policyGet', $type, $vendor_type, $custom_params);
+    public static function genPolicyDataUrl(string $type, ?string $vendor_type = '', ?array $custom_params = []
+        ,?int $file_double_check = 1):array{
+        return self::combinePolicyDataUrl('/extends/objectStorage/policyGet', $type, $vendor_type, $custom_params
+            , $file_double_check);
     }
 
-    public static function combinePolicyDataUrl(string $method_path, string $type, ?string $vendor_type = '', ?array $custom_params = []):array{
+    public static function combinePolicyDataUrl(string $method_path, string $type, ?string $vendor_type = ''
+        , ?array $custom_params = [],?int $file_double_check = 1):array{
         $param = $custom_params;
         $param['type'] = $type;
         $param['vendor_type'] = self::getVendorType($type,$vendor_type);
+        $param['file_double_check'] = self::getFileDoubleCheck($file_double_check);
 
-        return [U($method_path, $param), $param['vendor_type']];
+        return [U($method_path, $param), $param['vendor_type'], $param['file_double_check']];
     }
 
     public static function combineOssUrlImgOpt(string $url, string $img_opt):string
@@ -218,5 +223,13 @@ class Common
         }
 
         return true;
+    }
+
+    public static function getFileDoubleCheck(?int $file_double_check = 1):int{
+        if ($file_double_check){
+            return $file_double_check;
+        }
+
+        return (int)env("OS_FILE_DOUBLE_CHECK", 1);
     }
 }
