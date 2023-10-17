@@ -605,6 +605,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
       option: {
         url:                //string require  上传图片的地址
         vendor_type:        //string require  供应商类型
+        cacl_file_hash:        //string optional  查重开关，0 关闭，1 开启，默认为 1
         multi_selection:    //boolean optional 是否多选
         canvasOption:{       //object optional 配置getCroppedCanvas
             //修改裁剪后图片的背景色 为黑色
