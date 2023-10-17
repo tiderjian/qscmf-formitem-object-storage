@@ -249,36 +249,42 @@ function fileUploaded(up,file,res){
     });
 }
 
-function calcFileHash(up, file, total, count, need_cacl){
-    if (need_cacl){
-        window.calc_file_hash(file.getNative()).then(function(res){
-            file.hash_id = res;
-            finishedOneFile(up, total, count)
-        });
-    }else{
-        file.hash_id = '';
-        finishedOneFile(up, total, count)
-    }
-}
+const InjectFileProp = {
+    finish: function f(up, total, count){
+        count.current++;
 
-function finishedOneFile(up, total, count){
-    count.current++;
-
-    if (total === count.current ){
-        up.start()
+        if (total === count.current ){
+            up.start()
+        }
+    },
+    setHashId: function f(up, file, total, count, need_cacl){
+        const selfObj = this;
+        if (need_cacl){
+            window.calc_file_hash(file.getNative()).then(function(res){
+                file.hash_id = res;
+                selfObj.finish(up, total, count)
+            });
+        }else{
+            file.hash_id = '';
+            selfObj.finish(up, total, count)
+        }
+    },
+    setFileType: function f(up, file, total, count, need_cacl){
+        const selfObj = this;
+        if (file.type === ''){
+            getFileType.start(file, function f(type){
+                if (type === 'image/heic'){
+                    file.type = type;
+                }
+                selfObj.setHashId(up, file, total, count, need_cacl)
+            })
+        }else{
+            selfObj.setHashId(up, file, total, count, need_cacl)
+        }
     }
 }
 
 function injectFileProp(up, file, total, count, need_cacl_file_hash = 1){
     const need_cacl = parseInt(need_cacl_file_hash) === 1;
-    if (file.type === ''){
-        getFileType.start(file, function f(type){
-            if (type === 'image/heic'){
-                file.type = type;
-            }
-            calcFileHash(up, file, total, count, need_cacl)
-        })
-    }else{
-        calcFileHash(up, file, total, count, need_cacl)
-    }
+    InjectFileProp.setFileType(up, file, total, count,need_cacl)
 }

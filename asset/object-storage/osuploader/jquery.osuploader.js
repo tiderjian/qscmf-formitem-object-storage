@@ -143,6 +143,7 @@
                 check_image: false, //是否检查文件后缀
                 limit_file_size: 10 * 1024 * 1024, //是否检查文件大小
             },
+            cacl_file_hash:1
         };
         
         if (!option.filters) {
