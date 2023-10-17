@@ -24,12 +24,12 @@
 list($data_url, $vendor_type, $file_double_check) = Common::genPolicyDataUrl('image');
 
 // 返回值
-// ['/extends/objectStorage/policyGet/type/image/vendor_type/volcengine_tos/file_double_check/1.html', 'volcengine_tos']
+// ['/extends/objectStorage/policyGet/type/image/vendor_type/volcengine_tos/file_double_check/1.html', 'volcengine_tos', 1]
 
 list($data_url, $vendor_type, $file_double_check) = Common::genPolicyDataUrl('image','tengxun_cos',['resize' => 1]);
 
 // 返回值
-// ['/extends/objectStorage/policyGet/resize/1/type/image/vendor_type/tengxun_cos/file_double_check/1.html','tengxun_cos']
+// ['/extends/objectStorage/policyGet/resize/1/type/image/vendor_type/tengxun_cos/file_double_check/1.html','tengxun_cos', 1]
 ```
 
 
@@ -58,7 +58,7 @@ list($data_url, $vendor_type, $file_double_check) = Common::genPolicyDataUrl('im
 list($data_url, $vendor_type, $file_double_check) = Common::combinePolicyDataUrl('/extends/objectStorage/policyGet', 'image','volcengine_tos',['resize' => 1], 0);
 
 // 返回值
-// ['/extends/objectStorage/policyGet/resize/1/type/image/vendor_type/volcengine_tos/file_double_check/0.html', 'volcengine_tos']
+// ['/extends/objectStorage/policyGet/resize/1/type/image/vendor_type/volcengine_tos/file_double_check/0.html', 'volcengine_tos', 0]
 ```
 
 #### needCaclFileHash
