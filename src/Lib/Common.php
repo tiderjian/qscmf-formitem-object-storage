@@ -226,7 +226,7 @@ class Common
     }
 
     public static function getFileDoubleCheck(?int $file_double_check = 1):int{
-        if ($file_double_check){
+        if (!is_null($file_double_check)){
             return $file_double_check;
         }
 
