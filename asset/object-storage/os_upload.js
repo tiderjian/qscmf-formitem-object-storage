@@ -284,26 +284,6 @@ const InjectFileProp = {
     }
 }
 
-function calcFileHash(up, file, total, count, need_cacl){
-    if (need_cacl){
-        window.calc_file_hash(file.getNative()).then(function(res){
-            file.hash_id = res;
-            injectFinished(up, total, count)
-        });
-    }else{
-        file.hash_id = '';
-        injectFinished(up, total, count)
-    }
-}
-
-function injectFinished(up, total, count){
-    count.current++;
-
-    if (total === count.current ){
-        up.start()
-    }
-}
-
 function injectFileProp(up, file, total, count, need_cacl_file_hash = 1){
     const need_cacl = parseInt(need_cacl_file_hash) === 1;
     InjectFileProp.setFileType(up, file, total, count,need_cacl)
