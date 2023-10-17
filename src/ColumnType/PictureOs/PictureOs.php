@@ -41,7 +41,7 @@ class PictureOs extends ColumnType implements EditableInterface {
 
         $upload_type_cls = $this->genUploadConfigCls($option['extra_attr'],'image');
         list($data_url, $vendor_type) =  Common::genItemDataUrl($upload_type_cls->getType(),
-             $option['value']['vendor_type'], ['resize' => '1']);
+             $option['value']['vendor_type'], ['resize' => '1'], $option['value']['file_double_check']);
 
         $os_cls = Context::genVendorByType($vendor_type);
         $image['small_url'] = $os_cls->resizeImg($image['url'], '40','40');

@@ -50,7 +50,7 @@ class ObjectStorageController extends \Think\Controller{
         if (!isset($file_data['mime_type'])){
             $file_data['mime_type'] = $mime_type;
         }
-        if (Common::needCaclFileHash() && $hash_id && !isset($file_data['hash_id'])){
+        if ($hash_id && !isset($file_data['hash_id'])){
             $file_data['hash_id'] = $hash_id;
         }
         $file_data['cate'] = $type;
