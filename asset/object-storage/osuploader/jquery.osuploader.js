@@ -309,11 +309,13 @@
             }
             parent.replaceChild(div, o);
             o = null;
+
+            var pluploadMultiSelection = isAndroidWeixin() ? false : setting.uploader_multi_selection;
             
             var pluploaduploader = new plupload.Uploader({
                 runtimes: 'html5,flash,silverlight,html4',
                 browse_button: setting.browse_button,
-                multi_selection: isAndroidWeixin() ? false : setting.uploader_multi_selection,
+                multi_selection: pluploadMultiSelection,
                 container: document.getElementById(div.id),
                 flash_swf_url: '{:asset("object-storage/plupload-2.3.9/js/Moxie.swf")}',
                 silverlight_xap_url: '{:asset("object-storage/plupload-2.3.9/js/Moxie.xap")}',
