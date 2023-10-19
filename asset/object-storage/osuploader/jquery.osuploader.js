@@ -24,6 +24,11 @@
         var ext = get_suffix(fileName);
         return Boolean(ext.match(/.png|.jpg|.jpeg|.gif|.bmp|.svg/));
     };
+
+    var isAndroidWeixin = function () {
+        var ua = navigator.userAgent.toLowerCase();
+        return ua.match(/MicroMessenger/i) == "micromessenger" && ua.match(/Android/i) == "android";
+    }
     
     function guid() {
         function S4() {
@@ -308,7 +313,7 @@
             var pluploaduploader = new plupload.Uploader({
                 runtimes: 'html5,flash,silverlight,html4',
                 browse_button: setting.browse_button,
-                multi_selection: setting.uploader_multi_selection,
+                multi_selection: isAndroidWeixin() ? false : setting.uploader_multi_selection,
                 container: document.getElementById(div.id),
                 flash_swf_url: '{:asset("object-storage/plupload-2.3.9/js/Moxie.swf")}',
                 silverlight_xap_url: '{:asset("object-storage/plupload-2.3.9/js/Moxie.xap")}',
