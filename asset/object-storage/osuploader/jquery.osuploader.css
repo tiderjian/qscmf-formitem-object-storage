@@ -227,6 +227,24 @@
     right: 5px;
 }
 
+.osuploader-viewer-eye{
+    width: 18px;
+    height: 13px;
+    border-radius: 25px;
+    cursor:pointer;
+    background-size: 100% 100%;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAANCAMAAACTkM4rAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAq1BMVEXJoGOAgIDJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGPJoGMAAABpHfReAAAAN3RSTlMAADac3/4aq+yGLwMCKH/lPeiXEAUMjOdA8FcZsfivG1Ae6k0E04MJSkWudku+c/YKcIo4KtL3rlp9MAAAAAFiS0dEOKAHpdYAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAHdElNRQfiCRUMAwDfuH9SAAAAj0lEQVQI121PaxdCUBCci9DLo1QKoUSJ6MX//2f2nptTp2M+7M7O2ccswCHJSjtSZIkoY1xQNX08mc7mhqmpQrLsxRJwHGC13lhccrc7wPODYB8Cke4yxIcjkJzSLDPONHKxY+RXIkWJHrccVU35/uDV80Whrn67ykJ0fXel70Ts6i82je99Lg75GnL//2MHVJ4NU5RltyQAAAAASUVORK5CYII=);
+}
+
+.ossuploader-dash-border .osuploader-viewer-eye{
+    position: absolute;
+    z-index: 3;
+    top: 5px;
+    right: 30px;
+    flex-shrink: 0;
+}
+
+
 .ossuploader-dash-border .ossuploader-progress-canvas{
     position: absolute;
     left: 0;

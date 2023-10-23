@@ -8,11 +8,7 @@
 
                 <script type="text/javascript" src="{:asset('object-storage/cropper/cropper.js')}"></script>
                 <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/moxie.min.js')}"></script>
-                <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.full.min.js')}"></script>
                 <script type="text/javascript" src="{:asset('object-storage/osuploader/jquery.osuploader.js')}"></script>
-                <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
-                <script type="text/javascript" src="{:asset('object-storage/os_upload.js')}"></script>
-                <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
                 <define name="picture_os_intercept" value="1" />
             </notdefined>
             <php>
@@ -44,6 +40,7 @@
                         url:'{$data_url}',
                         vendor_type:'{$vendor_type}',
                         cacl_file_hash:'{$cacl_file_hash}',
+                        viewer_js:1,
                         crop:{
                             dragMode: 'move',
                             aspectRatio: {$form.options.width}/{$form.options.height},

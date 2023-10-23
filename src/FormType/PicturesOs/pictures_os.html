@@ -20,9 +20,6 @@
                 <span class="check-tips small">{$form.tip}</span>
             </notempty>
             <notdefined name="picture_os">
-                <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.full.min.js')}"></script>
-                <script type="text/javascript" src="{:asset('object-storage/os_upload.js')}"></script>
-                <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
                 <define name="picture_os" value="1" />
             </notdefined>
             <script type="text/javascript">
@@ -93,6 +90,7 @@
                                     }
 
                                     $('#preview_{$gid}').append('<span class="img-box"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span>');
+                                    osViewerInit($('.builder-form-box .img-box img'), 'data-original')
                                 }
                                 else
                                 {

@@ -1,13 +1,8 @@
+
 <notdefined name="column_type_picture_os">
-    <link  href="__PUBLIC__/libs/viewerjs/viewer.css" rel="stylesheet">
-    <script src="__PUBLIC__/libs/viewerjs/viewer.js"></script>
     <script>
         jQuery(document).ready(function($){
-            $('.picture-oss-a').each(function(){
-                new Viewer(this,{
-                    url: 'data-url'
-                });
-            })
+            osViewerInit($('.picture-oss-url'))
         });
     </script>
     <style>

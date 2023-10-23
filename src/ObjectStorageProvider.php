@@ -35,11 +35,20 @@ class ObjectStorageProvider implements Provider, LaravelProvider {
         RegisterContainer::registerController('extends', 'ObjectStorage', ObjectStorageController::class);
 
         RegisterContainer::registerSymLink(WWW_DIR . '/Public/object-storage', __DIR__ . '/../asset/object-storage');
+
+        $this->injectHead();
     }
 
     protected function addHook(){
         \Think\Hook::add('heic_to_jpg', 'FormItem\\ObjectStorage\\Behaviors\\HeicToJpgBehavior');
         \Think\Hook::add('get_auth_url', 'FormItem\\ObjectStorage\\Behaviors\\SecurityUrlBehavior');
+    }
+
+    protected function injectHead(){
+        $async = false;
+        RegisterContainer::registerHeadJs(__ROOT__ . '/Public/object-storage/plupload-2.3.9/js/plupload.full.min.js', $async);
+        RegisterContainer::registerHeadJs(__ROOT__ . '/Public/object-storage/os_upload.js', $async);
+        RegisterContainer::registerHeadJs(__ROOT__ . '/Public/object-storage/file-md5-wasm/dist/index.js', $async);
     }
 
     public function registerLara()

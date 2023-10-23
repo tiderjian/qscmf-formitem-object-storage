@@ -148,7 +148,8 @@
                 check_image: false, //是否检查文件后缀
                 limit_file_size: 10 * 1024 * 1024, //是否检查文件大小
             },
-            cacl_file_hash:1
+            cacl_file_hash:1,
+            viewer_js:0,
         };
         
         if (!option.filters) {
@@ -160,10 +161,25 @@
         var setting = $.extend({},defaultSetting, option);
         show_msg = setting.show_msg;
 
+        const newViewer = function (){
+            if (setting.viewer_js){
+                osViewerInit($(".ossuploader-upload-box .os-img-box"))
+            }
+        }
+
+        const showViewerIcon = function (){
+            let show_viewer = '';
+            if (setting.viewer_js){
+                show_viewer = '<span class="osuploader-viewer-eye"></span>';
+            }
+
+            return show_viewer;
+        }
+
         //upload_flag true 为文件上传流程
         //upload_flag false 数据读取流程
         var add_img = function (parent_div, id, src, upload_flag, file_id) {
-            var htmlEL = $('<div class="ossuploader-dash-border" id="' + id + '"><img src="' + src + '" alt=""><i class="ossuploader-icon-upload-complete"></i><canvas class="ossuploader-progress-canvas"></canvas><span class="ossuploader-progress-desc"></span><span class="ossuploader-progress"></span><span class="ossuploader-filedelete"></span></div>');
+            var htmlEL = $('<div class="ossuploader-dash-border os-img-box" id="' + id + '"><img src="' + src + '" alt=""><i class="ossuploader-icon-upload-complete"></i><canvas class="ossuploader-progress-canvas"></canvas><span class="ossuploader-progress-desc"></span><span class="ossuploader-progress"></span>'+showViewerIcon()+'<span class="ossuploader-filedelete"></span></div>');
             if (upload_flag === true && !setting.multi_selection) {
                 $(parent_div).children('.ossuploader-dash-border').remove();
             }
@@ -308,6 +324,8 @@
                 clone_o.removeAttribute("data-srcjson");
             }
             parent.replaceChild(div, o);
+            newViewer()
+
             o = null;
 
             var pluploadMultiSelection = isAndroidWeixin() ? false : setting.uploader_multi_selection;
@@ -452,6 +470,7 @@
                         if (files_length === file_count && setting.uploadCompleted && typeof setting.uploadCompleted == "function") {
                             setting.uploadCompleted();
                         }
+                        newViewer()
                     },
                     
                     FileFiltered: function(up, file) {
@@ -516,6 +535,11 @@
                 if (setting.deleteFile && typeof setting.deleteFile == "function") {
                     setting.deleteFile(isUploadComplete);
                 }
+            });
+
+            $(div).on('click', '.osuploader-viewer-eye', function () {
+                const upId = $(this).parent().attr('id');
+                $('#'+upId + ' img').click();
             });
         };
         

@@ -288,3 +288,14 @@ function injectFileProp(up, file, total, count, need_cacl_file_hash = 1){
     const need_cacl = parseInt(need_cacl_file_hash) === 1;
     InjectFileProp.setFileType(up, file, total, count,need_cacl)
 }
+
+function osViewerInit(dom = null, url = null){
+    dom = dom || $('.os-viewer-wrap');
+    url = url || 'data-url';
+
+    dom.each(function(){
+        new Viewer(this,{
+            url: url
+        });
+    })
+}
