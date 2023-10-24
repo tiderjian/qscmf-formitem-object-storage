@@ -12,7 +12,7 @@
                 <notempty name="form.value">
                     <?php $images = explode(',',$form['value']); ?>
                     <foreach name="images" item="img">
-                        <span class="img-box"><img class="img" src="{$img|showFileUrl}{$form.options.process}" data-id="{$img}"><i class="fa fa-times-circle remove-picture"></i></span>
+                        <span class="os-img-box"><img class="img" src="{$img|showFileUrl}{$form.options.process}" data-id="{$img}"><i class="fa fa-times-circle remove-picture"></i></span>
                     </foreach>
                 </notempty>
             </div>
@@ -20,6 +20,8 @@
                 <span class="check-tips small">{$form.tip}</span>
             </notempty>
             <notdefined name="picture_os">
+                <link  href="__PUBLIC__/object-storage/css/style.css" rel="stylesheet">
+
                 <define name="picture_os" value="1" />
             </notdefined>
             <script type="text/javascript">
@@ -89,7 +91,7 @@
                                         $('input[name="{$form.name}"]').val(response.file_id);
                                     }
 
-                                    $('#preview_{$gid}').append('<span class="img-box"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span>');
+                                    $('#preview_{$gid}').append('<span class="os-img-box"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span>');
                                     osViewerInit($('#preview_{$gid}'), 'data-original')
                                 }
                                 else
@@ -144,7 +146,8 @@
                         var current_file_ids = $('#preview_{$gid} input').val().split(","); //获取当前文件列表以逗号分隔的ID并转换成数组
                         current_file_ids.remove(ready_for_remove_id); //从数组中删除待删除的文件ID
                         $('#preview_{$gid} input').val(current_file_ids.join(',')) //删除后覆盖原input的值
-                        $(this).closest('.img-box').remove(); //删除文件预览
+                        $(this).closest('.os-img-box').remove(); //删除文件预览
+                        osViewerUpdate($('#preview_{$gid}'))
                     });
 
                     osViewerInit($('#preview_{$gid}'), 'data-original')

@@ -10,7 +10,7 @@
             <div id="preview_{$gid}">
                 <input type="hidden" name="{$form.name}" value="{$form.value}">
                 <notempty name="form.value">
-                    <span class="img-box">
+                    <span class="os-img-box">
                         <img class="img" src="{$form.value|showFileUrl}{$form.options.process}">
                         <i class="fa fa-times-circle remove-picture"></i>
                     </span>
@@ -20,6 +20,8 @@
                 <span class="check-tips small">{$form.tip}</span>
             </notempty>
             <notdefined name="picture_os">
+                <link  href="__PUBLIC__/object-storage/css/style.css" rel="stylesheet">
+
                 <define name="picture_os" value="1" />
             </notdefined>
             <script type="text/javascript">
@@ -83,7 +85,7 @@
                                     }
                                     $('#preview_{$gid}').html('');
                                     $('#preview_{$gid}').append('<input type="hidden" name="{$form.name}" value="' + response.file_id + '">');
-                                    $('#preview_{$gid}').append('<span class="img-box"><img class="img" src="' + response.file_url + '"><i class="fa fa-times-circle remove-picture"></i></span>');
+                                    $('#preview_{$gid}').append('<span class="os-img-box"><img class="img" src="' + response.file_url + '"><i class="fa fa-times-circle remove-picture"></i></span>');
                                     osViewerInit($('#preview_{$gid}'), 'data-original')
                                 }
                                 else
@@ -132,7 +134,8 @@
                     //删除图片
                     $('#preview_{$gid} ').on('click','.remove-picture', function(){
                         $('#preview_{$gid} input').val('') //删除后覆盖原input的值为空
-                        $(this).closest('.img-box').remove(); //删除图片预览图
+                        $(this).closest('.os-img-box').remove(); //删除图片预览图
+                        osViewerUpdate($('#preview_{$gid}'))
                     });
 
                     osViewerInit($('#preview_{$gid}'), 'data-original')

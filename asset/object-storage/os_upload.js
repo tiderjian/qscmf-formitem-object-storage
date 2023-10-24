@@ -295,10 +295,21 @@ function osViewerInit(dom = null, url = null){
 
     dom.each(function(){
         if (this.hasOwnProperty("viewer")){
-            this.viewer.destroy()
+            // this.viewer.destroy()
+            this.viewer.update()
         }
         new Viewer(this,{
             url: url
         });
+    })
+}
+
+function osViewerUpdate(dom = null){
+    dom = dom || $('.os-viewer-wrap');
+
+    dom.each(function(){
+        if (this.hasOwnProperty("viewer")){
+            this.viewer.update()
+        }
     })
 }

@@ -78,7 +78,7 @@
     
     Crop.prototype.createDom = function () {
         this.fileInput = $('<input type="file" />');
-        this.mask = $('<div class="ossuploader-mask"></div>');
+        this.mask = $('<div class="osuploader-mask"></div>');
         this.mask.attr('id', guid());
         var close_container = $('<div class="close-container"></div>');
         this.cropButton = $('<button class="crop-btn">截取</button>');
@@ -163,7 +163,12 @@
 
         const newViewer = function (){
             if (setting.viewer_js){
-                osViewerInit($(".ossuploader-upload-box"))
+                osViewerInit($(".osuploader-upload-box"))
+            }
+        }
+        const updateViewer = function (){
+            if (setting.viewer_js){
+                osViewerUpdate($(".osuploader-upload-box"))
             }
         }
 
@@ -179,14 +184,14 @@
         //upload_flag true 为文件上传流程
         //upload_flag false 数据读取流程
         var add_img = function (parent_div, id, src, upload_flag, file_id) {
-            var htmlEL = $('<div class="ossuploader-dash-border" id="' + id + '"><img src="' + src + '" alt=""><i class="ossuploader-icon-upload-complete"></i><canvas class="ossuploader-progress-canvas"></canvas><span class="ossuploader-progress-desc"></span><span class="ossuploader-progress"></span>'+showViewerIcon()+'<span class="ossuploader-filedelete"></span></div>');
+            var htmlEL = $('<div class="osuploader-dash-border" id="' + id + '"><img src="' + src + '" alt=""><i class="osuploader-icon-upload-complete"></i><canvas class="osuploader-progress-canvas"></canvas><span class="osuploader-progress-desc"></span><span class="osuploader-progress"></span>'+showViewerIcon()+'<span class="osuploader-filedelete"></span></div>');
             if (upload_flag === true && !setting.multi_selection) {
-                $(parent_div).children('.ossuploader-dash-border').remove();
+                $(parent_div).children('.osuploader-dash-border').remove();
             }
             
             if (upload_flag === false && file_id) {
                 htmlEL.attr('data-fileid', file_id);
-                htmlEL.addClass('ossuploader-complete');
+                htmlEL.addClass('osuploader-complete');
             }
             $(parent_div).append(htmlEL);
             updateDashBorderInfo(parent_div);
@@ -197,17 +202,17 @@
         var add_file = function (parent_div, id, src, upload_flag, file_id) {
             var fileName = typeof src.name === "undefined" ? src : src.name;
             var file_suffix = get_suffix(fileName || src).slice(1,5);
-            var htmlEL = $('<div class="ossuploader-file" id="' + id + '"><span class="ossuploader-file-suffix">'+ file_suffix +'</span><span class="ossuploader-file-file-name" title="'+ fileName +'">'+ fileName +'</span><span class="ossuploader-progress"><span class="ossuploader-progress-inner"></span></span><span class="ossuploader-progress-desc"></span><i class="ossuploader-icon-upload-complete"></i><span class="ossuploader-filedelete"></span></div>');
+            var htmlEL = $('<div class="osuploader-file" id="' + id + '"><span class="osuploader-file-suffix">'+ file_suffix +'</span><span class="osuploader-file-file-name" title="'+ fileName +'">'+ fileName +'</span><span class="osuploader-progress"><span class="osuploader-progress-inner"></span></span><span class="osuploader-progress-desc"></span><i class="osuploader-icon-upload-complete"></i><span class="osuploader-filedelete"></span></div>');
             if (upload_flag === true && !setting.multi_selection) {
-                $(parent_div).children('.ossuploader-file-group').empty();
+                $(parent_div).children('.osuploader-file-group').empty();
             }
             
             if (upload_flag === false && file_id) {
                 htmlEL.attr('data-fileid', file_id);
-                htmlEL.addClass('ossuploader-complete');
-                htmlEL.find('.ossuploader-progress-desc').text('已上传');
+                htmlEL.addClass('osuploader-complete');
+                htmlEL.find('.osuploader-progress-desc').text('已上传');
             }
-            $(parent_div).find('.ossuploader-file-group').append(htmlEL);
+            $(parent_div).find('.osuploader-file-group').append(htmlEL);
         };
         
         var add_upload_item = function () {
@@ -227,7 +232,7 @@
         //更新 图片框元素的大小
         function updateDashBorderInfo(parent_div) {
             if (!dashBorderInfo.w) {
-                var $dashBorder = $(parent_div).find('.ossuploader-dash-border').first();
+                var $dashBorder = $(parent_div).find('.osuploader-dash-border').first();
                 dashBorderInfo.w = Math.ceil($dashBorder.width());
                 dashBorderInfo.h = Math.ceil($dashBorder.height());
             }
@@ -276,17 +281,17 @@
             var div = document.createElement('div');
             var currentIds = {};
             
-            div.className = 'ossuploader-upload-box';
-            div.id = "ossuploader_upload_box_" + guid();
+            div.className = 'osuploader-upload-box';
+            div.id = "osuploader_upload_box_" + guid();
             
             var div_add = document.createElement('div');
-            div_add.className = 'ossuploader-add';
-            div_add.id = 'ossuploader_upload_' + guid();
+            div_add.className = 'osuploader-add';
+            div_add.id = 'osuploader_upload_' + guid();
             
             setting.browse_button = div_add.id;
             if (setting.crop) {
                 var div_add1 = document.createElement('div');
-                div_add1.id = 'ossuploader_upload1_' + guid();
+                div_add1.id = 'osuploader_upload1_' + guid();
                 setting.browse_button = div_add1.id;
                 if (setting.multi_selection) setting.uploader_multi_selection = false;
                 div.appendChild(div_add1);
@@ -306,7 +311,7 @@
             div.appendChild(clone_o);
             
             if(setting.type === 'file'){
-                $(div).append('<div class="ossuploader-file-group"></div>');
+                $(div).append('<div class="osuploader-file-group"></div>');
             }
             
             var values, srcs;
@@ -369,12 +374,12 @@
                                 reader.onload = function (e) {
                                     add_upload_item(div, file.id, e.target.result, true);
                                     currentIds[file.id] = file.id;
-                                    $('#' + file.id).find('.ossuploader-progress-desc').text('准备上传');
+                                    $('#' + file.id).find('.osuploader-progress-desc').text('准备上传');
                                 };
                             }else{
                                 add_upload_item(div, file.id, file, true);
                                 currentIds[file.id] = file.id;
-                                $('#' + file.id).find('.ossuploader-progress-desc').text('准备上传');
+                                $('#' + file.id).find('.osuploader-progress-desc').text('准备上传');
                             }
                             injectFileProp(up, file, files.length, count, setting.cacl_file_hash);
                         });
@@ -391,18 +396,18 @@
                     },
                     
                     UploadProgress: function (up, file) {
-                        // var el = $('#' + file.id).children('.ossuploader-progress');
+                        // var el = $('#' + file.id).children('.osuploader-progress');
                         // el.css('width', file.percent + '%');
                         var $el = $('#' + file.id);
                         var uploadProgressDesc = '';
                         updateUploadProgress($el.find('canvas').get(0), file.percent);
-                        $el.find('.ossuploader-progress-inner').width(file.percent + '%');
+                        $el.find('.osuploader-progress-inner').width(file.percent + '%');
                         if(file.percent >= 100){
                             uploadProgressDesc = '处理中';
                         }else{
                             uploadProgressDesc = file.percent + '%';
                         }
-                        $el.find('.ossuploader-progress-desc').text(uploadProgressDesc);
+                        $el.find('.osuploader-progress-desc').text(uploadProgressDesc);
                     },
                     
                     FileUploaded: function (up, file, info) {
@@ -411,7 +416,7 @@
                         }
                         
                         var $el = $('#' + file.id);
-                        var $fileDescDom = $el.find('.ossuploader-progress-desc');
+                        var $fileDescDom = $el.find('.osuploader-progress-desc');
                         $fileDescDom.text('');
                         
                         //若上传的过程中 该文件被删除
@@ -464,7 +469,7 @@
                             return false;
                         }
                         
-                        $el.addClass('ossuploader-complete');
+                        $el.addClass('osuploader-complete');
                         
                         file_count++;
                         if (files_length === file_count && setting.uploadCompleted && typeof setting.uploadCompleted == "function") {
@@ -509,10 +514,10 @@
                 var crop = new Crop(setting.crop, div_add.id, pluploaduploader, setting.canvasOption);
             }
             
-            $(div).on('click', '.ossuploader-filedelete', function () {
+            $(div).on('click', '.osuploader-filedelete', function () {
                 var isUploadComplete = false;
                 
-                var box = $(this).parents('.ossuploader-upload-box');
+                var box = $(this).parents('.osuploader-upload-box');
                 var input = box.children('input[type=hidden]');
                 var fileVal = input.val().split(',');
                 var id = $(this).parent().data('fileid');
@@ -535,6 +540,7 @@
                 if (setting.deleteFile && typeof setting.deleteFile == "function") {
                     setting.deleteFile(isUploadComplete);
                 }
+                updateViewer();
             });
 
             $(div).on('click', '.osuploader-viewer-eye', function () {
