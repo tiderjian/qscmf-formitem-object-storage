@@ -163,7 +163,7 @@
 
         const newViewer = function (){
             if (setting.viewer_js){
-                osViewerInit($(".ossuploader-upload-box .os-img-box"))
+                osViewerInit($(".ossuploader-upload-box"))
             }
         }
 
@@ -179,7 +179,7 @@
         //upload_flag true 为文件上传流程
         //upload_flag false 数据读取流程
         var add_img = function (parent_div, id, src, upload_flag, file_id) {
-            var htmlEL = $('<div class="ossuploader-dash-border os-img-box" id="' + id + '"><img src="' + src + '" alt=""><i class="ossuploader-icon-upload-complete"></i><canvas class="ossuploader-progress-canvas"></canvas><span class="ossuploader-progress-desc"></span><span class="ossuploader-progress"></span>'+showViewerIcon()+'<span class="ossuploader-filedelete"></span></div>');
+            var htmlEL = $('<div class="ossuploader-dash-border" id="' + id + '"><img src="' + src + '" alt=""><i class="ossuploader-icon-upload-complete"></i><canvas class="ossuploader-progress-canvas"></canvas><span class="ossuploader-progress-desc"></span><span class="ossuploader-progress"></span>'+showViewerIcon()+'<span class="ossuploader-filedelete"></span></div>');
             if (upload_flag === true && !setting.multi_selection) {
                 $(parent_div).children('.ossuploader-dash-border').remove();
             }

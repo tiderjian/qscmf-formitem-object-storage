@@ -4,7 +4,7 @@
 
     <script>
         jQuery(document).ready(function($){
-            osViewerInit($('.picture-oss-url'))
+            osViewerInit($('.picture-oss-a'))
         });
     </script>
     <style>
@@ -95,7 +95,7 @@
                         var small_url = response.small_url;
                         $("#image-container-{$gid}").html('<div class="picture-oss-url"><img data-url="'+ url +'" src="' + small_url+ '"></div>');
                         $("#input-{$option.name}-{$gid}").val(response.file_id);
-                        osViewerInit($('.picture-oss-url'))
+                        osViewerInit($('.picture-oss-a'))
                     }
                     else
                     {

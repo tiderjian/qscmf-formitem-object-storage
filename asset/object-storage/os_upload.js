@@ -294,6 +294,9 @@ function osViewerInit(dom = null, url = null){
     url = url || 'data-url';
 
     dom.each(function(){
+        if (this.hasOwnProperty("viewer")){
+            this.viewer.destroy()
+        }
         new Viewer(this,{
             url: url
         });

@@ -90,7 +90,7 @@
                                     }
 
                                     $('#preview_{$gid}').append('<span class="img-box"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span>');
-                                    osViewerInit($('.builder-form-box .img-box img'), 'data-original')
+                                    osViewerInit($('#preview_{$gid}'), 'data-original')
                                 }
                                 else
                                 {
@@ -146,6 +146,9 @@
                         $('#preview_{$gid} input').val(current_file_ids.join(',')) //删除后覆盖原input的值
                         $(this).closest('.img-box').remove(); //删除文件预览
                     });
+
+                    osViewerInit($('#preview_{$gid}'), 'data-original')
+
                 })();
             </script>
         </div>
