@@ -166,11 +166,6 @@
                 osViewerInit($(".osuploader-upload-box"))
             }
         }
-        const updateViewer = function (){
-            if (setting.viewer_js){
-                osViewerUpdate($(".osuploader-upload-box"))
-            }
-        }
 
         const showViewerIcon = function (){
             let show_viewer = '';
@@ -540,7 +535,7 @@
                 if (setting.deleteFile && typeof setting.deleteFile == "function") {
                     setting.deleteFile(isUploadComplete);
                 }
-                updateViewer();
+                newViewer();
             });
 
             $(div).on('click', '.osuploader-viewer-eye', function () {

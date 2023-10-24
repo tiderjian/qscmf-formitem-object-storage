@@ -147,7 +147,7 @@
                         current_file_ids.remove(ready_for_remove_id); //从数组中删除待删除的文件ID
                         $('#preview_{$gid} input').val(current_file_ids.join(',')) //删除后覆盖原input的值
                         $(this).closest('.os-img-box').remove(); //删除文件预览
-                        osViewerUpdate($('#preview_{$gid}'))
+                        osViewerInit($('#preview_{$gid}'), 'data-original')
                     });
 
                     osViewerInit($('#preview_{$gid}'), 'data-original')

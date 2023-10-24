@@ -303,13 +303,3 @@ function osViewerInit(dom = null, url = null){
         });
     })
 }
-
-function osViewerUpdate(dom = null){
-    dom = dom || $('.os-viewer-wrap');
-
-    dom.each(function(){
-        if (this.hasOwnProperty("viewer")){
-            this.viewer.update()
-        }
-    })
-}

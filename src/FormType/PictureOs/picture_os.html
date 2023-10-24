@@ -135,7 +135,7 @@
                     $('#preview_{$gid} ').on('click','.remove-picture', function(){
                         $('#preview_{$gid} input').val('') //删除后覆盖原input的值为空
                         $(this).closest('.os-img-box').remove(); //删除图片预览图
-                        osViewerUpdate($('#preview_{$gid}'))
+                        osViewerInit($('#preview_{$gid}'), 'data-original')
                     });
 
                     osViewerInit($('#preview_{$gid}'), 'data-original')
