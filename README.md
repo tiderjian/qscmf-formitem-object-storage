@@ -564,10 +564,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
   
       <script type="text/javascript" src="{:asset('object-storage/cropper/cropper.js')}"></script>
       <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/moxie.min.js')}"></script>
-      <script type="text/javascript" src="{:asset('object-storage/plupload-2.3.9/js/plupload.full.min.js')}"></script>
       <script type="text/javascript" src="{:asset('object-storage/osuploader/jquery.osuploader.js')}"></script>
-      <script type="text/javascript" src="{:asset('object-storage/file-md5-wasm/dist/index.js')}"></script>
-      <script type="text/javascript" src="{:asset('object-storage/os_upload.js')}"></script>
   
       <define name="pictures_os_intercept" value="1" />
   </notdefined>
@@ -579,6 +576,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
               url:'{$data_url}',
               vendor_type:'{$vendor_type}',
               cacl_file_hash:'{$cacl_file_hash}',
+              viewer_js:1,
               crop:{
                   dragMode: 'move',
                   aspectRatio: 120/120,
@@ -606,6 +604,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
         url:                //string require  上传图片的地址
         vendor_type:        //string require  供应商类型
         cacl_file_hash:        //string optional  查重开关，0 关闭，1 开启，默认为 1
+        viewer_js:        //string optional  图片viewer预览开关，0 关闭，1 开启，默认为 0
         multi_selection:    //boolean optional 是否多选
         canvasOption:{       //object optional 配置getCroppedCanvas
             //修改裁剪后图片的背景色 为黑色
