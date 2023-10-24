@@ -295,11 +295,11 @@ function osViewerInit(dom = null, url = null){
 
     dom.each(function(){
         if (this.hasOwnProperty("viewer")){
-            // this.viewer.destroy()
             this.viewer.update()
+        }else{
+            new Viewer(this,{
+                url: url
+            });
         }
-        new Viewer(this,{
-            url: url
-        });
     })
 }
