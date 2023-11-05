@@ -232,4 +232,16 @@ class Common
 
         return (int)env("OS_FILE_DOUBLE_CHECK", 1);
     }
+
+    public static function extraValidHashId(?string $hash_id = ''):string{
+        if (empty($hash_id) || $hash_id === 'undefined'|| $hash_id === 'null'){
+            return '';
+        }
+
+        return $hash_id;
+    }
+
+    public static function getHashId():string{
+        return self::extraValidHashId(I("get.hash_id"));
+    }
 }

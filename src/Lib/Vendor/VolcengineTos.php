@@ -122,13 +122,14 @@ class VolcengineTos implements IVendor
     }
 
     private function _cbParam(string $type):array{
-        $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), I('get.hash_id'), I('get.resize')),
+        $hash_id = Common::getHashId();
+        $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), $hash_id, I('get.resize')),
             'callbackBody'=>'filename=${object}&size=${size}&mimeType=${mimeType}&upload_type=${x:upload_type}',
             'callbackBodyType'=>"application/x-www-form-urlencoded");
         if (I('get.title')){
             $callback_param['callbackBody'].='&title=${x:title}';
         }
-        if (I('get.hash_id')){
+        if ($hash_id){
             $callback_param['callbackBody'].='&hash_id=${x:hash_id}';
         }
         if (I('get.resize')){
@@ -141,8 +142,8 @@ class VolcengineTos implements IVendor
         if (I('get.title')){
             $callback_var['x:title'].=I('get.title');
         }
-        if (I('get.hash_id')){
-            $callback_var['x:hash_id'].=I('get.hash_id');
+        if ($hash_id){
+            $callback_var['x:hash_id'].=$hash_id;
         }
         if (I('get.resize')){
             $callback_var['x:resize'].=I('get.resize');

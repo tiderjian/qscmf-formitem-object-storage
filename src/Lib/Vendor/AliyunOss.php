@@ -139,7 +139,7 @@ class AliyunOss implements IVendor {
         if (I('get.title')){
             $callback_param['callbackBody'].='&title=${x:title}';
         }
-        if (I('get.hash_id')){
+        if (Common::getHashId()){
             $callback_param['callbackBody'].='&hash_id=${x:hash_id}';
         }
         if (I('get.resize')){
@@ -175,8 +175,8 @@ class AliyunOss implements IVendor {
         if (I('get.title')){
             $callback_var['x:title'].=I('get.title');
         }
-        if (I('get.hash_id')){
-            $callback_var['x:hash_id'].=I('get.hash_id');
+        if ($hash_id = Common::getHashId()){
+            $callback_var['x:hash_id'].=$hash_id;
         }
         if (I('get.resize')){
             $callback_var['x:resize'].=I('get.resize');

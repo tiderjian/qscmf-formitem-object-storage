@@ -115,6 +115,9 @@ function genVendorType(type){
 
 function handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId){
     const vendorTypeObj = genVendorType(vendorType);
+    if (typeof hashId === 'undefined'){
+        hashId = '';
+    }
 
     let resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl,filename,file,hashId));
     let res = eval("(" + resBody + ")");

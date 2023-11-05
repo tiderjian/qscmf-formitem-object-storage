@@ -19,7 +19,7 @@ class ObjectStorageController extends \Think\Controller{
         $type = I('get.type');
         $vendor_type = Common::getVendorType($type, I('get.vendor_type'));
         $title = I("get.title");
-        $hash_id = I("get.hash_id");
+        $hash_id = Common::getHashId();
         $resize = I("get.resize");
 
         $config = C('UPLOAD_TYPE_' . strtoupper($type));
@@ -37,7 +37,7 @@ class ObjectStorageController extends \Think\Controller{
         }
 
         $mime_type = $body_arr['mimeType'];
-        $hash_id = $hash_id ?: $body_arr['hash_id'];
+        $hash_id = $hash_id ?: Common::extraValidHashId($body_arr['hash_id']);
 
         if(!empty($config['mimes'])){
             $mimes = explode(',', $config['mimes']);
@@ -77,7 +77,7 @@ class ObjectStorageController extends \Think\Controller{
     }
 
     public function policyGet($type, $vendor_type = ''){
-        $hash_id = I("get.hash_id");
+        $hash_id = Common::getHashId();
         $resize = I("get.resize");
         $vendor_type = Common::getVendorType($type, $vendor_type);
         $os_cls = Context::genVendorByType($vendor_type);
