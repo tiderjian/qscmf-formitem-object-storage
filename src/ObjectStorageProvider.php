@@ -47,7 +47,7 @@ class ObjectStorageProvider implements Provider, LaravelProvider {
     protected function injectHead(){
         $async = false;
         RegisterContainer::registerHeadJs(__ROOT__ . '/Public/object-storage/plupload-2.3.9/js/plupload.full.min.js', $async);
-        RegisterContainer::registerHeadJs(__ROOT__ . '/Public/object-storage/os_upload.js', $async);
+        RegisterContainer::registerHeadJs(__ROOT__ . '/Public/object-storage/os_upload.js?v=1.3.2', $async);
         RegisterContainer::registerHeadJs(__ROOT__ . '/Public/object-storage/file-md5-wasm/dist/index.js', $async);
     }
 
