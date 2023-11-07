@@ -370,13 +370,14 @@
                                     add_upload_item(div, file.id, e.target.result, true);
                                     currentIds[file.id] = file.id;
                                     $('#' + file.id).find('.osuploader-progress-desc').text('准备上传');
+                                    injectFileProp(up, file, files.length, count, setting.cacl_file_hash);
                                 };
                             }else{
                                 add_upload_item(div, file.id, file, true);
                                 currentIds[file.id] = file.id;
                                 $('#' + file.id).find('.osuploader-progress-desc').text('准备上传');
+                                injectFileProp(up, file, files.length, count, setting.cacl_file_hash);
                             }
-                            injectFileProp(up, file, files.length, count, setting.cacl_file_hash);
                         });
                     },
                     
