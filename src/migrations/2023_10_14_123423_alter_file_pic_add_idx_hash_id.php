@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -26,7 +27,9 @@ class AlterFilePicAddIdxHashId extends Migration
     {
         Schema::table('qs_file_pic', function (Blueprint $table) {
             //
-            $table->index('hash_id','idx_hashId');
+            $columns = DB::select("show index FROM `qs_file_pic` WHERE Column_name = 'hash_id'");
+
+            !$columns && $table->index('hash_id','idx_hashId');
         });
     }
 
@@ -39,7 +42,6 @@ class AlterFilePicAddIdxHashId extends Migration
     {
         Schema::table('qs_file_pic', function (Blueprint $table) {
             //
-            $table->dropIndex('idx_hashId');
         });
     }
 

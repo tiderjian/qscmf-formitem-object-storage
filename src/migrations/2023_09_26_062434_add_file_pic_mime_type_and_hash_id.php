@@ -27,21 +27,37 @@ class AddFilePicMimeTypeAndHashId extends Migration
     {
         Schema::table('qs_file_pic', function (Blueprint $table) {
             //
-            $columns = DB::select('show columns from qs_file_pic');
+            $columns = DB::select("show columns from qs_file_pic WHERE FIELD in ('mime_type','hash_id');");
 
-            $count = collect($columns)->filter(function ($column) {
-                return $column->Field == 'mime_type';
-            })->count();
+            $exists_mime_type = false;
+            $exists_hash_id = false;
 
-            if(!!$count){
+            $columns && collect($columns)->each(function ($column) use(&$exists_mime_type, &$exists_hash_id) {
+                if ($column->Field === 'mime_type'){
+                    $exists_mime_type = true;
+                }
+                if ($column->Field === 'hash_id'){
+                    $exists_hash_id = true;
+                }
+            });
+
+            if($exists_mime_type){
                 $table->string('mime_type', 200)->default('')->change();
             }
             else{
                 $table->string("mime_type", 200)->default("")->after("cate");
             }
-            $table->string("hash_id", 200)->default("")
-                ->comment("文件哈希值，除了空串，此值应该唯一")
-                ->after("cate");
+
+            if ($exists_hash_id){
+                $table->string("hash_id", 200)->default("")
+                    ->comment("文件哈希值，除了空串，此值应该唯一")
+                    ->after("cate")->change();
+            }else{
+                $table->string("hash_id", 200)->default("")
+                    ->comment("文件哈希值，除了空串，此值应该唯一")
+                    ->after("cate");
+            }
+
         });
     }
 
@@ -55,7 +71,6 @@ class AddFilePicMimeTypeAndHashId extends Migration
         Schema::table('qs_file_pic', function (Blueprint $table) {
             //
             $table->string('mime_type', 200)->default('')->change();
-            $table->dropColumn('hash_id');
         });
     }
 
