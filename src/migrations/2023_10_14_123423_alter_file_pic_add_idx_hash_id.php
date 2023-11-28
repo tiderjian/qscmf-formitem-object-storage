@@ -40,9 +40,7 @@ class AlterFilePicAddIdxHashId extends Migration
      */
     public function down()
     {
-        Schema::table('qs_file_pic', function (Blueprint $table) {
-            //
-        });
+
     }
 
     public function afterCmmUp()
