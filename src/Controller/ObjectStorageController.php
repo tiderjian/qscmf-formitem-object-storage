@@ -79,10 +79,12 @@ class ObjectStorageController extends \Think\Controller{
     public function policyGet($type, $vendor_type = ''){
         $hash_id = Common::getHashId();
         $resize = I("get.resize");
+        $title = I("get.title");
         $vendor_type = Common::getVendorType($type, $vendor_type);
         $os_cls = Context::genVendorByType($vendor_type);
+        $os_cls && $os_cls->setUploadConfig($type);
 
-        if ($hash_id && $file_data = Common::getFileByHash($hash_id, $os_cls, $resize)){
+        if ($hash_id && $file_data = Common::getFileByHash($hash_id, $os_cls, $title, $resize)){
             $res = [
                 'file_id' => $file_data['id'],
                 'file_url' => $file_data['url'],

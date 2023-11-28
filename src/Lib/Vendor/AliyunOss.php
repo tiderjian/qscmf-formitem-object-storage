@@ -192,22 +192,7 @@ class AliyunOss implements IVendor {
         $response['callback'] = $base64_callback_body;
         $response['callback_var'] = $callback_var;
         $upload_meta = $config_cls->getMeta();
-        if($upload_meta){
-            $get_data = I('get.');
-            foreach($upload_meta as $k => &$vo){
-                $vo = preg_replace_callback('/__(\w+?)__/', function($matches) use($get_data){
-                    return $get_data[$matches[1]];
-                }, $vo);
-
-
-                if(strtolower($k) == 'content-disposition' && preg_match("/attachment;\s*?filename=(.+)/", $vo, $matches)){
-                    $vo = preg_replace_callback("/attachment;\s*?filename=(.+)/", function($matches){
-                        return 'attachment;filename=' . urlencode($matches[1]) . ";filename*=utf-8''" . urlencode($matches[1]);
-                    }, $vo);
-                }
-            }
-            $response['oss_meta'] = json_encode($upload_meta);
-        }
+        $upload_meta && $response['oss_meta'] = json_encode(Common::injectMeta($upload_meta, I("get.")));
         //这个参数是设置用户上传指定的前缀
         $response['dir'] = $dir;
 

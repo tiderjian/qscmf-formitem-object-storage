@@ -4,6 +4,8 @@ namespace FormItem\ObjectStorage\Lib;
 
 use FormItem\ObjectStorage\Lib\Vendor\Context;
 use FormItem\ObjectStorage\Lib\Vendor\IVendor;
+use Qscmf\Lib\FileUploadManager\Manager;
+use Qscmf\Lib\FileUploadManager\File;
 
 class Common
 {
@@ -119,10 +121,24 @@ class Common
         return $name;
     }
 
-    public static function getFileByHash(string $hash_id, IVendor $os_cls, string $resize = ''):?array{
-        $file_data = D("FilePic")->where(['hash_id' => $hash_id])->find();
-        if ($file_data){
-            $file_data = self::handleCbRes($file_data, $os_cls, $resize);
+    public static function getFileByHash(string $hash_id, IVendor $os_cls, string $title, string $resize = ''):?array{
+        $file_data = null;
+        $security = $os_cls->getUploadConfig()?->getSecurity();
+        $temp_data = [
+            'title' => $title,
+            'cate' => $os_cls->getUploadConfig()->getType(),
+            'hash_id' => $hash_id,
+            'security' => $security ?: 0,
+            'owner' => $security ? session(C('USER_AUTH_KEY')) : 0,
+            'vendor_type' => $os_cls->getVendorType(),
+        ];
+        $manager = new Manager(new File($temp_data));
+        if($manager->isExists()){
+            $file_id = $manager->mirror();
+            if($file_id !== false){
+                $file_data = D("FilePic")->getOne($file_id);
+                $file_data = self::handleCbRes($file_data, $os_cls, $resize);
+            }
         }
 
         return $file_data;
@@ -243,5 +259,22 @@ class Common
 
     public static function getHashId():string{
         return self::extraValidHashId(I("get.hash_id"));
+    }
+
+    public static function injectMeta(array $upload_meta = [], ?array $get_data = []):array{
+        foreach($upload_meta as $k => &$vo){
+            $vo = preg_replace_callback('/__(\w+?)__/', function($matches) use($get_data){
+                return $get_data[$matches[1]];
+            }, $vo);
+
+
+            if(strtolower($k) === 'content-disposition' && preg_match("/attachment;\s*?filename=(.+)/", $vo, $matches)){
+                $vo = preg_replace_callback("/attachment;\s*?filename=(.+)/", static function($matches){
+                    return 'attachment;filename=' . urlencode($matches[1]) . ";filename*=utf-8''" . urlencode($matches[1]);
+                }, $vo);
+            }
+        }
+
+        return $upload_meta;
     }
 }

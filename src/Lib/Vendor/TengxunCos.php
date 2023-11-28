@@ -257,7 +257,10 @@ class TengxunCos implements IVendor
         $dir=Common::genObjectName($config,$ext);
 
         $pathname=$dir;
-        substr($pathname, 0, 1) != '/' && ($pathname = '/' . $pathname);
+        $pathname[0] !== '/' && ($pathname = '/' . $pathname);
+
+        $upload_meta = $this->getUploadConfig()->getMeta();
+        $upload_meta = Common::injectMeta($upload_meta, I("get."));
 
         $authorization=$this->getAuthorization($pathname,'POST');
 
@@ -267,12 +270,13 @@ class TengxunCos implements IVendor
             'params'=>[
                 'key'=>$dir,
                 'success_action_redirect'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), Common::getHashId(), I('get.resize')),
+                ...$upload_meta
             ]
         ];
     }
 
     public function genClient(string $type, ?bool $check_config = true){
-        return self::getCosClient($type, $check_config);
+        return $this->getCosClient($type, $check_config);
     }
 
     private function _extraObjectMimeType(?array $params = []){

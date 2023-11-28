@@ -258,7 +258,7 @@ class VolcengineTos implements IVendor
         $dir=Common::genObjectName($config,$ext);
 
         $pathname=$dir;
-        substr($pathname, 0, 1) != '/' && ($pathname = '/' . $pathname);
+        $pathname[0] !== '/' && ($pathname = '/' . $pathname);
 
         $now = microtime(true);
 
@@ -276,6 +276,13 @@ class VolcengineTos implements IVendor
             'x-tos-date' => $date,
 //                'x-tos-security-token' => '',
         ];
+        $upload_meta = $this->getUploadConfig()->getMeta();
+        $upload_meta = Common::injectMeta($upload_meta, I("get."));
+        if ($upload_meta){
+            collect($upload_meta)->each(function($value, $name) use(&$common_params){
+                $common_params[$name] = $value;
+            });
+        }
 
         $base64_policy = $this->_genPostSignPolicy($dir, $now, $bucket, $common_params);
 
