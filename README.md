@@ -55,6 +55,11 @@ composer require quansitech/qscmf-formitem-object-storage
     ->addTableColumn("picture", "封面tos", 'picture_os', ['vendor_type' => 'volcengine_tos'], true)
     ```
   
+  + 请求 policy 等信息接口的参数
+    ```text
+    接口地址默认为 /extends/objectStorage/policyGet ，参数名为 vendor_type  
+    ```
+  
   + 修改 *upload_config.php* 的上传配置
   
     ```text
