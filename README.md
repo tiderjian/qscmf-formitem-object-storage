@@ -49,6 +49,7 @@ composer require quansitech/qscmf-formitem-object-storage
     ->addFormItem("picture_cos", "picture_os", "封面cos","",['vendor_type' => 'tengxun_cos'])
     
     // 使用富文本则是配置第七个参数
+    // data-url 根据实际入口文件修改
     ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=aliyun_oss"')
     
     // 使用columnItem
