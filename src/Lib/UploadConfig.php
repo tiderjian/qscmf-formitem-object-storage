@@ -46,7 +46,7 @@ class UploadConfig
             return $this->config['os_upload_meta'];
         }
 
-        return $this->config['oss_meta'];
+        return $this->config['oss_meta'] ?? [];
     }
 
     public function getMaxSize(){

@@ -17,7 +17,7 @@
     "volcengine/volc-sdk-php": "^1.0",
     "qcloud/cos-sdk-v5": ">=2.0",
     "alibabacloud/sts-20150401": "^1.0",
-    "quansitech/ve-tos-php-sdk": "*@dev"
+    "quansitech/ve-tos-php-sdk": "^1.0"
   },
   "autoload": {
     "psr-4": {
