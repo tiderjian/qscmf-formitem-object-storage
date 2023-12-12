@@ -123,7 +123,7 @@ class Common
 
     public static function getFileByHash(string $hash_id, IVendor $os_cls, string $title, string $resize = ''):?array{
         $file_data = null;
-        $security = $os_cls->getUploadConfig()?->getSecurity();
+        $security = $os_cls->getUploadConfig()->getSecurity();
         $temp_data = [
             'title' => $title,
             'cate' => $os_cls->getUploadConfig()->getType(),

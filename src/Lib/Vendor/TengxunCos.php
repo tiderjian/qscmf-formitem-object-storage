@@ -269,9 +269,8 @@ class TengxunCos implements IVendor
             'authorization'=>$authorization,
             'params'=>[
                 'key'=>$dir,
-                'success_action_redirect'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), Common::getHashId(), I('get.resize')),
-                ...$upload_meta
-            ]
+                'success_action_redirect'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), Common::getHashId(), I('get.resize'))
+            ]+$upload_meta
         ];
     }
 
