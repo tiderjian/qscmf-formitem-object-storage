@@ -317,11 +317,11 @@
     }
 
     window.osEnableSortable = function (dom){
-        // dom.sortable("enable");
+        dom.sortable("enable");
     }
 
     window.osDisableSortable = function (dom){
-        // dom.sortable("disable")
+        dom.sortable("disable")
     }
 
 })(jQuery)
