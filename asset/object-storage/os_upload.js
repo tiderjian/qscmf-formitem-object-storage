@@ -298,4 +298,30 @@
         })
     }
 
+    window.osInitSortable = function (dom,inputDom, imgItemCls,placeholder, items, dataKey="data-id"){
+        dom.sortable({
+            placeholder: placeholder,
+            items: items,
+            forcePlaceholderSize: true,
+            update: function(event, ui) {
+                let allIds = [];
+
+                $(this).find(imgItemCls).each(function() {
+                    allIds.push($(this).attr(dataKey));
+                });
+
+                let allIdsStr = allIds.join(",");
+                inputDom.val(allIdsStr);
+            }
+        }).disableSelection();
+    }
+
+    window.osEnableSortable = function (dom){
+        // dom.sortable("enable");
+    }
+
+    window.osDisableSortable = function (dom){
+        // dom.sortable("disable")
+    }
+
 })(jQuery)

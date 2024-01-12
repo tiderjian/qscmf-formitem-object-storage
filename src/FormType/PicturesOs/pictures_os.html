@@ -7,15 +7,15 @@
                 <div class="uploadify-queue">
                 </div>
             </div>
-            <div id="preview_{$gid}">
+            <ul id="preview_{$gid}" class="os-sortable">
                 <input type="hidden" name="{$form.name}" value="{$form.value}">
                 <notempty name="form.value">
                     <?php $images = explode(',',$form['value']); ?>
                     <foreach name="images" item="img">
-                        <span class="os-img-box"><img class="img" src="{$img|showFileUrl}{$form.options.process}" data-id="{$img}"><i class="fa fa-times-circle remove-picture"></i></span>
+                        <li class="os-img-wrap"><span class="os-img-box"><img class="img" src="{$img|showFileUrl}{$form.options.process}" data-id="{$img}"><i class="fa fa-times-circle remove-picture"></i></span></li>
                     </foreach>
                 </notempty>
-            </div>
+            </ul>
             <notempty name="form.tip">
                 <span class="check-tips small">{$form.tip}</span>
             </notempty>
@@ -24,8 +24,18 @@
 
                 <define name="picture_os" value="1" />
             </notdefined>
+            <notdefined name="pictures_os_sortable">
+                <link  href="__PUBLIC__/object-storage/jquery-ui/jquery-ui.css" rel="stylesheet">
+                <script src="__PUBLIC__/object-storage/jquery-ui/jquery-ui.min.js"></script>
+
+                <define name="pictures_os_sortable" value="1" />
+
+            </notdefined>
             <script type="text/javascript">
                 (function () {
+
+                    osInitSortable($('#preview_{$gid} '), $('input[name="{$form.name}"]'), ".os-img-box .img", "os-sort-state-highlight","li")
+
                     var fileExts_{$gid} = "{$file_ext}";
                     let policyGetUrl = $('#upload_{$gid}').data('url') || "{$data_url}";
 
@@ -48,6 +58,7 @@
                             },
 
                             FilesAdded: function(up, files) {
+                                osDisableSortable($('#preview_{$gid}'));
                                 let count = {current:0};
                                 plupload.each(files, function(file) {
                                     var html = '<div id="' + file.id + '" class="uploadify-queue-item">' +
@@ -91,7 +102,7 @@
                                         $('input[name="{$form.name}"]').val(response.file_id);
                                     }
 
-                                    $('#preview_{$gid}').append('<span class="os-img-box"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span>');
+                                    $('#preview_{$gid}').append('<li class="os-img-wrap"><span class="os-img-box" data-id="' + response.file_id + '"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span></li>');
                                     osViewerInit($('#preview_{$gid}'), 'data-original')
                                 }
                                 else
@@ -99,9 +110,11 @@
                                     alert(info.response);
                                 }
                                 $('#upload_{$gid}').children('.uploadify-queue').find('#' + file.id).remove();
+                                osEnableSortable($('#preview_{$gid}'));
                             },
 
                             Error: function(up, err) {
+                                osEnableSortable($('#preview_{$gid}'));
                                 var MAX_SIZE_ALLOWED = '';
                                 var errText = '';
                                 var codeMap = {

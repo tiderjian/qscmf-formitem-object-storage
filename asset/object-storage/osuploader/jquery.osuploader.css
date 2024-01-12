@@ -339,3 +339,14 @@
     }
 }
 
+.osuploader-sortable {
+    cursor: pointer;
+}
+
+.osuploader-sort-state-highlight{
+    margin-right: 8px;
+    height: 120px;
+    width: 30%;
+    border: 1px solid #fff;
+    background-color: #fff;
+}

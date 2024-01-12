@@ -150,6 +150,7 @@
             },
             cacl_file_hash:1,
             viewer_js:0,
+            sortable:false,
         };
         
         if (!option.filters) {
@@ -276,7 +277,7 @@
             var div = document.createElement('div');
             var currentIds = {};
             
-            div.className = 'osuploader-upload-box';
+            div.className = 'osuploader-upload-box osuploader-sortable';
             div.id = "osuploader_upload_box_" + guid();
             
             var div_add = document.createElement('div');
@@ -329,6 +330,9 @@
             o = null;
 
             var pluploadMultiSelection = isAndroidWeixin() ? false : setting.uploader_multi_selection;
+
+            setting.sortable && osInitSortable($(div), $(clone_o),".osuploader-complete",
+                'osuploader-sort-state-highlight',".osuploader-complete","data-fileid")
             
             var pluploaduploader = new plupload.Uploader({
                 runtimes: 'html5,flash,silverlight,html4',
@@ -337,7 +341,8 @@
                 container: document.getElementById(div.id),
                 flash_swf_url: '{:asset("object-storage/plupload-2.3.9/js/Moxie.swf")}',
                 silverlight_xap_url: '{:asset("object-storage/plupload-2.3.9/js/Moxie.xap")}',
-                
+                headers:{'X-Requested-With':'XMLHttpRequest'},
+
                 filters: setting.filters,
                 
                 init: {
@@ -346,6 +351,7 @@
                     },
                     
                     FilesAdded: function (up, files) {
+                        setting.sortable && osDisableSortable($(div));
                         var limit = setting.limit;
                         var unixText = setting.type === 'image' ? '张' : '个';
                         if (currentFileLength + files.length > limit) {
@@ -439,8 +445,8 @@
                                 }
                             }
                             
-                            if (response.err_msg) {
-                                setting.show_msg(response.err_msg);
+                            if (response.err_msg || parseInt(response.status) === 0) {
+                                setting.show_msg(response.err_msg || response.info);
                                 $el.remove();
                                 currentFileLength--;
                                 return false;
@@ -471,6 +477,7 @@
                         if (files_length === file_count && setting.uploadCompleted && typeof setting.uploadCompleted == "function") {
                             setting.uploadCompleted();
                         }
+                        setting.sortable && osEnableSortable($(div));
                         newViewer()
                     },
                     
@@ -479,6 +486,8 @@
                     },
                     
                     Error: function (up, err, c, d) {
+                        setting.sortable && osDisableSortable($(div));
+
                         if (setting.uploadError && typeof setting.uploadError == "function") {
                             setting.uploadError(up, err);
                         }

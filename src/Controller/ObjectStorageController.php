@@ -56,6 +56,9 @@ class ObjectStorageController extends \Think\Controller{
         $file_data['cate'] = $type;
 
         C('TOKEN_ON',false);
+
+        $this->check($file_data, $config);
+
         $r = D('FilePic')->createAdd($file_data);
         if($r === false){
             E(D('FilePic')->getError());
@@ -74,6 +77,28 @@ class ObjectStorageController extends \Think\Controller{
 
             $this->ajaxReturn($res);
         }
+    }
+
+    private function checkSize($size, $config_max_size): bool
+    {
+        return !($size > $config_max_size) || (0 === $config_max_size);
+    }
+
+    private function checkExt($ext, $config_ext): bool
+    {
+        return empty($config_ext) || in_array(strtolower($ext), $config_ext, true);
+    }
+
+    private function check($file, $config) {
+        /* 检查文件大小 */
+        if (!$this->checkSize($file['size'], $config['maxSize'])) {
+            $this->ajaxReturn(array('err_msg' => '上传文件大小不符！'.'(<='.floor($config['maxSize']/1024/1024).'MB)'));
+        }
+
+        /* 检查文件后缀 */
+//        if (!$this->checkExt($file['ext'], $config['ext'])) {
+//            $this->ajaxReturn(array('err_msg' => '上传文件后缀不允许！'));
+//        }
     }
 
     public function policyGet($type, $vendor_type = ''){
