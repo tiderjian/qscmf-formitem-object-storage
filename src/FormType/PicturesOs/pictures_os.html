@@ -7,15 +7,15 @@
                 <div class="uploadify-queue">
                 </div>
             </div>
-            <ul id="preview_{$gid}" class="os-sortable">
+            <div id="preview_{$gid}" class="os-sortable">
                 <input type="hidden" name="{$form.name}" value="{$form.value}">
                 <notempty name="form.value">
                     <?php $images = explode(',',$form['value']); ?>
                     <foreach name="images" item="img">
-                        <li class="os-img-wrap"><span class="os-img-box"><img class="img" src="{$img|showFileUrl}{$form.options.process}" data-id="{$img}"><i class="fa fa-times-circle remove-picture"></i></span></li>
+                        <div class="os-img-wrap"><span class="os-img-box"><img class="img" src="{$img|showFileUrl}{$form.options.process}" data-id="{$img}"><i class="fa fa-times-circle remove-picture"></i></span></div>
                     </foreach>
                 </notempty>
-            </ul>
+            </div>
             <notempty name="form.tip">
                 <span class="check-tips small">{$form.tip}</span>
             </notempty>
@@ -34,7 +34,7 @@
             <script type="text/javascript">
                 (function () {
 
-                    osInitSortable($('#preview_{$gid} '), $('input[name="{$form.name}"]'), ".os-img-box .img", "os-sort-state-highlight","li")
+                    osInitSortable($('#preview_{$gid} '), $('input[name="{$form.name}"]'), ".os-img-box .img", "os-sort-state-highlight",".os-img-wrap")
 
                     var fileExts_{$gid} = "{$file_ext}";
                     let policyGetUrl = $('#upload_{$gid}').data('url') || "{$data_url}";
