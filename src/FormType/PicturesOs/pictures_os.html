@@ -102,7 +102,7 @@
                                         $('input[name="{$form.name}"]').val(response.file_id);
                                     }
 
-                                    $('#preview_{$gid}').append('<li class="os-img-wrap"><span class="os-img-box" data-id="' + response.file_id + '"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span></li>');
+                                    $('#preview_{$gid}').append('<div class="os-img-wrap"><span class="os-img-box" data-id="' + response.file_id + '"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span></div>');
                                     osViewerInit($('#preview_{$gid}'), 'data-original')
                                 }
                                 else
