@@ -391,9 +391,8 @@ composer require quansitech/qscmf-formitem-object-storage
          "vendor_type": "tengxun_cos"
        }
        ```
-       
-       ```json
-       // jump 为 0
+       jump 为 0
+       ```json      
        {
          "host": "host",
          "url": "url",
