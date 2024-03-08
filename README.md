@@ -335,13 +335,14 @@ composer require quansitech/qscmf-formitem-object-storage
 
    **请求参数**
 
-   | 参数        | 是否必选 | 类型   | 说明                                                               |
-   | ----------- | -------- |------------------------------------------------------------------| ------------------------------------------------------------ |
-   | type        | 是       | string | 与 upload_config.php 中 UPLOAD_TYPE_XXX 的 XXX 对应，如图片 image；文件 file |
-   | vendor_type | 否       | string | 供应商名称                                                            |
-   | title       | 是       | string | 文件标题                                                             |
-   | hash_id     | 否       | string | 文件 MD5 信息，可用于查重                                                  |
-   | file_type   | 是       | string | 文件 mime-type 类型，例如 image/png                                     |
+   | 参数          | 是否必选 | 类型   | 说明                                                               |
+   |-------------|------|------------------------------------------------------------------|------------------------------------------------------------------|
+   | type        | 是    | string | 与 upload_config.php 中 UPLOAD_TYPE_XXX 的 XXX 对应，如图片 image；文件 file |
+   | vendor_type | 否    | string | 供应商名称                                                            |
+   | title       | 是    | string | 文件标题                                                             |
+   | hash_id     | 否    | string | 文件 MD5 信息，可用于查重                                                  |
+   | file_type   | 是    | string | 文件 mime-type 类型，例如 image/png                                     |
+   | jump        | 否    | string | 为0则不使用腾讯云的重定向功能，仅 vendor_type 为 tengxun_cos有效                    |
 
    
 
@@ -380,6 +381,7 @@ composer require quansitech/qscmf-formitem-object-storage
 
        ```json
        {
+         "host": "host",
          "url": "url",
          "authorization": "authorization",
          "params": {
@@ -387,6 +389,21 @@ composer require quansitech/qscmf-formitem-object-storage
            "success_action_redirect": "url"
          },
          "vendor_type": "tengxun_cos"
+       }
+       ```
+       
+       ```json
+       // jump 为 0
+       {
+         "host": "host",
+         "url": "url",
+         "authorization": "authorization",
+         "params": {
+           "key": "Uploads/image/20231010/652527bb43ebd.png",
+           "x-cos-return-body": "returnBody"
+         },
+         "vendor_type": "tengxun_cos",
+         "jump_url": "url"
        }
        ```
 

@@ -86,11 +86,14 @@ class Common
         return env("OS_VENDOR_TYPE");
     }
 
-    public static function getCbUrlByType(string $type, string $vendor_type, string $title = '', string $hash_id = '', string $resize = ''):string{
+    public static function getCbUrlByType(string $type, string $vendor_type, string $title = '', string $hash_id = ''
+        , string $resize = '', bool $jump = true):string{
         $params = ['type'=>$type, 'vendor_type' => $vendor_type];
         $title && $params['title'] = $title;
         $hash_id && $params['hash_id'] = $hash_id;
         $resize && $params['resize'] = $resize;
+        !$jump && $params['jump'] = '0';
+
         return U('/extends/ObjectStorage/callBack',$params,true,true);
     }
 

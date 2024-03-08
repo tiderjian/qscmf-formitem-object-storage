@@ -173,6 +173,19 @@ class TengxunCos implements IVendor
 
     }
 
+    public function genReturnBodyHeader():array{
+        $return_body = [
+            'bucket' => '${bucket}',
+            'key' => '${object}',
+            'size' => '${size}',
+            'mimeType' => '${mimeType}',
+        ];
+
+        $body = base64_encode(json_encode($return_body));
+
+        return ['x-cos-return-body' => $body];
+    }
+
     private function _handleCosUrl($url){
         $res=[];
         $parse=parse_url($url);
@@ -245,13 +258,16 @@ class TengxunCos implements IVendor
     }
 
     public function policyGet($type){
+        $get_data = I("get.");
+        $is_jump = $get_data['jump'] !== '0';
+
         $this->setUploadConfig($type);
         $config = $this->getUploadConfig()->getAll();
         $host = $this->getUploadHost($config);
 
         $ext='';
-        if (I('get.title') && strpos(I('get.title'),'.')!==false){
-            $ext = '.'.pathinfo(urldecode(I('get.title')),PATHINFO_EXTENSION);
+        if (isset($get_data['title']) && str_contains($get_data['title'], '.')){
+            $ext = '.'.pathinfo(urldecode($get_data['title']),PATHINFO_EXTENSION);
         }
 
         $dir=Common::genObjectName($config,$ext);
@@ -260,18 +276,36 @@ class TengxunCos implements IVendor
         $pathname[0] !== '/' && ($pathname = '/' . $pathname);
 
         $upload_meta = $this->getUploadConfig()->getMeta();
-        $upload_meta = Common::injectMeta($upload_meta, I("get."));
+        $upload_meta = Common::injectMeta($upload_meta, $get_data);
 
         $authorization=$this->getAuthorization($pathname,'POST');
 
-        return [
+        $redirect_url = Common::getCbUrlByType($type, $this->vendor_type, $get_data['title']??''
+            , Common::getHashId(), $get_data['resize']??'', $is_jump);
+
+        $res = [
+            'host' => $host,
             'url'=>$host.$pathname,
             'authorization'=>$authorization,
             'params'=>[
                 'key'=>$dir,
-                'success_action_redirect'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), Common::getHashId(), I('get.resize'))
+                'success_action_redirect'=> $redirect_url
             ]+$upload_meta
         ];
+
+        !$is_jump && $this->_handleUnJumpRes($res);
+
+        return $res;
+    }
+
+    private function _handleUnJumpRes(&$res):void{
+        $params = $res['params'];
+
+        $res['jump_url'] = $params['success_action_redirect'];
+        unset($params['success_action_redirect']);
+        $params += $this->genReturnBodyHeader();
+
+        $res['params'] = $params;
     }
 
     public function genClient(string $type, ?bool $check_config = true){
