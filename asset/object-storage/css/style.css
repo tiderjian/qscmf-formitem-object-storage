@@ -58,9 +58,17 @@
 }
 
 .os-sortable {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
+    list-style-type: none;
+}
+
+.os-sortable li{
+    float: left;
+}
+
+.os-sortable::after {
+    content: "";
+    display: block;
+    clear: both;
 }
 
 .os-sort-state-highlight{
