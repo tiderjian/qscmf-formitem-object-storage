@@ -59,6 +59,8 @@
 
 .os-sortable {
     list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
 
 .os-sortable li{
