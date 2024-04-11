@@ -9,14 +9,14 @@
             </div>
             <div id="preview_{$gid}">
                 <input type="hidden" name="{$form.name}" value="{$form.value}">
-                <notempty name="form.value">
-                    <ul id="sortable_{$gid}" class="os-sortable">
+                <ul id="sortable_{$gid}" class="os-sortable">
+                    <notempty name="form.value">
                         <?php $images = explode(',',$form['value']); ?>
                         <foreach name="images" item="img">
                             <li class="os-img-wrap"><span class="os-img-box"><img class="img" src="{$img|showFileUrl}{$form.options.process}" data-id="{$img}"><i class="fa fa-times-circle remove-picture"></i></span></li>
                         </foreach>
-                    </ul>
-                </notempty>
+                    </notempty>
+                </ul>
             </div>
             <notempty name="form.tip">
                 <span class="check-tips small">{$form.tip}</span>
@@ -104,7 +104,7 @@
                                         $('input[name="{$form.name}"]').val(response.file_id);
                                     }
 
-                                    $('#preview_{$gid}').append('<li class="os-img-wrap"><span class="os-img-box" data-id="' + response.file_id + '"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span></li>');
+                                    $('#sortable_{$gid} ').append('<li class="os-img-wrap"><span class="os-img-box" data-id="' + response.file_id + '"><img class="img" src="' + response.file_url + '" data-id="' + response.file_id + '"><i class="fa fa-times-circle remove-picture"></i></span></li>');
                                     osViewerInit($('#preview_{$gid}'), 'data-original')
                                 }
                                 else
