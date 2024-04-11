@@ -118,7 +118,7 @@ composer require quansitech/qscmf-formitem-object-storage
       其他类型的 upload_xxx_host 是同样的作用，不再说明
       
       自定义域名常用于配置CDN加速域名
-      ```     
+      ```
 
       | 名称            | 是否必填 | 备注       |
       | --------------- | -------- | ---------- |
@@ -130,13 +130,13 @@ composer require quansitech/qscmf-formitem-object-storage
     - *env* 配置
   
       | 名称          |
-        | ------------- |
-        | COS_SECRETID  |
-        | COS_SECRETKEY |
-        | COS_HOST      |
-        | COS_BUCKET    |
-        | COS_ENDPOINT  |
-        | COS_REGION    |
+      | ------------- |
+      | COS_SECRETID  |
+      | COS_SECRETKEY |
+      | COS_HOST      |
+      | COS_BUCKET    |
+      | COS_ENDPOINT  |
+      | COS_REGION    |
   
     - *upload_config.php* 需要添加的配置
   
@@ -167,9 +167,9 @@ composer require quansitech/qscmf-formitem-object-storage
 
   *upload_config.php* 通用配置
   
-    | 名称            | 是否必填 | 备注     |
-    |------|--------| ---------- |
-    | os_upload_meta        | 否    | 设置 HTTP 标准头域,如 Content-Type 等 |
+  | 名称            | 是否必填 | 备注     |
+  |------|--------| ---------- |
+  | os_upload_meta        | 否    | 设置 HTTP 标准头域,如 Content-Type 等 |
   
 + 配置查重功能，0 关闭，1 开启，默认为 1，若同时配置，则优先级按顺序依次降低
 
@@ -263,7 +263,7 @@ composer require quansitech/qscmf-formitem-object-storage
   ```
 
   addFormItem第七个参数，传递指定的上传处理地址, 地址参数说明
- 
+
   | 参数名称      | 类型     | 是否必填 | 备注                                          |
   |---------------|--------|---------------------------------------------|-------------------------------------|
   | os | string | 是    | 恒为1                                         |
@@ -283,7 +283,7 @@ composer require quansitech/qscmf-formitem-object-storage
         ```text
         当上传资源过大时，可以配置内网访问 endpoint，此值会替换掉 ALIOSS_ENDPOINT
         其他类型的 xxx_endpoint 是同样的作用，不再说明
-        ```  
+        ```
 
         | 名称  | 是否必填 | 备注       |
         | --------------- | -------- | ---------- |
@@ -351,7 +351,7 @@ composer require quansitech/qscmf-formitem-object-storage
    ###### 正常
 
    - 提交了 *hash_id* 且已存在文件，则直接返回文件信息
-  
+    
       ```json
       {
         "file_id": "5657",
@@ -359,7 +359,7 @@ composer require quansitech/qscmf-formitem-object-storage
         "status": 2
       }
       ```
-    
+   
    - 返回不同供应商接口所需参数  
 
      - aliyun_oss
@@ -506,7 +506,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
       ```text
       当上传资源过大时，可以配置内网访问 endpoint，此值会替换掉 ALIOSS_ENDPOINT
       其他类型的 xxx_endpoint 是同样的作用，不再说明
-      ```  
+      ```
 
       | 名称  | 是否必填 | 备注       |
       | --------------- | -------- | ---------- |
@@ -627,6 +627,7 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
         vendor_type:        //string require  供应商类型
         cacl_file_hash:        //string optional  查重开关，0 关闭，1 开启，默认为 1
         viewer_js:        //string optional  图片viewer预览开关，0 关闭，1 开启，默认为 0
+        sortable:         //boolean optional 是否开启拖动图片排序功能，默认false 关闭
         multi_selection:    //boolean optional 是否多选
         canvasOption:{       //object optional 配置getCroppedCanvas
             //修改裁剪后图片的背景色 为黑色
