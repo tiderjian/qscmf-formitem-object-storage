@@ -173,6 +173,42 @@ class TengxunCos implements IVendor
 
     }
 
+    protected function genPostSignField(array $policy_data):array{
+        $now = time() - 1;
+        $expired = $now + 600;
+
+        $qSignAlgorithm = 'sha1';
+        $qAk = $this->_vendor_config->getAccessKey();
+        $qSignTime = $now . ';' . $expired;
+        $qKeyTime = $now . ';' . $expired;
+
+        $policy_data = collect($policy_data)->map(function($value, $key){
+            return ['eq', '$'.$key, $value];
+        })->values()->all();
+
+        $policy = [
+            "expiration" =>  gmt_iso8601($expired),
+            "conditions" => array_merge($policy_data, [
+                ["q-sign-algorithm" => $qSignAlgorithm],
+                ["q-ak" => $qAk],
+                ["q-sign-time" => $qSignTime],
+            ])
+        ];
+        $policy_string = json_encode($policy);
+
+        $signKey = hash_hmac("sha1", $qKeyTime, $this->_vendor_config->getSecretKey());
+        $stringToSign = sha1($policy_string);
+        $signature = hash_hmac("sha1", $stringToSign, $signKey);
+
+        return [
+            'policy' => base64_encode($policy_string),
+            'q-sign-algorithm' => $qSignAlgorithm,
+            'q-ak' => $qAk,
+            'q-key-time' => $qKeyTime,
+            'q-signature' => $signature,
+        ];
+    }
+
     public function genReturnBodyHeader():array{
         $return_body = [
             'bucket' => '${bucket}',
@@ -283,14 +319,17 @@ class TengxunCos implements IVendor
         $redirect_url = Common::getCbUrlByType($type, $this->vendor_type, $get_data['title']??''
             , Common::getHashId(), $get_data['resize']??'', $is_jump);
 
+        $policy_data = !$is_jump ? [] : ['success_action_redirect'=> $redirect_url];
+        $post_sign_field = $this->genPostSignField($policy_data+$upload_meta);
+
         $res = [
             'host' => $host,
             'url'=>$host.$pathname,
-            'authorization'=>$authorization,
+            'authorization'=>$authorization, // 不起作用？
             'params'=>[
                 'key'=>$dir,
                 'success_action_redirect'=> $redirect_url
-            ]+$upload_meta
+            ]+$upload_meta+$post_sign_field
         ];
 
         !$is_jump && $this->_handleUnJumpRes($res);
