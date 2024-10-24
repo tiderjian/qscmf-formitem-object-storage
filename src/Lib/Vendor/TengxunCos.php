@@ -290,6 +290,8 @@ class TengxunCos implements IVendor
         $body_arr['filename'] = $params['cb_key'];
         $body_arr['mimeType'] = $this->_extraObjectMimeType($body_arr);
 
+        Common::extraBodyTitle($body_arr);
+
         return $body_arr;
     }
 

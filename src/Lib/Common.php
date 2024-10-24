@@ -89,12 +89,26 @@ class Common
     public static function getCbUrlByType(string $type, string $vendor_type, string $title = '', string $hash_id = ''
         , string $resize = '', bool $jump = true):string{
         $params = ['type'=>$type, 'vendor_type' => $vendor_type];
-        $title && $params['title'] = $title;
+        $title && $params['title'] = self::encodeTitle($title);
         $hash_id && $params['hash_id'] = $hash_id;
         $resize && $params['resize'] = $resize;
         !$jump && $params['jump'] = '0';
 
         return U('/extends/ObjectStorage/callBack',$params,true,true);
+    }
+
+    public static function encodeTitle(string $title):string{
+        return base64_url_encode($title);
+    }
+
+    public static function decodeTitle(string $title):string{
+        return base64_url_decode($title);
+    }
+
+    public static function extraBodyTitle(array &$body_arr){
+        if (isset($body_arr['title'])){
+            $body_arr['title'] = Common::decodeTitle($body_arr['title']);
+        }
     }
 
     public static function genObjectName($config, $ext = ''):string{

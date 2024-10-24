@@ -173,7 +173,7 @@ class AliyunOss implements IVendor {
 
         $callback_var = array('x:upload_type' => $type);
         if (I('get.title')){
-            $callback_var['x:title'].=I('get.title');
+            $callback_var['x:title'].=Common::encodeTitle(I('get.title'));
         }
         if ($hash_id = Common::getHashId()){
             $callback_var['x:hash_id'].=$hash_id;
@@ -207,6 +207,8 @@ class AliyunOss implements IVendor {
         parse_str($body, $body_arr);
 
         $body_arr['mimeType'] = $this->_extraObjectMimeType($body_arr);
+
+        Common::extraBodyTitle($body_arr);
 
         return $body_arr;
     }

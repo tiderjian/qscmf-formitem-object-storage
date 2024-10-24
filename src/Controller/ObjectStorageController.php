@@ -19,6 +19,7 @@ class ObjectStorageController extends \Think\Controller{
         $type = I('get.type');
         $vendor_type = Common::getVendorType($type, I('get.vendor_type'));
         $title = I("get.title");
+        $title = $title ? Common::decodeTitle($title) : $title;
         $hash_id = Common::getHashId();
         $resize = I("get.resize");
 
