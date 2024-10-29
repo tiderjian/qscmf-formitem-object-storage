@@ -87,14 +87,68 @@ class Common
     }
 
     public static function getCbUrlByType(string $type, string $vendor_type, string $title = '', string $hash_id = ''
-        , string $resize = '', bool $jump = true):string{
+        , string $resize = '', bool $jump = true, array $other_param = []):string{
         $params = ['type'=>$type, 'vendor_type' => $vendor_type];
+        $params = array_merge($params, $other_param);
+
         $title && $params['title'] = self::encodeTitle($title);
         $hash_id && $params['hash_id'] = $hash_id;
         $resize && $params['resize'] = $resize;
         !$jump && $params['jump'] = '0';
 
         return U('/extends/ObjectStorage/callBack',$params,true,true);
+    }
+
+    public static function extractParams(array $get_data):array{
+        $fixed = self::_fixedParamsKey();
+
+        $params = [];
+        \Think\Hook::listen('inject_os_params', $params);
+
+        if (!empty($params)){
+            foreach ($fixed as $key) {
+                if (array_key_exists($key, $params)) {
+                    unset($params[$key]);
+                }
+            }
+        }
+
+        return array_merge($get_data, $params);
+    }
+
+    private static function _fixedParamsKey():array{
+        return ['hash_id', 'resize', 'title', 'jump'];
+    }
+
+    public static function injectCbParam(array $get_data, array &$callback_param, array &$callback_var):void{
+        $hash_id = Common::getHashId();
+
+        if ($hash_id){
+            $callback_param['callbackBody'].='&hash_id=${x:hash_id}';
+
+            $callback_var['x:hash_id'].=$hash_id;
+        }
+
+        if (isset($get_data['resize']) && !qsEmpty($get_data['resize'])){
+            $callback_param['callbackBody'].='&resize=${x:resize}';
+
+            $callback_var['x:resize'].=$get_data['resize'];
+        }
+
+        if (isset($get_data['title']) && !qsEmpty($get_data['title'])){
+            $callback_param['callbackBody'].='&title=${x:title}';
+
+            $callback_var['x:title'].=Common::encodeTitle($get_data['title']);
+        }
+
+        foreach ($get_data as $key => $val) {
+            if (!in_array($key, self::_fixedParamsKey(), true)){
+                $callback_param['callbackBody'].='&'.$key.'=${x:'.$key.'}';
+
+                $callback_var['x:'.$key].=$val;
+            }
+        }
+
     }
 
     public static function encodeTitle(string $title):string{

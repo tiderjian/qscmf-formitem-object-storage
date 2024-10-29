@@ -133,20 +133,22 @@ class AliyunOss implements IVendor {
     }
 
     public function policyGet($type){
-        $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type),
+        $get_data = Common::extractParams(I('get.'));
+
+        $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type, ''
+            , '', '', true, $get_data),
             'callbackBody'=>'filename=${object}&size=${size}&mimeType=${mimeType}&upload_type=${x:upload_type}&image_format=${imageInfo.format}',
             'callbackBodyType'=>"application/x-www-form-urlencoded");
-        if (I('get.title')){
-            $callback_param['callbackBody'].='&title=${x:title}';
-        }
-        if (Common::getHashId()){
-            $callback_param['callbackBody'].='&hash_id=${x:hash_id}';
-        }
-        if (I('get.resize')){
-            $callback_param['callbackBody'].='&resize=${x:resize}';
-        }
+
+        $callback_var = array('x:upload_type' => $type);
+
+        Common::injectCbParam($get_data, $callback_param, $callback_var);
+
         $callback_string = json_encode($callback_param);
         $base64_callback_body = base64_encode($callback_string);
+
+        $callback_var_string = json_encode($callback_var);
+
         $now = time();
         $expire = 10;
         $end = $now + $expire;
@@ -171,17 +173,6 @@ class AliyunOss implements IVendor {
         $string_to_sign = $base64_policy;
         $signature = base64_encode(hash_hmac('sha1', $string_to_sign, env('ALIOSS_ACCESS_KEY_SECRET'), true));
 
-        $callback_var = array('x:upload_type' => $type);
-        if (I('get.title')){
-            $callback_var['x:title'].=Common::encodeTitle(I('get.title'));
-        }
-        if ($hash_id = Common::getHashId()){
-            $callback_var['x:hash_id'].=$hash_id;
-        }
-        if (I('get.resize')){
-            $callback_var['x:resize'].=I('get.resize');
-        }
-        $callback_var=json_encode($callback_var);
 
         $response = array();
         $response['accessid'] = $this->getVendorConfig()->getAccessKey();
@@ -190,9 +181,9 @@ class AliyunOss implements IVendor {
         $response['signature'] = $signature;
         $response['expire'] = $end;
         $response['callback'] = $base64_callback_body;
-        $response['callback_var'] = $callback_var;
+        $response['callback_var'] = $callback_var_string;
         $upload_meta = $config_cls->getMeta();
-        $upload_meta && $response['oss_meta'] = json_encode(Common::injectMeta($upload_meta, I("get.")));
+        $upload_meta && $response['oss_meta'] = json_encode(Common::injectMeta($upload_meta, $get_data));
         //这个参数是设置用户上传指定的前缀
         $response['dir'] = $dir;
 

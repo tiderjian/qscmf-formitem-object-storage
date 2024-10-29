@@ -60,6 +60,24 @@ class ObjectStorageController extends \Think\Controller{
 
         $this->check($file_data, $config);
 
+        $params = [];
+        if (\Think\Hook::get('handle_os_callback')){
+            if ($resize && !isset($body_arr['resize'])){
+                $body_arr['resize'] = $resize;
+            }
+            $file_data = Common::handleCbRes($file_data, $os_cls, $body_arr['resize']);
+
+            $params = [
+                'file_data'=>$file_data,
+                'param' => [...I('get.'), ...$body_arr]
+            ];
+            \Think\Hook::listen('handle_os_callback', $params);
+        }
+
+        if (isset($params['res']) && $params['res'] === true){
+            $this->ajaxReturn($params['file_data']);
+        }
+
         $r = D('FilePic')->createAdd($file_data);
         if($r === false){
             E(D('FilePic')->getError());
@@ -104,8 +122,9 @@ class ObjectStorageController extends \Think\Controller{
 
     public function policyGet($type, $vendor_type = ''){
         $hash_id = Common::getHashId();
-        $resize = I("get.resize");
-        $title = I("get.title");
+        $get_data = I("get.");
+        $resize = $get_data['resize'] ?? '';
+        $title = $get_data['title'];
         $vendor_type = Common::getVendorType($type, $vendor_type);
         $os_cls = Context::genVendorByType($vendor_type);
         $os_cls && $os_cls->setUploadConfig($type);

@@ -121,33 +121,19 @@ class VolcengineTos implements IVendor
         return $this->_client->preSignedURL($input);
     }
 
-    private function _cbParam(string $type):array{
+    private function _cbParam(string $type, array $get_data):array{
         $hash_id = Common::getHashId();
-        $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type, I('get.title'), $hash_id, I('get.resize')),
+        $callback_param = array('callbackUrl'=>Common::getCbUrlByType($type, $this->vendor_type, $get_data['title']??'', $hash_id, $get_data['resize']??'', true, $get_data),
             'callbackBody'=>'filename=${object}&size=${size}&mimeType=${mimeType}&upload_type=${x:upload_type}',
             'callbackBodyType'=>"application/x-www-form-urlencoded");
-        if (I('get.title')){
-            $callback_param['callbackBody'].='&title=${x:title}';
-        }
-        if ($hash_id){
-            $callback_param['callbackBody'].='&hash_id=${x:hash_id}';
-        }
-        if (I('get.resize')){
-            $callback_param['callbackBody'].='&resize=${x:resize}';
-        }
+
+        $callback_var = array('x:upload_type' => $type);
+
+        Common::injectCbParam($get_data, $callback_param, $callback_var);
+
         $callback_string = json_encode($callback_param);
         $base64_callback_body = base64_encode($callback_string);
 
-        $callback_var = array('x:upload_type' => $type);
-        if (I('get.title')){
-            $callback_var['x:title'].=Common::encodeTitle(I('get.title'));
-        }
-        if ($hash_id){
-            $callback_var['x:hash_id'].=$hash_id;
-        }
-        if (I('get.resize')){
-            $callback_var['x:resize'].=I('get.resize');
-        }
         $callback_var=json_encode($callback_var);
         $base64_callback_var=base64_encode($callback_var);
 
@@ -241,8 +227,8 @@ class VolcengineTos implements IVendor
         return base64_encode($policy);
     }
 
-    private function _genPostObjParam(string $type){
-        list($base64_callback_body,$base64_callback_var) = $this->_cbParam($type);
+    private function _genPostObjParam(string $type, array $get_data){
+        list($base64_callback_body,$base64_callback_var) = $this->_cbParam($type, $get_data);
 
         $this->setUploadConfig($type);
         $config = $this->getUploadConfig()->getAll();
@@ -251,8 +237,8 @@ class VolcengineTos implements IVendor
         $region = $this->_vendor_config->getRegion();
 
         $ext='';
-        if (I('get.title') && strpos(I('get.title'),'.')!==false){
-            $ext = '.'.pathinfo(urldecode(I('get.title')),PATHINFO_EXTENSION);
+        if ($get_data['title'] && strpos($get_data['title'],'.')!==false){
+            $ext = '.'.pathinfo(urldecode($get_data['title']),PATHINFO_EXTENSION);
         }
 
         $dir=Common::genObjectName($config,$ext);
@@ -267,8 +253,8 @@ class VolcengineTos implements IVendor
         $credential = $this->_genCredential($now, $region);
 
         $common_params = [
-            'Content-Type' => I('get.file_type'),
-            'name' => I('get.title'),
+            'Content-Type' => $get_data['file_type'],
+            'name' => $get_data['title'],
             'x-tos-callback' => $base64_callback_body,
             'x-tos-callback-var' => $base64_callback_var,
             'x-tos-credential' => $credential,
@@ -277,7 +263,7 @@ class VolcengineTos implements IVendor
 //                'x-tos-security-token' => '',
         ];
         $upload_meta = $this->getUploadConfig()->getMeta();
-        $upload_meta = Common::injectMeta($upload_meta, I("get."));
+        $upload_meta = Common::injectMeta($upload_meta, $get_data);
         if ($upload_meta){
             collect($upload_meta)->each(function($value, $name) use(&$common_params){
                 $common_params[$name] = $value;
@@ -301,11 +287,13 @@ class VolcengineTos implements IVendor
     }
 
     public function policyGet(string $type){
-        if (empty(I("get.title")) || empty(I('get.file_type'))){
+        $get_data = Common::extractParams(I('get.'));
+
+        if (empty($get_data['title']) || empty($get_data['file_type'])){
             E("缺少必填参数");
         }
 //        return $this->_genPutSignedParamsDemo($type);
-       return $this->_genPostObjParam($type);
+       return $this->_genPostObjParam($type, $get_data);
     }
 
     private function _extraObjectViaInput(?array $params = []){

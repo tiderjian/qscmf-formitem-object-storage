@@ -188,7 +188,73 @@ composer require quansitech/qscmf-formitem-object-storage
     OS_FILE_DOUBLE_CHECK=1
     ```
 
++ 添加自定义参数到回调
+  + 在请求地址追加自定义参数
+  + 使用钩子注入自定义参数
+    
+    ```php 
+    // 注册钩子
+    Hook::add('inject_os_params', InjectOsParamBehavior::class);
+    ```
+  
+    ```php 
+    class InjectOsParamBehavior
+      {
+    
+          public function run(&$params)
+          {
+    
+              // 省略具体的自定义参数
+    
+          }
+    
+    
+      }
+    ```
 
+  
++ 修改上传成功逻辑
+
+  参数说明
+
+  | 参数          | 是否必选 | 类型    | 说明                               |
+  |-------------|------|-------|----------------------------------|
+  | res         | 是    | bool  | 返回 true 则需要返回修改上传逻辑并返回 file_data |
+  | file_data       | 是    | array | 返回内容，一般为上传后的文件信息                 |
+
+
+  ```php
+  // 注册钩子
+  Hook::add('handle_os_callback', HandleOsResBehavior::class);
+  ```  
+  
+  ```php 
+  // 需要添加修改标识 res 以及需要返回的内容 file_data 
+    class HandleOsResBehavior
+    {
+        public function run(&$params)
+        {
+            $file_data = $params['file_data'];
+            $custom_param =  $params['param'];
+            if ($custom_param['scence'] === 'ueditor'){
+                $data = [
+                    "state" => 'SUCCESS',
+                    "url" => $file_data["url"],
+                    "size" => $file_data["size"],
+                    "title" => htmlspecialchars($file_data["title"]),
+                    "original" => htmlspecialchars($file_data["original"]),
+                    "source" => $file_data
+                ];
+        
+                $params['file_data'] = $data;
+                $params['res'] = true;
+            }
+        
+        }
+    
+    }
+  ```
+  
 
 #### 支持组件
 
@@ -681,3 +747,38 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
    - deleteFile : 删除图片
    
    
+## osHooks
+### 介绍
+    上传到云服务商js帮助类的钩子
+#### 钩子说明
+  
++ genOsParam：请求 policyGet 接口并根据不同的供应商组装对应的上传参数
+
+  参数说明
+
+  | 参数         | 是否必选 | 类型     | 说明                   |
+  |------------|------|--------|----------------------|
+  | vendorType | 是    | string | 供应商名称                |
+  | url        | 是    | string | 请求url，一般为获取上传签名的接口地址 |
+  | fileName        | 是    | string | 文件标题                 |
+  | file        | 是    | File   | 文件blob               |
+  | hashId        | 否    | string | 文件MD5信息，用于查重         |
+  | params        | 是    | object | 用于接收返回值的对象           |
+
+
+  将结果注入 params.osParams 的属性，具体属性说明
+
+  | 参数         | 是否必选 | 类型     | 说明                    |
+  |------------|------|--------|-----------------------|
+  | url | 是    | string | 上传请求的地址               |
+  | multipart_params        | 是    | object | 请求的参数，一般放在 FormData 里 |
+
+  ```javascript
+    let params = {};
+    osHooks.trigger('genOsParam', vendorType, policyGetUrl, fileName, file, hashId, params)
+
+    return {
+        url:params.osParams.url,
+        multipart_params:params.osParams.multipart_params
+    }
+  ```

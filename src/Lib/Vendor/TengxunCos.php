@@ -296,7 +296,8 @@ class TengxunCos implements IVendor
     }
 
     public function policyGet($type){
-        $get_data = I("get.");
+        $get_data = Common::extractParams(I('get.'));
+
         $is_jump = $get_data['jump'] !== '0';
 
         $this->setUploadConfig($type);
@@ -319,7 +320,7 @@ class TengxunCos implements IVendor
         $authorization=$this->getAuthorization($pathname,'POST');
 
         $redirect_url = Common::getCbUrlByType($type, $this->vendor_type, $get_data['title']??''
-            , Common::getHashId(), $get_data['resize']??'', $is_jump);
+            , Common::getHashId(), $get_data['resize']??'', $is_jump, $get_data);
 
         $policy_data = !$is_jump ? [] : ['success_action_redirect'=> $redirect_url];
         $post_sign_field = $this->genPostSignField($policy_data+$upload_meta);

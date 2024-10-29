@@ -3,7 +3,14 @@
     const vendorType = {
         type:'',
         combinePolicyGetUrl:function f(policyGetUrl, filename,file,hashId){
-            return policyGetUrl+'?title='+encodeURIComponent(filename)+'&hash_id='+hashId+'&file_type='+file.type
+            const queryString = policyGetUrl.split('?')[1];
+            const otherString = 'title='+encodeURIComponent(filename)+'&hash_id='+hashId+'&file_type='+file.type;
+
+            if (!queryString) {
+                return policyGetUrl+'?'+otherString;
+            }
+
+            return policyGetUrl+'&'+otherString;
         },
         combineUploadParam:function f(up,res,file,filename){
             return {
@@ -143,7 +150,7 @@
         return handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId)
     }
 
-    function send_request(url){
+    function send_request(url, method = 'GET', formData = null){
         let xmlhttp = null;
         if (window.XMLHttpRequest)
         {
@@ -156,8 +163,8 @@
 
         if (xmlhttp!=null)
         {
-            xmlhttp.open( "GET", url, false );
-            xmlhttp.send( null );
+            xmlhttp.open( method, url, false );
+            xmlhttp.send( formData );
             return xmlhttp.responseText
         }
         else
@@ -223,7 +230,7 @@
         },
         start:function(file, cb){
             const thisObj = this;
-            thisObj.fileToArrayBuffer(file.getNative(),function (res) {
+            thisObj.fileToArrayBuffer(file?.getNative() || file,function (res) {
                 const type = thisObj.getFileTypeViaHeader(res);
                 cb(type);
             });
@@ -323,5 +330,68 @@
     window.osDisableSortable = function (dom){
         // dom.sortable("disable")
     }
+
+    const osHooks = {
+        hooks: {},
+
+        // 注册钩子
+        on(event, callback) {
+            if (!this.hooks[event]) {
+                this.hooks[event] = [];
+            }
+            this.hooks[event].push(callback);
+        },
+
+        // 触发钩子
+        trigger(event, ...args) {
+            if (this.hooks[event]) {
+                this.hooks[event].forEach(callback => {
+                    callback(...args);
+                });
+            }
+        },
+
+        // 移除钩子
+        off(event, callback) {
+            if (this.hooks[event]) {
+                this.hooks[event] = this.hooks[event].filter(cb => cb !== callback);
+            }
+        }
+    };
+
+    osHooks.on('policyGet', function(vendorType, policyGetUrl, fileName, file, hashId, params){
+        const vendorTypeObj = genVendorType(vendorType);
+        let resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl, fileName, file,hashId));
+        params.policyRes = eval("(" + resBody + ")");
+
+    });
+
+    osHooks.on('genOsParam', function(vendorType, policyGetUrl, fileName, file, hashId = '', params,
+               policyRes = '', policyReqObj = {method:'GET', formData:null}){
+        const vendorTypeObj = genVendorType(vendorType);
+
+        if (typeof policyRes === undefined || policyRes === ''){
+            let resBody;
+            if (file.type === ''){
+                getFileType.start(file, function f(type){
+                    file.type = type;
+                    resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl, fileName, file, hashId),
+                        policyReqObj.method, policyReqObj.formData);
+                })
+            }else{
+                resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl, fileName, file, hashId),
+                    policyReqObj.method, policyReqObj.formData);
+            }
+
+            policyRes = eval("(" + resBody + ")");
+            if (policyRes.hasOwnProperty('list')){
+                policyRes = policyRes.list[0];
+            }
+        }
+
+        params.osParams = vendorTypeObj.combineUploadParam({}, policyRes, file, fileName)
+    });
+
+    window.osHooks = osHooks;
 
 })(jQuery)
