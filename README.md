@@ -50,7 +50,7 @@ composer require quansitech/qscmf-formitem-object-storage
     
     // 使用富文本则是配置第七个参数
     // data-url 根据实际入口文件修改
-    ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=aliyun_oss"')
+    ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/extends/ueditor/index?os=1&type=ueditor&vendor_type=aliyun_oss"')
     
     // 使用columnItem
     ->addTableColumn("picture", "封面tos", 'picture_os', ['vendor_type' => 'volcengine_tos'], true)
@@ -337,9 +337,9 @@ composer require quansitech/qscmf-formitem-object-storage
   | vendor_type | array  | 否    | 供应商类型                                       |
 
   ```php
-  ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/Public/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=aliyun_oss"')
-  ->addFormItem('tos', 'ueditor', 'tos','', '','','data-url="/Public/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=volcengine_tos"')
-  ->addFormItem('cos', 'ueditor', 'cos','', '','','data-url="/Public/ueditor/php/controller.php?os=1&type=ueditor&vendor_type=tengxun_cos"')
+  ->addFormItem('oss', 'ueditor', 'oss','', '','','data-url="/extends/ueditor/index?os=1&type=ueditor&vendor_type=aliyun_oss"')
+  ->addFormItem('tos', 'ueditor', 'tos','', '','','data-url="/extends/ueditor/index?os=1&type=ueditor&vendor_type=volcengine_tos"')
+  ->addFormItem('cos', 'ueditor', 'cos','', '','','data-url="/extends/ueditor/index?os=1&type=ueditor&vendor_type=tengxun_cos"')
   ```
 
   配置说明
