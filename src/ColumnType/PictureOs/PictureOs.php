@@ -33,7 +33,7 @@ class PictureOs extends ColumnType implements EditableInterface {
     }
 
     public function editBuild(array &$option, array $data, $listBuilder){
-        $class = $this->getSaveTargetForm();
+        $class = $this->getSaveTargetForm($listBuilder);
 
         $image = [
             'url' => showFileUrl($data[$option['name']]),

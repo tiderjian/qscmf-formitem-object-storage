@@ -30,7 +30,7 @@ class FileOs extends ColumnType implements EditableInterface {
     }
 
     public function editBuild(array &$option, array $data, $listBuilder){
-        $class = $this->getSaveTargetForm();
+        $class = $this->getSaveTargetForm($listBuilder);
 
         $file= [
             'url' => showFileUrl($data[$option['name']]),
