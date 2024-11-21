@@ -96,7 +96,8 @@ class Common
         $resize && $params['resize'] = $resize;
         !$jump && $params['jump'] = '0';
 
-        return U('/extends/ObjectStorage/callBack',$params,true,true);
+        $query = http_build_query($params);
+        return U('/extends/ObjectStorage/callBack',[],true,true).'?'.$query;
     }
 
     public static function extractParams(array $get_data):array{
