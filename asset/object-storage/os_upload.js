@@ -1,4 +1,4 @@
-(function ($) {
+(function () {
 
     const vendorType = {
         type:'',
@@ -122,34 +122,6 @@
         return vendorTypeObj;
     }
 
-    function handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId){
-        const vendorTypeObj = genVendorType(vendorType);
-        if (typeof hashId === 'undefined'){
-            hashId = '';
-        }
-
-        let resBody = send_request(vendorTypeObj.combinePolicyGetUrl(policyGetUrl,filename,file,hashId));
-        let res = eval("(" + resBody + ")");
-
-        if (parseInt(res.status) === 2){
-            fileUploaded(up,file,res)
-            return false
-        }else{
-            startUpload(up, res, file, filename, vendorTypeObj)
-        }
-    }
-
-    function startUpload(up,res, file, filename, vendorTypeObj ){
-        const newRes = vendorTypeObj.combineUploadParam(up, res, file, filename);
-
-        up.setOption(newRes);
-        // up.start();
-    }
-
-    window.osHandleUpload = function (up, filename, policyGetUrl, file, vendorType, hashId){
-        return handleUploadProcess(up,filename,policyGetUrl,file, vendorType, hashId)
-    }
-
     function send_request(url, method = 'GET', formData = null){
         let xmlhttp = null;
         if (window.XMLHttpRequest)
@@ -237,100 +209,6 @@
         }
     }
 
-    function fileUploaded(up,file,res){
-        file.completeTimestamp = +new Date()
-        file.status = 5 // done
-        file.percent = 100 // done
-        file.loaded = file.size // done
-
-        up.trigger('FileUploaded', file, {
-            response : JSON.stringify(res),
-            status : 200,
-            responseHeaders: ''
-        });
-    }
-
-    const InjectFileProp = {
-        finish: function f(up, total, count){
-            count.current++;
-
-            if (total === count.current ){
-                up.start()
-            }
-        },
-        setHashId: function f(up, file, total, count, need_cacl){
-            const selfObj = this;
-            if (need_cacl){
-                window.calc_file_hash(file.getNative()).then(function(res){
-                    file.hash_id = res;
-                    selfObj.finish(up, total, count)
-                });
-            }else{
-                file.hash_id = '';
-                selfObj.finish(up, total, count)
-            }
-        },
-        setFileType: function f(up, file, total, count, need_cacl){
-            const selfObj = this;
-            if (file.type === ''){
-                getFileType.start(file, function f(type){
-                    if (type === 'image/heic'){
-                        file.type = type;
-                    }
-                    selfObj.setHashId(up, file, total, count, need_cacl)
-                })
-            }else{
-                selfObj.setHashId(up, file, total, count, need_cacl)
-            }
-        }
-    }
-
-    window.injectFileProp = function (up, file, total, count, need_cacl_file_hash = 1){
-        const need_cacl = parseInt(need_cacl_file_hash) === 1;
-        InjectFileProp.setFileType(up, file, total, count,need_cacl)
-    }
-
-    window.osViewerInit = function (dom = null, url = null){
-        dom = dom || $('.os-viewer-wrap');
-        url = url || 'data-url';
-
-        dom.each(function(){
-            if (this.hasOwnProperty("viewer")){
-                this.viewer.update()
-            }else{
-                new Viewer(this,{
-                    url: url
-                });
-            }
-        })
-    }
-
-    window.osInitSortable = function (dom,inputDom, imgItemCls,placeholder, items, dataKey="data-id"){
-        dom.sortable({
-            placeholder: placeholder,
-            items: items,
-            forcePlaceholderSize: true,
-            update: function(event, ui) {
-                let allIds = [];
-
-                $(this).find(imgItemCls).each(function() {
-                    allIds.push($(this).attr(dataKey));
-                });
-
-                let allIdsStr = allIds.join(",");
-                inputDom.val(allIdsStr);
-            }
-        }).disableSelection();
-    }
-
-    window.osEnableSortable = function (dom){
-        // dom.sortable("enable");
-    }
-
-    window.osDisableSortable = function (dom){
-        // dom.sortable("disable")
-    }
-
     const osHooks = {
         hooks: {},
 
@@ -367,7 +245,7 @@
     });
 
     osHooks.on('genOsParam', function(vendorType, policyGetUrl, fileName, file, hashId = '', params,
-               policyRes = '', policyReqObj = {method:'GET', formData:null}){
+                                      policyRes = '', policyReqObj = {method: 'GET', formData: null}) {
         const vendorTypeObj = genVendorType(vendorType);
 
         if (typeof policyRes === undefined || policyRes === ''){
@@ -394,4 +272,4 @@
 
     window.osHooks = osHooks;
 
-})(jQuery)
+})()

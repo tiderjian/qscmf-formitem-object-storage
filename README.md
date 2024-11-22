@@ -782,3 +782,15 @@ $res = $os_vendor->genClient('image')->uploadFile($file_path, $object, $options)
         multipart_params:params.osParams.multipart_params
     }
   ```
+
+## Antd-admin富文本使用
+
+```php
+$container->ueditor('ueditor', '富文本')
+    ->setConfig([
+        'serverUrl'=> U('/extends/ueditor/index').'?os=1&type=editor&vendor_type=tengxun_cos',
+    ])
+    ->setExtraScripts([
+        asset('/object-storage/os_upload.js'),
+    ])
+```
